@@ -1,28 +1,27 @@
-<!-- BẮT ĐẦU TIỆN ÍCH 5W1H (Copy từ đây) -->
-<div id="app-5w1h-container" style="font-family: Arial, sans-serif; width: 100%; max-width: 100%; margin: 1.5rem auto; background-color: #ddd6fe; border-radius: 1rem; padding: 1rem; box-sizing: border-box !important;">
+<!--BẮT ĐẦU TIỆN ÍCH 5W1H (Copy từ đây)-->
+<div id="app-5w1h-container" style="background-color: #faf6f0; border-radius: 1rem; box-sizing: border-box; font-family: Arial, sans-serif; margin: 1.5rem auto; max-width: 100%; padding: 1rem; width: 100%;">
 
-    <!-- 
-      CSS NỘI TUYẾN (PURE CSS)
-      Tất cả style được viết trực tiếp ở đây để tránh xung đột với Blogspot.
-      Sử dụng !important để ưu tiên thắng CSS của theme.
-    -->
     <style>
-        /* 1. Reset Cục bộ (An toàn)
-          Sử dụng `!important` để đảm bảo thắng CSS của Blogspot
-        */
+        /* 1. Reset Cục bộ */
         #app-5w1h-container * {
             box-sizing: border-box !important;
             font-family: Arial, sans-serif !important;
             margin: 0 !important;
             padding: 0 !important;
         }
-
         #app-5w1h-container {
-            padding: 1rem !important;
-            background-color: #ddd6fe !important; /* Nền chung màu tím đậm hơn */
+            padding: 0.75rem !important;
+            /* Nền ngoài cùng: indigo-50 — khớp bg-indigo-50 của theme */
+            background-color: #faf6f0 !important;
         }
-        
-        #app-5w1h-container h1, #app-5w1h-container h2, #app-5w1h-container h3, #app-5w1h-container p, #app-5w1h-container label, #app-5w1h-container span, #app-5w1h-container div {
+        @media (min-width: 480px) {
+            #app-5w1h-container {
+                padding: 1rem !important;
+            }
+        }
+        #app-5w1h-container h1, #app-5w1h-container h2, #app-5w1h-container h3,
+        #app-5w1h-container p, #app-5w1h-container label,
+        #app-5w1h-container span, #app-5w1h-container div {
             margin: 0 !important;
             padding: 0 !important;
             line-height: 1.5 !important;
@@ -32,7 +31,12 @@
         #app-5w1h-container .main-layout {
             display: grid !important;
             grid-template-columns: 1fr !important;
-            gap: 1.5rem !important;
+            gap: 1rem !important;
+        }
+        @media (min-width: 480px) {
+            #app-5w1h-container .main-layout {
+                gap: 1.5rem !important;
+            }
         }
         @media (min-width: 768px) {
             #app-5w1h-container .main-layout {
@@ -43,63 +47,121 @@
             grid-column: 1 / -1 !important;
         }
 
-        /* 3. Thẻ (Card) chung */
+        /* 3. Card chung — dùng site-card style của theme */
         #app-5w1h-container .card {
             border-radius: 1rem !important;
-            padding: 1.5rem !important;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
-            overflow: hidden !important; /* Chống tràn */
+            padding: 1rem !important;
+            box-shadow: 0 4px 6px -1px rgba(28,25,23,0.04), 0 2px 4px -2px rgba(28,25,23,0.02) !important;
+            overflow: hidden !important;
+            border-width: 1px !important;
+            border-style: solid !important;
         }
-        /* Đổ màu nền cho các khu vực */
-        #app-5w1h-container .card-1 { background-color: #f0fdfa !important; } /* Teal nhạt */
-        #app-5w1h-container .card-2 { background-color: #eff6ff !important; } /* Blue nhạt */
-        #app-5w1h-container .card-3 { background-color: #fdf2f8 !important; } /* Pink nhạt */
-        #app-5w1h-container .card-4 { background-color: #fefce8 !important; } /* Yellow nhạt */
-
+        @media (min-width: 480px) {
+            #app-5w1h-container .card {
+                padding: 1.5rem !important;
+            }
+        }
+        /* Card 1 — Nhập liệu: nền trắng, viền indigo nhạt (khớp card-bg + border theme) */
+        #app-5w1h-container .card-1 {
+            background-color: #ffffff !important;
+            border-color: #e0e7ff !important; /* indigo-100 */
+        }
+        /* Card 2 — Kết quả: nền indigo-50 nhạt */
+        #app-5w1h-container .card-2 {
+            background-color: #faf6f0 !important; /* indigo-50 */
+            border-color: #c7d2fe !important;     /* indigo-200 */
+        }
+        /* Card 3 — Chat: nền slate-50 (khớp với màu sidebar theme) */
+        #app-5w1h-container .card-3 {
+            background-color: #f8fafc !important; /* slate-50 */
+            border-color: #e2e8f0 !important;
+        }
+        /* Card 4 — Sửa bài: nền stone-50 ấm (khớp --bg-global của theme) */
+        #app-5w1h-container .card-4 {
+            background-color: #faf6f0 !important; /* --bg-global theme */
+            border-color: #f5f2eb !important;     /* --border-color theme */
+        }
 
         /* 4. Tiêu đề */
         #app-5w1h-container .main-title {
-            font-size: 1.75rem !important;
+            font-size: 1.25rem !important;
             font-weight: 700 !important;
             text-align: center !important;
             padding-bottom: 0.5rem !important;
-            /* Tạo hiệu ứng gradient cho chữ */
-            background: linear-gradient(to right, #9D63E0, #E85FC1, #4BC3FF) !important;
+            /* Gradient purple-500 → indigo-600: chính xác màu reading-progress-bar của theme */
+            background: linear-gradient(to right, #a855f7, #4f46e5) !important;
             -webkit-background-clip: text !important;
             -webkit-text-fill-color: transparent !important;
             background-clip: text !important;
             color: transparent !important;
         }
+        @media (min-width: 480px) {
+            #app-5w1h-container .main-title {
+                font-size: 1.75rem !important;
+            }
+        }
         #app-5w1h-container .sub-title {
-            font-size: 1.125rem !important;
-            color: #4b5563 !important;
+            font-size: 0.9rem !important;
+            color: #57534e !important; /* stone-600 */
             margin-bottom: 1.5rem !important;
             text-align: center !important;
         }
-        #app-5w1h-container .card-title {
-            font-size: 1.5rem !important;
-            font-weight: 600 !important;
-            padding-bottom: 0.75rem !important;
-            margin-bottom: 1.5rem !important;
-            border-bottom-width: 2px !important;
+        @media (min-width: 480px) {
+            #app-5w1h-container .sub-title {
+                font-size: 1.125rem !important;
+            }
         }
-        /* Đổi màu chữ tiêu đề khu vực */
-        #app-5w1h-container .card-title-1 { color: #0d9488 !important; border-color: #60E5C4 !important; }
-        #app-51h-container  .card-title-2 { color: #2563eb !important; border-color: #4BC3FF !important; }
-        #app-5w1h-container .card-title-3 { color: #db2777 !important; border-color: #E85FC1 !important; }
-        #app-5w1h-container .card-title-4 { color: #ca8a04 !important; border-color: #FADE3A !important; }
+        #app-5w1h-container .card-title {
+            font-size: 1.1rem !important;
+            font-weight: 600 !important;
+            padding-bottom: 0.6rem !important;
+            margin-bottom: 1rem !important;
+            border-bottom-width: 2px !important;
+            border-bottom-style: solid !important;
+        }
+        @media (min-width: 480px) {
+            #app-5w1h-container .card-title {
+                font-size: 1.5rem !important;
+                padding-bottom: 0.75rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+        }
+        /* Màu tiêu đề card theo hệ màu theme */
+        #app-5w1h-container .card-title-1 {
+            color: #4338ca !important;         /* indigo-700 */
+            border-color: #818cf8 !important;  /* indigo-400 */
+        }
+        #app-5w1h-container .card-title-2 {
+            color: #4f46e5 !important;         /* indigo-600 */
+            border-color: #a5b4fc !important;  /* indigo-300 */
+        }
+        #app-5w1h-container .card-title-3 {
+            color: #374151 !important;         /* slate-700 (neutral, khớp nav-link theme) */
+            border-color: #cbd5e1 !important;  /* slate-300 */
+        }
+        #app-5w1h-container .card-title-4 {
+            color: #44403c !important;         /* stone-700 — --text-secondary theme */
+            border-color: #d6d3d0 !important;  /* stone-300 */
+        }
 
         /* 5. Bộ chọn Nền tảng */
         #app-5w1h-container .platform-selector {
             background-color: #ffffff !important;
-            padding: 1.25rem !important;
+            border: 1px solid #e0e7ff !important; /* indigo-100 */
+            padding: 0.875rem !important;
             border-radius: 1rem !important;
-            margin-bottom: 1.5rem !important;
+            margin-bottom: 1.25rem !important;
+        }
+        @media (min-width: 480px) {
+            #app-5w1h-container .platform-selector {
+                padding: 1.25rem !important;
+                margin-bottom: 1.5rem !important;
+            }
         }
         #app-5w1h-container .platform-title {
             font-size: 1.125rem !important;
             font-weight: 600 !important;
-            color: #1f2937 !important;
+            color: #1c1917 !important; /* --text-primary */
             text-align: center !important;
             margin-bottom: 0.75rem !important;
         }
@@ -112,47 +174,61 @@
         #app-5w1h-container .platform-label {
             display: flex !important;
             align-items: center !important;
-            padding: 0.75rem 1rem !important;
+            padding: 0.5rem 0.75rem !important;
             border-width: 2px !important;
-            border-color: #d1d5db !important;
-            border-radius: 0.5rem !important;
+            border-style: solid !important;
+            border-color: #e2e8f0 !important;  /* slate-200 */
+            border-radius: 0.75rem !important;
             cursor: pointer !important;
             transition: all 0.2s ease !important;
+            background-color: #ffffff !important;
+            font-size: 0.875rem !important;
+        }
+        @media (min-width: 480px) {
+            #app-5w1h-container .platform-label {
+                padding: 0.75rem 1rem !important;
+                font-size: 1rem !important;
+            }
         }
         #app-5w1h-container .platform-label input[type="radio"] {
-            display: none !important; /* Ẩn nút radio gốc */
+            display: none !important;
         }
+        /* Trạng thái selected — dùng màu indigo của theme */
         #app-5w1h-container .platform-label.selected {
-            background-color: #f5f3ff !important;
-            border-color: #9D63E0 !important;
+            background-color: #faf6f0 !important; /* indigo-50 */
+            border-color: #4f46e5 !important;     /* indigo-600 */
         }
         #app-5w1h-container .platform-label.selected-fb {
-            background-color: #eff6ff !important;
-            border-color: #4BC3FF !important;
+            background-color: #eff6ff !important; /* blue-50 */
+            border-color: #818cf8 !important;     /* indigo-400 */
         }
         #app-5w1h-container .platform-label.selected-zl {
-            background-color: #f0fdfa !important;
-            border-color: #60E5C4 !important;
+            background-color: #f0f9ff !important;
+            border-color: #a5b4fc !important;     /* indigo-300 */
         }
         #app-5w1h-container .platform-label span {
             font-weight: 500 !important;
-            color: #374151 !important;
+            color: #44403c !important; /* --text-secondary */
         }
 
-        /* 6. Form nhập liệu (Bố cục "Hinh_2") */
+        /* 6. Form nhập liệu */
         #app-5w1h-container .input-card {
             background-color: #ffffff !important;
-            border: 1px solid #d1d5db !important;
+            border: 1px solid #f5f2eb !important; /* --border-color theme */
             border-radius: 0.75rem !important;
             padding: 0.75rem 1rem !important;
             margin-bottom: 1rem !important;
             overflow: hidden !important;
+            transition: border-color 0.2s ease !important;
+        }
+        #app-5w1h-container .input-card:focus-within {
+            border-color: #818cf8 !important; /* indigo-400 */
         }
         #app-5w1h-container .input-card label {
             display: block !important;
             font-size: 0.875rem !important;
             font-weight: 600 !important;
-            color: #9D63E0 !important;
+            color: #4f46e5 !important; /* indigo-600 — màu accent chính của theme */
             margin-bottom: 0.25rem !important;
         }
         #app-5w1h-container .input-card input,
@@ -161,7 +237,7 @@
             border: none !important;
             padding: 0.25rem 0 !important;
             font-size: 1rem !important;
-            color: #1f2937 !important;
+            color: #1c1917 !important; /* --text-primary */
             background-color: transparent !important;
             outline: none !important;
             resize: vertical !important;
@@ -170,18 +246,18 @@
         #app-5w1h-container .input-card textarea {
             min-height: 48px !important;
         }
-        #app-5w1h-container ::-webkit-input-placeholder { color: #9ca3af !important; }
-        #app-5w1h-container :-ms-input-placeholder { color: #9ca3af !important; }
-        #app-5w1h-container ::placeholder { color: #9ca3af !important; }
+        #app-5w1h-container ::-webkit-input-placeholder { color: #a8a29e !important; } /* stone-400 */
+        #app-5w1h-container :-ms-input-placeholder     { color: #a8a29e !important; }
+        #app-5w1h-container ::placeholder               { color: #a8a29e !important; }
 
-        /* 7. Nút (Button) */
+        /* 7. Nút */
         #app-5w1h-container .button {
             width: 100% !important;
-            font-size: 1.125rem !important;
+            font-size: 1rem !important;
             font-weight: 700 !important;
             color: #ffffff !important;
-            padding: 0.85rem 1.5rem !important;
-            border-radius: 0.5rem !important;
+            padding: 0.75rem 1rem !important;
+            border-radius: 0.75rem !important;
             border: none !important;
             cursor: pointer !important;
             transition: all 0.2s ease !important;
@@ -190,72 +266,105 @@
             align-items: center !important;
             gap: 0.5rem !important;
         }
+        @media (min-width: 480px) {
+            #app-5w1h-container .button {
+                font-size: 1.125rem !important;
+                padding: 0.85rem 1.5rem !important;
+            }
+        }
         #app-5w1h-container .button:disabled {
             opacity: 0.6 !important;
             cursor: not-allowed !important;
         }
+        /* Nút chính — indigo-600, khớp hoàn toàn với nút CTA của theme */
         #app-5w1h-container .button-primary {
-            background-color: #9D63E0 !important; /* Tím */
-            box-shadow: 0 4px 14px 0 rgba(157, 99, 224, 0.3) !important;
+            background-color: #4f46e5 !important;
+            box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.25) !important;
         }
         #app-5w1h-container .button-primary:hover:not(:disabled) {
-            background-color: #8b51d3 !important;
+            background-color: #4338ca !important; /* indigo-700 */
         }
+        /* Nút phụ — gradient purple→indigo (khớp reading-progress + logo theme) */
         #app-5w1h-container .button-secondary {
-            background-color: #60E5C4 !important; /* Teal */
-            box-shadow: 0 4px 14px 0 rgba(96, 229, 196, 0.3) !important;
+            background: linear-gradient(to right, #7c3aed, #4f46e5) !important;
+            box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.2) !important;
         }
         #app-5w1h-container .button-secondary:hover:not(:disabled) {
-            background-color: #4ddcb9 !important;
+            background: linear-gradient(to right, #6d28d9, #4338ca) !important;
         }
+        /* Nút chat — indigo-400 (nhẹ hơn, phân cấp thị giác) */
         #app-5w1h-container .button-chat {
-            background-color: #4BC3FF !important; /* Blue */
-            padding: 0.75rem 1.25rem !important;
-            font-size: 1rem !important;
+            background-color: #818cf8 !important; /* indigo-400 */
+            padding: 0.65rem 1rem !important;
+            font-size: 0.9rem !important;
             width: auto !important;
+            flex-shrink: 0 !important;
             flex-grow: 0 !important;
+            white-space: nowrap !important;
+            box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.15) !important;
+        }
+        @media (min-width: 480px) {
+            #app-5w1h-container .button-chat {
+                padding: 0.75rem 1.25rem !important;
+                font-size: 1rem !important;
+            }
+        }
+        #app-5w1h-container .button-chat:hover:not(:disabled) {
+            background-color: #6366f1 !important; /* indigo-500 */
         }
 
-        /* 8. Cột Kết quả & Chat */
+        /* 8. Kết quả & Chat */
         #app-5w1h-container .article-output {
-            min-height: 200px !important;
-            max-height: 600px !important; /* Giới hạn chiều cao */
-            overflow-y: auto !important; /* Thêm thanh cuộn khi nội dung dài */
-            padding-right: 0.5rem !important;
+            min-height: 150px !important;
+            max-height: 400px !important;
+            overflow-y: auto !important;
+            padding-right: 0.25rem !important;
+        }
+        @media (min-width: 480px) {
+            #app-5w1h-container .article-output {
+                max-height: 600px !important;
+                padding-right: 0.5rem !important;
+            }
         }
         #app-5w1h-container .article-output h2 {
             font-size: 1.75rem !important;
             font-weight: 700 !important;
-            color: #1f2937 !important;
+            color: #1c1917 !important;
             margin-bottom: 1rem !important;
         }
         #app-5w1h-container .article-output p {
             font-size: 1rem !important;
-            color: #374151 !important;
+            color: #44403c !important; /* --text-secondary */
             line-height: 1.6 !important;
             margin-bottom: 1rem !important;
         }
         #app-5w1h-container .article-output strong {
             font-weight: 700 !important;
-            color: #111827 !important;
+            color: #1c1917 !important;
         }
         #app-5w1h-container .article-output em,
-        #app-5w1h-container .article-output i { /* Sapo */
+        #app-5w1h-container .article-output i {
             font-style: italic !important;
-            color: #1f2937 !important;
+            color: #44403c !important;
             font-weight: 600 !important;
             display: block !important;
             margin-bottom: 1rem !important;
         }
 
         #app-5w1h-container .chat-history {
-            height: 250px !important;
+            height: 200px !important;
             background-color: #ffffff !important;
-            border-radius: 0.5rem !important;
-            border: 1px solid #e5e7eb !important;
+            border-radius: 0.75rem !important;
+            border: 1px solid #f5f2eb !important; /* --border-color */
             padding: 1rem !important;
             overflow-y: auto !important;
-            margin-bottom: 1rem !important;
+            margin-bottom: 0.75rem !important;
+        }
+        @media (min-width: 480px) {
+            #app-5w1h-container .chat-history {
+                height: 250px !important;
+                margin-bottom: 1rem !important;
+            }
         }
         #app-5w1h-container .chat-bubble {
             padding: 0.75rem 1rem !important;
@@ -265,44 +374,50 @@
             line-height: 1.4 !important;
             font-size: 0.95rem !important;
         }
+        /* Bubble người dùng — indigo-600 (màu CTA chính theme) */
         #app-5w1h-container .chat-bubble-user {
-            background-color: #E85FC1 !important; /* Pink */
+            background-color: #4f46e5 !important;
             color: #ffffff !important;
             border-bottom-right-radius: 0.25rem !important;
             margin-left: auto !important;
         }
+        /* Bubble AI — stone-50 ấm (khớp --bg-global) */
         #app-5w1h-container .chat-bubble-model {
-            background-color: #f3f4f6 !important;
-            color: #1f2937 !important;
+            background-color: #faf6f0 !important;
+            color: #1c1917 !important;
+            border: 1px solid #f5f2eb !important;
             border-bottom-left-radius: 0.25rem !important;
             margin-right: auto !important;
         }
         #app-5w1h-container .chat-input-group {
             display: flex !important;
-            gap: 0.75rem !important;
+            gap: 0.5rem !important;
+            align-items: flex-end !important;
+            min-width: 0 !important;
         }
         #app-5w1h-container .chat-input {
             flex-grow: 1 !important;
+            min-width: 0 !important;
         }
 
         /* 9. Loader & Modal */
         #app-5w1h-container .loader {
             width: 32px !important;
             height: 32px !important;
-            border: 4px solid #f3f3f3 !important;
-            border-top: 4px solid #9D63E0 !important;
+            border: 4px solid #e0e7ff !important;   /* indigo-100 */
+            border-top: 4px solid #4f46e5 !important; /* indigo-600 */
             border-radius: 50% !important;
-            animation: spin 1s linear infinite !important;
+            animation: spin5w 1s linear infinite !important;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
+        @keyframes spin5w {
+            0%   { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
         #app-5w1h-container .modal-overlay {
-            display: none; /* Ẩn ban đầu */
+            display: none;
             position: fixed !important;
             inset: 0 !important;
-            background-color: rgba(0, 0, 0, 0.5) !important;
+            background-color: rgba(28, 25, 23, 0.55) !important; /* stone-900 tông ấm */
             z-index: 9998 !important;
             justify-content: center !important;
             align-items: center !important;
@@ -310,99 +425,147 @@
         }
         #app-5w1h-container .modal-content {
             background-color: #ffffff !important;
-            padding: 2rem !important;
+            padding: 1.25rem !important;
             border-radius: 1rem !important;
+            border: 1px solid #f5f2eb !important;
             max-width: 400px !important;
             width: 100% !important;
             z-index: 9999 !important;
+            box-shadow: 0 20px 40px -15px rgba(28,25,23,0.15) !important;
+        }
+        @media (min-width: 480px) {
+            #app-5w1h-container .modal-content {
+                padding: 2rem !important;
+            }
         }
         #app-5w1h-container .modal-title {
             font-size: 1.5rem !important;
             font-weight: 700 !important;
-            color: #dc2626 !important; /* Đỏ */
+            color: #be123c !important; /* rose-700 — màu lỗi, khớp rose dùng trong theme */
             margin-bottom: 1rem !important;
+        }
+
+        /* API Key box */
+        #app-5w1h-container .api-key-box {
+            margin-bottom: 1.5rem !important;
+        }
+        #app-5w1h-container .api-key-note {
+            font-size: 0.8rem !important;
+            text-align: center !important;
+            margin-top: 0.4rem !important;
+        }
+        #app-5w1h-container .api-key-note a {
+            color: #4f46e5 !important;
+            text-decoration: underline !important;
+            text-underline-offset: 2px !important;
+        }
+        #app-5w1h-container .api-key-note a:hover {
+            color: #4338ca !important;
+        }
+        /* Grid Độ dài + Phong cách: 1 cột mobile, 2 cột ≥480px */
+        #app-5w1h-container .options-grid {
+            display: grid !important;
+            gap: 0.75rem !important;
+            grid-template-columns: 1fr !important;
+            margin-top: 1.25rem !important;
+        }
+        @media (min-width: 480px) {
+            #app-5w1h-container .options-grid {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 1rem !important;
+                margin-top: 1.5rem !important;
+            }
         }
     </style>
 
-    <!-- 
-      HTML CỦA ỨNG DỤNG
-    -->
+    <!--HTML CỦA ỨNG DỤNG-->
     <header>
         <h1 class="main-title">TRÌNH VIẾT TIN BẰNG AI CHUYÊN NGHIỆP</h1>
-        <!-- Dòng chữ đã được căn giữa -->
-        <p class="sub-title" style="text-align: center !important;">Công cụ hỗ trợ người dùng tạo bài đăng website nhanh chóng và chuyên nghiệp.</p>
+        <p class="sub-title" style="text-align: center;">Công cụ hỗ trợ người dùng tạo bài đăng website nhanh chóng và chuyên nghiệp.</p>
     </header>
 
-    <!-- Bộ chọn nền tảng -->
+    <!--Bộ chọn nền tảng-->
     <div class="platform-selector">
         <h3 class="platform-title"><span>★</span> Chọn nền tảng đăng bài:</h3>
         <div class="platform-options" id="platform-selector-js">
             <label class="platform-label selected">
-                <input type="radio" name="platform" value="Báo chí / Website" checked>
+                <input checked="" name="platform" type="radio" value="Báo chí / Website" />
                 <span>📰 Báo chí / Website</span>
             </label>
             <label class="platform-label">
-                <input type="radio" name="platform" value="Fanpage Facebook">
+                <input name="platform" type="radio" value="Fanpage Facebook" />
                 <span>👍 Fanpage Facebook</span>
             </label>
             <label class="platform-label">
-                <input type="radio" name="platform" value="Zalo">
+                <input name="platform" type="radio" value="Zalo" />
                 <span>📱 Zalo</span>
             </label>
         </div>
     </div>
 
-    <!-- Bố cục chính -->
+    <!--Bố cục chính-->
     <div class="main-layout">
-        
-        <!-- CỘT 1: NHẬP LIỆU -->
+
+        <!--CỘT 1: NHẬP LIỆU-->
         <div class="card card-1">
             <h2 class="card-title card-title-1">1. Nhập thông tin</h2>
-            
+
+            <!-- Khung nhập API Key -->
+            <div class="api-key-box">
+                <div class="input-card" style="border-color: #c7d2fe !important;">
+                    <label style="color: #4338ca !important;">🔑 API Key Gemini của bạn</label>
+                    <input id="api-key-input" placeholder="Dán API Key vào đây..." type="password" autocomplete="off" />
+                </div>
+                <p class="api-key-note">
+                    <a href="https://www.hls.id.vn/2026/06/cach-tao-api-key-google-ai-studio.html" target="_blank" rel="noopener noreferrer">
+                        🔗 Xem cách tạo API Key cá nhân
+                    </a>
+                </p>
+            </div>
+
             <div id="news-form">
                 <div class="input-card">
-                    <label for="who">AI? (Người tổ chức, tham gia sự kiện)</label>
-                    <textarea id="who" rows="2" placeholder="VD: Tổ Toán-Tin, Ban Giám hiệu, Học sinh khối 10, ..."></textarea>
+                    <label>AI? (Người tổ chức, tham gia sự kiện)</label>
+                    <textarea id="who" placeholder="VD: Tổ Toán-Tin, Ban Giám hiệu, Học sinh khối 10, ..." rows="2"></textarea>
                 </div>
                 <div class="input-card">
-                    <label for="what">CÁI GÌ? (TÊN SỰ KIỆN)</label>
-                    <textarea id="what" rows="2" placeholder="VD: Chuyên đề 'Ứng dụng AI trong dạy học', Hội thao Quốc phòng, ..."></textarea>
+                    <label>CÁI GÌ? (TÊN SỰ KIỆN)</label>
+                    <textarea id="what" placeholder="VD: Chuyên đề 'Ứng dụng AI trong dạy học', Hội thao Quốc phòng, ..." rows="2"></textarea>
                 </div>
                 <div class="input-card">
-                    <label for="when">KHI NÀO (Thời gian tổ chức)</label>
-                    <input type="text" id="when" placeholder="VD: Sáng ngày 10/11/2025, trong suốt tuần lễ học tốt, ...">
+                    <label>KHI NÀO (Thời gian tổ chức)</label>
+                    <input id="when" placeholder="VD: Sáng ngày 10/11/2025, trong suốt tuần lễ học tốt, ..." type="text" />
                 </div>
                 <div class="input-card">
-                    <label for="where">Ở ĐÂU? (Địa điểm tổ chức)</label>
-                    <input type="text" id="where" placeholder="VD: Tại Hội trường A, sân vận động trường, ...">
+                    <label>Ở ĐÂU? (Địa điểm tổ chức)</label>
+                    <input id="where" placeholder="VD: Tại Hội trường A, sân vận động trường, ..." type="text" />
                 </div>
                 <div class="input-card">
-                    <label for="why">TẠI SAO? (Mục đích, động lực tổ chức)</label>
-                    <textarea id="why" rows="2" placeholder="Tăng cường năng lực ứng dụng CNTT, ý nghĩa hoạt động..."></textarea>
+                    <label>TẠI SAO? (Mục đích, động lực tổ chức)</label>
+                    <textarea id="why" placeholder="Tăng cường năng lực ứng dụng CNTT, ý nghĩa hoạt động..." rows="2"></textarea>
                 </div>
                 <div class="input-card">
-                    <label for="how">NHƯ THẾ NÀO? (Diễn biến, kết quả)</label>
-                    <textarea id="how" rows="3" placeholder="Diễn biến chính, kết quả..."></textarea>
+                    <label>NHƯ THẾ NÀO? (Diễn biến, kết quả)</label>
+                    <textarea id="how" placeholder="Diễn biến chính, kết quả..." rows="3"></textarea>
                 </div>
                 <div class="input-card">
-                    <label for="extra">Thông tin bổ sung (Tùy chọn)</label>
-                    <textarea id="extra" rows="2" placeholder="Trích dẫn, số liệu..."></textarea>
+                    <label>Thông tin bổ sung (Tùy chọn)</label>
+                    <textarea id="extra" placeholder="Trích dẫn, số liệu..." rows="2"></textarea>
                 </div>
 
-                <!-- Tùy chọn -->
-                <div style="margin-top: 1.5rem !important; display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 1rem !important;">
+                <div class="options-grid">
                     <div class="input-card">
-                        <label for="length">Độ dài</label>
-                        <select id="length" style="width: 100% !important; padding: 0.25rem 0 !important; font-size: 1rem !important; border: none !important; outline: none !important; background-color: transparent !important;">
+                        <label>Độ dài</label>
+                        <select id="length" style="background-color: transparent; border: none !important; font-size: 1rem; outline: none; padding: 0.25rem 0; width: 100%; color: #1c1917;">
                             <option value="200">Ngắn (200 chữ)</option>
-                            <option value="500" selected>Vừa (500 chữ)</option>
+                            <option selected="" value="500">Vừa (500 chữ)</option>
                             <option value="700">Dài (700 chữ)</option>
                         </select>
                     </div>
                     <div class="input-card">
-                        <label for="style">Phong cách</label>
-                        <select id="style" style="width: 100% !important; padding: 0.25rem 0 !important; font-size: 1rem !important; border: none !important; outline: none !important; background-color: transparent !important;">
-                            <option value="Báo chí (Trang trọng)" selected>Báo chí</option>
+                        <label>Phong cách</label>
+                        <select id="style" style="background-color: transparent; border: none !important; font-size: 1rem; outline: none; padding: 0.25rem 0; width: 100%; color: #1c1917;">
+                            <option selected="" value="Báo chí (Trang trọng)">Báo chí</option>
                             <option value="Nghệ thuật">Nghệ thuật</option>
                             <option value="Gần gũi">Gần gũi</option>
                             <option value="Storytelling (Kể chuyện)">Storytelling</option>
@@ -412,85 +575,80 @@
                     </div>
                 </div>
 
-                <button type="button" id="generate-button" class="button button-primary" style="margin-top: 1.5rem !important;">
+                <button class="button button-primary" id="generate-button" style="margin-top: 1.5rem;" type="button">
                     🚀 Tạo Bài Viết
                 </button>
             </div>
         </div>
 
-        <!-- CỘT 2: KẾT QUẢ & CHAT -->
-        <div style="display: flex !important; flex-direction: column !important; gap: 1.5rem !important;">
-            
-            <!-- BÀI VIẾT HOÀN CHỈNH -->
+        <!--CỘT 2: KẾT QUẢ & CHAT-->
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+
+            <!--BÀI VIẾT HOÀN CHỈNH-->
             <div class="card card-2">
                 <h2 class="card-title card-title-2">2. Bài viết hoàn chỉnh</h2>
-                <div id="article-output" class="article-output">
-                    <p style="color: #6b7280 !important; font-style: italic !important;">Bài viết của bạn sẽ xuất hiện ở đây...</p>
+                <div class="article-output" id="article-output">
+                    <p style="color: #a8a29e; font-style: italic;">Bài viết của bạn sẽ xuất hiện ở đây...</p>
                 </div>
             </div>
 
-            <!-- KHUNG CHAT -->
+            <!--KHUNG CHAT-->
             <div class="card card-3">
                 <h2 class="card-title card-title-3">3. Chỉnh sửa và Trò chuyện</h2>
-                <div id="chat-history" class="chat-history">
+                <div class="chat-history" id="chat-history">
                     <div class="chat-bubble chat-bubble-model">
                         <p>Xin chào! Sau khi tạo bài, bạn có thể yêu cầu tôi chỉnh sửa thêm tại đây.</p>
                     </div>
                 </div>
                 <div class="chat-input-group">
                     <div class="input-card chat-input">
-                        <label for="chat-input">Nhập yêu cầu...</label>
-                        <input type="text" id="chat-input" placeholder="VD: Làm tiêu đề ngắn hơn..." disabled>
+                        <label>Nhập yêu cầu...</label>
+                        <input disabled="" id="chat-input" placeholder="VD: Làm tiêu đề ngắn hơn..." type="text" />
                     </div>
-                    <button type="button" id="chat-send-button" class="button button-chat" disabled>Gửi</button>
+                    <button class="button button-chat" disabled="" id="chat-send-button" type="button">Gửi</button>
                 </div>
             </div>
         </div>
 
-        <!-- KHU VỰC SỬA BÀI CÓ SẴN -->
+        <!--KHU VỰC SỬA BÀI CÓ SẴN-->
         <div class="card card-4 full-width-card">
             <h2 class="card-title card-title-4">4. Sửa lại bài viết có sẵn</h2>
-            <p style="color: #4b5563 !important; margin-bottom: 1rem !important;">Dán một bài viết cũ vào đây, AI sẽ phân tích và viết lại theo cấu trúc chuẩn.</p>
+            <p style="color: #57534e; margin-bottom: 1rem;">Dán một bài viết cũ vào đây, AI sẽ phân tích và viết lại theo cấu trúc chuẩn.</p>
             <div class="input-card">
-                <label for="refine-input">Dán bài viết cần sửa vào đây...</label>
-                <textarea id="refine-input" rows="6" placeholder="Trường THCS Lê Thánh Tôn..."></textarea>
+                <label>Dán bài viết cần sửa vào đây...</label>
+                <textarea id="refine-input" placeholder="Trường THCS Lê Thánh Tôn..." rows="6"></textarea>
             </div>
-            <button type="button" id="refine-button" class="button button-secondary" style="margin-top: 1rem !important;">
+            <button class="button button-secondary" id="refine-button" style="margin-top: 1rem;" type="button">
                 ✨ Sửa và Viết Lại
             </button>
         </div>
 
     </div>
 
-    <!-- Modal Thông Báo Lỗi -->
-    <div id="error-modal" class="modal-overlay">
+    <!--Modal Thông Báo Lỗi-->
+    <div class="modal-overlay" id="error-modal">
         <div class="modal-content">
             <h3 class="modal-title">Đã xảy ra lỗi</h3>
-            <p id="error-message" style="color: #374151 !important; margin-bottom: 1.5rem !important;">Nội dung lỗi.</p>
-            <button type="button" id="close-modal-button" class="button button-primary">Đã hiểu</button>
+            <p id="error-message" style="color: #44403c; margin-bottom: 1.5rem;">Nội dung lỗi.</p>
+            <button class="button button-primary" id="close-modal-button" type="button">Đã hiểu</button>
         </div>
     </div>
 
-    <!-- 
-      JAVASCRIPT CỦA ỨNG DỤNG
-    -->
-    <script type(="module")>
-        // Hàm chạy toàn bộ script, `container` là thẻ div cha
+    <!--JAVASCRIPT CỦA ỨNG DỤNG (KHÔNG THAY ĐỔI)-->
+    <script module="" type="">
         function initApp(container) {
-            
-            // --- API Key (Đã tích hợp sẵn) ---
-            const apiKey = "AIzaSyBLqed3dWqM7qRLLzX9Y1mmD6QFd5Mqmj4";
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
-            // --- Lấy DOM Elements (bên trong container) ---
+            const getApiKey = () => ($('#api-key-input').value || '').trim();
+            const getApiUrl = () => `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${getApiKey()}`;
+
             const $ = (selector) => container.querySelector(selector);
-            
+
             const generateButton = $('#generate-button');
             const articleOutput = $('#article-output');
             const chatInput = $('#chat-input');
             const chatSendButton = $('#chat-send-button');
             const chatHistoryEl = $('#chat-history');
-            
+
             const refineButton = $('#refine-button');
             const refineInput = $('#refine-input');
 
@@ -499,10 +657,9 @@
             const closeModalButton = $('#close-modal-button');
             const platformSelector = $('#platform-selector-js');
 
-            let chatHistory = []; // Lưu trữ lịch sử chat của [Tạo bài]
+            let chatHistory = [];
             let isLoading = false;
 
-            // --- Prompts Hệ thống ---
             const systemPromptGenerate = `Bạn là một nhà báo chuyên nghiệp, biên tập viên cho website trường học.
 Nhiệm vụ: Nhận thông tin 5W+1H và viết bài đăng.
 QUY TẮC BẮT BUỘC:
@@ -514,7 +671,7 @@ QUY TẮC BẮT BUỘC:
    - "Báo chí / Website": Trang trọng, chuyên nghiệp, KHÔNG DÙNG icon.
 5. PHONG CÁCH: Tuân thủ (Báo chí, Storytelling, Chuyên sâu, Hài hước...).
 6. Nếu chỉnh sửa (chat): Cập nhật dựa trên bài cũ và yêu cầu mới.`;
-            
+
             const systemPromptRefine = `Bạn là một biên tập viên bậc thầy. Nhiệm vụ của bạn là nhận một bài viết CŨ và viết lại nó cho chuẩn cấu trúc 5W+1H.
 QUY TẮC BẮT BUỘC:
 1. Đọc kỹ bài cũ, cố gắng xác định 5W+1H.
@@ -522,8 +679,11 @@ QUY TẮC BẮT BUỘC:
 3. Phong cách mặc định là "Báo chí (Trang trọng)" và nền tảng "Báo chí / Website".
 4. Bài viết mới phải giữ lại thông tin cốt lõi của bài cũ.`;
 
-            // --- Hàm Xử lý API ---
             async function callGeminiAPI(history, systemPrompt) {
+                if (!getApiKey()) {
+                    showErrorModal("Vui lòng nhập API Key Gemini của bạn trước khi sử dụng.");
+                    return null;
+                }
                 const payload = {
                     contents: history,
                     systemInstruction: { parts: [{ text: systemPrompt }] },
@@ -533,12 +693,12 @@ QUY TẮC BẮT BUỘC:
                 let attempt = 0;
                 while (attempt < 3) {
                     try {
-                        const response = await fetch(apiUrl, {
+                        const response = await fetch(getApiUrl(), {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(payload)
                         });
-                        
+
                         if (!response.ok) {
                             if (response.status === 429 || response.status >= 500) {
                                 throw new Error(`Retryable error: ${response.status}`);
@@ -568,24 +728,21 @@ QUY TẮC BẮT BUỘC:
                 }
             }
 
-            // --- Hàm Logic Chính ---
-
-            // 1. TẠO BÀI VIẾT MỚI
             async function handleGenerateArticle() {
                 if (isLoading) return;
-                
+
                 const who = $('#who').value;
                 const what = $('#what').value;
                 const when = $('#when').value;
                 const where = $('#where').value;
-                
+
                 if (!who || !what || !when || !where) {
                     showErrorModal("Vui lòng nhập ít nhất thông tin 4W (Who, What, When, Where).");
                     return;
                 }
-                
+
                 setLoadingState(true, generateButton, 'Đang viết...');
-                
+
                 const userPrompt = `Dưới đây là thông tin sự kiện, hãy viết bài đăng:
 - AI (Who): ${who}
 - CÁI GÌ (What): ${what}
@@ -601,9 +758,9 @@ YÊU CẦU BÀI VIẾT:
 - Phong cách: ${$('#style').value}
 `;
                 chatHistory = [{ role: "user", parts: [{ text: userPrompt }] }];
-                
+
                 const responseText = await callGeminiAPI(chatHistory, systemPromptGenerate);
-                
+
                 if (responseText) {
                     chatHistory.push({ role: "model", parts: [{ text: responseText }] });
                     updateArticleOutput(responseText);
@@ -611,37 +768,34 @@ YÊU CẦU BÀI VIẾT:
                     chatSendButton.disabled = false;
                     updateChatHistoryUI();
                 }
-                
+
                 setLoadingState(false, generateButton, '🚀 Tạo Bài Viết');
             }
 
-            // 2. CHAT CHỈNH SỬA
             async function handleChatRequest() {
                 const userRequest = chatInput.value.trim();
                 if (!userRequest || isLoading || chatHistory.length === 0) return;
 
                 setLoadingState(true, chatSendButton, 'Đang sửa...');
                 chatInput.value = '';
-                
+
                 chatHistory.push({ role: "user", parts: [{ text: userRequest }] });
                 updateChatHistoryUI();
-                
+
                 const responseText = await callGeminiAPI(chatHistory, systemPromptGenerate);
-                
+
                 if (responseText) {
                     chatHistory.push({ role: "model", parts: [{ text: responseText }] });
                     updateArticleOutput(responseText);
                     updateChatHistoryUI();
                 } else {
-                    // Thêm tin nhắn lỗi vào chat
                     chatHistory.push({ role: "model", parts: [{ text: "Xin lỗi, tôi gặp lỗi khi xử lý yêu cầu này." }] });
                     updateChatHistoryUI();
                 }
-                
+
                 setLoadingState(false, chatSendButton, 'Gửi');
             }
 
-            // 3. SỬA BÀI CÓ SẴN
             async function handleRefineArticle() {
                 if (isLoading) return;
                 const oldArticle = refineInput.value.trim();
@@ -651,17 +805,15 @@ YÊU CẦU BÀI VIẾT:
                 }
 
                 setLoadingState(true, refineButton, 'Đang phân tích...');
-                
+
                 const refineHistory = [
                     { role: "user", parts: [{ text: `Hãy viết lại bài viết sau theo chuẩn 5W1H:\n\n${oldArticle}` }] }
                 ];
-                
+
                 const responseText = await callGeminiAPI(refineHistory, systemPromptRefine);
-                
+
                 if (responseText) {
-                    // Hiển thị bài viết đã sửa lên khu vực 2
                     updateArticleOutput(responseText);
-                    // Reset và kích hoạt chat với bài viết mới
                     chatHistory = [
                         { role: "user", parts: [{ text: "Tôi có bài viết sau (đã được bạn sửa), hãy giúp tôi chỉnh sửa thêm nếu tôi yêu cầu." }] },
                         { role: "model", parts: [{ text: responseText }] }
@@ -670,43 +822,36 @@ YÊU CẦU BÀI VIẾT:
                     chatInput.disabled = false;
                     chatSendButton.disabled = false;
                 }
-                
+
                 setLoadingState(false, refineButton, '✨ Sửa và Viết Lại');
             }
 
-            // --- Hàm Giao diện (UI) ---
-
             function setLoadingState(loading, button, text) {
                 isLoading = loading;
-                // Vô hiệu hóa TẤT CẢ các nút chính
                 generateButton.disabled = loading;
                 refineButton.disabled = loading;
                 chatSendButton.disabled = loading || chatInput.disabled;
 
-                // Cập nhật nút được nhấn
                 if (button) {
-                    button.innerHTML = loading ? `<div class="loader" style="width: 20px !important; height: 20px !important; border-width: 3px !important;"></div> ${text}` : text;
+                    button.innerHTML = loading
+                        ? `<div class="loader" style="width: 20px !important; height: 20px !important; border-width: 3px !important;"></div> ${text}`
+                        : text;
                 }
             }
 
             function updateArticleOutput(text) {
-                // Chuyển đổi markdown đậm (**) và nghiêng (_) sang HTML
                 let htmlContent = text
                     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                     .replace(/_(.*?)_/g, '<em>$1</em>');
-                
-                // Tách Tiêu đề và Sapo
+
                 htmlContent = htmlContent.replace(/^(Tiêu đề:|Title:)\s*(.*?)(\n|<br>)/i, '<h2>$2</h2>');
                 htmlContent = htmlContent.replace(/^(Sapo:)\s*(.*?)(\n|<br>)/i, '<p><em>$2</em></p>');
 
-                // Chuyển đổi các dòng mới (\n) còn lại thành thẻ <p>
                 htmlContent = htmlContent.split(/\n|<br>/)
                     .filter(line => line.trim() !== '')
                     .map(line => {
-                        if (line.startsWith('<h2>') || line.startsWith('<p><em>')) {
-                            return line; // Giữ nguyên dòng tiêu đề/sapo
-                        }
-                        return `<p>${line}</p>`; // Bọc các dòng khác trong <p>
+                        if (line.startsWith('<h2>') || line.startsWith('<p><em>')) return line;
+                        return `<p>${line}</p>`;
                     })
                     .join('');
 
@@ -714,10 +859,9 @@ YÊU CẦU BÀI VIẾT:
             }
 
             function updateChatHistoryUI() {
-                chatHistoryEl.innerHTML = ''; // Xóa chat cũ
-                
+                chatHistoryEl.innerHTML = '';
+
                 chatHistory.forEach(msg => {
-                    // Không hiển thị các prompt hệ thống dài dòng
                     if (msg.role === 'user' && msg.parts[0].text.includes('Dưới đây là thông tin sự kiện')) {
                         chatHistoryEl.innerHTML += `<div class="chat-bubble chat-bubble-user"><p><em>[Đã gửi thông tin 5W+1H]</em></p></div>`;
                         return;
@@ -733,8 +877,7 @@ YÊU CẦU BÀI VIẾT:
 
                     const isUser = msg.role === 'user';
                     const bubbleClass = isUser ? 'chat-bubble-user' : 'chat-bubble-model';
-                    
-                    // Chỉ hiển thị 100 ký tự đầu của model trong chat
+
                     let text = msg.parts[0].text;
                     if (msg.role === 'model') {
                         text = text.substring(0, 150) + (text.length > 150 ? '...' : '');
@@ -746,7 +889,7 @@ YÊU CẦU BÀI VIẾT:
                         </div>
                     `;
                 });
-                chatHistoryEl.scrollTop = chatHistoryEl.scrollHeight; // Cuộn xuống
+                chatHistoryEl.scrollTop = chatHistoryEl.scrollHeight;
             }
 
             function showErrorModal(message) {
@@ -763,11 +906,10 @@ YÊU CẦU BÀI VIẾT:
                 return checked ? checked.value : 'Báo chí / Website';
             }
 
-            // --- Gán Sự kiện (Event Listeners) ---
             generateButton.addEventListener('click', handleGenerateArticle);
             refineButton.addEventListener('click', handleRefineArticle);
             chatSendButton.addEventListener('click', handleChatRequest);
-            
+
             chatInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -785,10 +927,10 @@ YÊU CẦU BÀI VIẾT:
                     platformSelector.querySelectorAll('.platform-label').forEach(label => {
                         label.classList.remove('selected', 'selected-fb', 'selected-zl');
                     });
-                    
+
                     const selectedLabel = e.target.parentElement;
                     const value = e.target.value;
-                    
+
                     if (value.includes('Facebook')) {
                         selectedLabel.classList.add('selected-fb');
                     } else if (value.includes('Zalo')) {
@@ -799,17 +941,15 @@ YÊU CẦU BÀI VIẾT:
                 }
             });
         }
-        
-        // Khởi chạy ứng dụng
+
         try {
             initApp(document.getElementById('app-5w1h-container'));
         } catch(e) {
             console.error("Không thể khởi chạy ứng dụng:", e);
-            document.getElementById('app-5w1h-container').innerHTML = 
-                '<h2 style="color: red; text-align: center;">Lỗi nghiêm trọng khi khởi chạy tiện ích.</h2>';
+            document.getElementById('app-5w1h-container').innerHTML =
+                '<h2 style="color: #be123c; text-align: center;">Lỗi nghiêm trọng khi khởi chạy tiện ích.</h2>';
         }
-
     </script>
 
 </div>
-<!-- KẾT THÚC TIỆN ÍCH -->
+<!--KẾT THÚC TIỆN ÍCH-->
