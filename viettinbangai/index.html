@@ -1,7 +1,18 @@
 <!--BẮT ĐẦU TIỆN ÍCH 5W1H (Copy từ đây)-->
 <div id="app-5w1h-container" style="background-color: #faf6f0; border-radius: 1rem; box-sizing: border-box; font-family: Arial, sans-serif; margin: 1.5rem auto; max-width: 100%; padding: 1rem; width: 100%;">
-
     <style>
+        // Fix mobile viewport cho Blogger
+(function() {
+    var existing = document.querySelector('meta[name="viewport"]');
+    if (!existing) {
+        var m = document.createElement('meta');
+        m.name = 'viewport';
+        m.content = 'width=device-width, initial-scale=1';
+        document.head.appendChild(m);
+    } else if (!existing.content.includes('width=device-width')) {
+        existing.content = 'width=device-width, initial-scale=1';
+    }
+})();
         /* 1. Reset Cục bộ */
         #app-5w1h-container * {
             box-sizing: border-box !important;
