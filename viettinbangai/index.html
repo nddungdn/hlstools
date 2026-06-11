@@ -1,5 +1,19 @@
 <!--BẮT ĐẦU TIỆN ÍCH 5W1H (Copy từ đây)-->
+<script>
+(function() {
+    var existing = document.querySelector('meta[name="viewport"]');
+    if (!existing) {
+        var m = document.createElement('meta');
+        m.name = 'viewport';
+        m.content = 'width=device-width, initial-scale=1';
+        document.head.insertBefore(m, document.head.firstChild);
+    } else {
+        existing.content = 'width=device-width, initial-scale=1';
+    }
+})();
+</script>
 <div id="app-5w1h-container" style="background-color: #faf6f0; border-radius: 1rem; box-sizing: border-box; font-family: Arial, sans-serif; margin: 1.5rem auto; max-width: 100%; padding: 1rem; width: 100%;">
+
     <style>
         /* 1. Reset Cục bộ */
         #app-5w1h-container * {
@@ -28,21 +42,13 @@
 
         /* 2. Bố cục chính */
         #app-5w1h-container .main-layout {
-            display: grid !important;
-            grid-template-columns: 1fr !important;
+            display: flex !important;
+            flex-direction: column !important;
             gap: 1rem !important;
-        }
-        @media (min-width: 480px) {
-            #app-5w1h-container .main-layout {
-                gap: 1.5rem !important;
-            }
-        }
-            #app-5w1h-container .main-layout {
-                grid-template-columns: 1fr 1fr !important;
-            }
+            width: 100% !important;
         }
         #app-5w1h-container .full-width-card {
-            grid-column: 1 / -1 !important;
+            width: 100% !important;
         }
 
         /* 3. Card chung — dùng site-card style của theme */
@@ -53,6 +59,8 @@
             overflow: hidden !important;
             border-width: 1px !important;
             border-style: solid !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
         }
         @media (min-width: 480px) {
             #app-5w1h-container .card {
@@ -580,7 +588,7 @@
         </div>
 
         <!--CỘT 2: KẾT QUẢ & CHAT-->
-        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
 
             <!--BÀI VIẾT HOÀN CHỈNH-->
             <div class="card card-2">
@@ -634,22 +642,26 @@
 
     <!--JAVASCRIPT CỦA ỨNG DỤNG (KHÔNG THAY ĐỔI)-->
     <script module="" type="">
-                // Fix mobile viewport cho Blogger
-(function() {
-    var existing = document.querySelector('meta[name="viewport"]');
-    if (!existing) {
-        var m = document.createElement('meta');
-        m.name = 'viewport';
-        m.content = 'width=device-width, initial-scale=1';
-        document.head.appendChild(m);
-    } else if (!existing.content.includes('width=device-width')) {
-        existing.content = 'width=device-width, initial-scale=1';
-    }
-})();
+        // Inject viewport meta nếu chưa có (fix Blogger mobile render)
+        (function() {
+            var existing = document.querySelector('meta[name="viewport"]');
+            if (!existing) {
+                var m = document.createElement('meta');
+                m.name = 'viewport';
+                m.content = 'width=device-width, initial-scale=1';
+                document.head.appendChild(m);
+            } else if (!existing.content.includes('width=device-width')) {
+                existing.content = 'width=device-width, initial-scale=1';
+            }
+        })();
+
         function initApp(container) {
+
             const getApiKey = () => ($('#api-key-input').value || '').trim();
             const getApiUrl = () => `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${getApiKey()}`;
+
             const $ = (selector) => container.querySelector(selector);
+
             const generateButton = $('#generate-button');
             const articleOutput = $('#article-output');
             const chatInput = $('#chat-input');
@@ -898,46 +910,37 @@ YÊU CẦU BÀI VIẾT:
                 });
                 chatHistoryEl.scrollTop = chatHistoryEl.scrollHeight;
             }
-
             function showErrorModal(message) {
                 errorMessage.textContent = message;
                 errorModal.style.display = 'flex';
             }
-
             function closeModal() {
                 errorModal.style.display = 'none';
             }
-
             function getSelectedPlatform() {
                 const checked = platformSelector.querySelector('input[name="platform"]:checked');
                 return checked ? checked.value : 'Báo chí / Website';
             }
-
             generateButton.addEventListener('click', handleGenerateArticle);
             refineButton.addEventListener('click', handleRefineArticle);
             chatSendButton.addEventListener('click', handleChatRequest);
-
             chatInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     handleChatRequest();
                 }
             });
-
             closeModalButton.addEventListener('click', closeModal);
             errorModal.addEventListener('click', (e) => {
                 if (e.target === errorModal) closeModal();
             });
-
             platformSelector.addEventListener('change', (e) => {
                 if (e.target.name === 'platform') {
                     platformSelector.querySelectorAll('.platform-label').forEach(label => {
                         label.classList.remove('selected', 'selected-fb', 'selected-zl');
                     });
-
                     const selectedLabel = e.target.parentElement;
                     const value = e.target.value;
-
                     if (value.includes('Facebook')) {
                         selectedLabel.classList.add('selected-fb');
                     } else if (value.includes('Zalo')) {
@@ -948,7 +951,6 @@ YÊU CẦU BÀI VIẾT:
                 }
             });
         }
-
         try {
             initApp(document.getElementById('app-5w1h-container'));
         } catch(e) {
@@ -957,6 +959,4 @@ YÊU CẦU BÀI VIẾT:
                 '<h2 style="color: #be123c; text-align: center;">Lỗi nghiêm trọng khi khởi chạy tiện ích.</h2>';
         }
     </script>
-
 </div>
-<!--KẾT THÚC TIỆN ÍCH-->
