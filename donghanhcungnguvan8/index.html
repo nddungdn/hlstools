@@ -10,6 +10,11 @@
     .hidden { display: none !important; }
     .transition-all { transition: all 0.5s ease-out; }
     .ngu-lieu-box { background-color: #fffdf6; border-left: 4px solid #D4AF37; box-shadow: inset 0 2px 4px rgba(0,0,0,0.06); }
+    /* Tùy biến thanh cuộn tinh tế, tạo không gian thoáng */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.3); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(212, 175, 55, 0.6); }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between text-white">
@@ -108,32 +113,35 @@
   </div>
 
 
-  <div id="view-teacher" class="hidden flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
+  <div id="view-teacher" class="hidden flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 space-y-8">
     
-    <div class="bg-[#1e0b36] border-2 border-[#D4AF37] p-5 rounded-3xl flex flex-col sm:flex-row items-center justify-between shadow-2xl">
+    <div class="bg-[#1e0b36] border-2 border-[#D4AF37] p-6 rounded-3xl flex flex-col sm:flex-row items-center justify-between shadow-2xl">
       <div class="flex-grow text-center sm:text-left">
         <h1 class="text-xl font-bold text-[#D4AF37] uppercase tracking-wide">BÀN ĐIỀU HÀNH THAO TÁC GIÁO VIÊN ✒️🏫</h1>
         <p class="text-xs text-slate-300 mt-1">Chào mừng thầy quản trị | Điều khiển thi đua lớp học và chấm bài văn tự luận</p>
       </div>
-      <button onclick="handleLogout()" class="mt-3 sm:mt-0 text-xs bg-rose-600 text-white px-4 py-2.5 rounded-xl hover:bg-rose-700 transition font-bold cursor-pointer">Đăng xuất quản trị</button>
+      <button onclick="handleLogout()" class="mt-3 sm:mt-0 text-xs bg-rose-600 text-white px-5 py-2.5 rounded-xl hover:bg-rose-700 transition font-bold cursor-pointer shadow-lg">Đăng xuất quản trị</button>
     </div>
 
-    <div class="bg-white rounded-3xl shadow-2xl p-6 border border-slate-200 text-slate-800 space-y-4">
-      <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-        <h3 class="font-extrabold text-purple-950 text-base uppercase tracking-wider flex items-center gap-2">👥 DANH SÁCH BAO QUÁT LỚP HỌC THỜI GIAN THỰC</h3>
-        <input type="text" id="teacher-search" oninput="filterTeacherStudents()" placeholder="🔍 Tìm kiếm học sinh nhanh..." class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-purple-600">
+    <div class="bg-white rounded-3xl shadow-2xl p-8 border border-slate-200 text-slate-800 space-y-6">
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-slate-100 pb-4">
+        <div>
+          <h3 class="font-extrabold text-purple-950 text-base uppercase tracking-wider flex items-center gap-2">👥 DANH SÁCH BAO QUÁT LỚP HỌC THỜI GIAN THỰC</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5">Danh sách tự động cố định khung cuộn để bảo toàn bố cục không gian trống.</p>
+        </div>
+        <input type="text" id="teacher-search" oninput="filterTeacherStudents()" placeholder="🔍 Tìm nhanh theo tên hoặc mã HS..." class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs w-full sm:w-72 focus:outline-none focus:ring-2 focus:ring-purple-600 shadow-inner">
       </div>
 
-      <div class="overflow-x-auto rounded-2xl border border-slate-100">
-        <table class="w-full text-left border-collapse">
+      <div class="overflow-x-auto rounded-2xl border border-slate-200/80 max-h-[550px] overflow-y-auto pr-1">
+        <table class="w-full text-left border-collapse table-auto">
           <thead>
-            <tr class="bg-purple-950 text-white text-xs uppercase tracking-wider">
-              <th class="p-3.5">Mã HS</th>
-              <th class="p-3.5">Họ Và Tên</th>
-              <th class="p-3.5">Lớp</th>
-              <th class="p-3.5">Cấp Độ Pet</th>
-              <th class="p-3.5 text-center">Chỉ Số HP / EXP</th>
-              <th class="p-3.5 text-center bg-amber-500/10 text-amber-900">Tính năng Thưởng / Phạt nhanh (Trên lớp)</th>
+            <tr class="bg-purple-950 text-white text-xs uppercase tracking-wider sticky top-0 z-10 shadow-sm">
+              <th class="p-5">Mã HS</th>
+              <th class="p-5">Họ Và Tên</th>
+              <th class="p-5 text-center">Lớp</th>
+              <th class="p-5 text-center">Cấp Độ Pet</th>
+              <th class="p-5 text-center">Chỉ Số HP / EXP</th>
+              <th class="p-5 text-center bg-amber-500/10 text-amber-990 rounded-tr-2xl">Tính năng Thưởng / Phạt nhanh (Trên lớp)</th>
             </tr>
           </thead>
           <tbody id="teacher-student-table" class="text-xs divide-y divide-slate-100 font-medium">
@@ -142,17 +150,17 @@
       </div>
     </div>
 
-    <div class="bg-white rounded-3xl shadow-2xl p-6 border border-slate-200 text-slate-800 space-y-4">
-      <h3 class="font-extrabold text-purple-950 text-base uppercase tracking-wider flex items-center gap-2">📝 SỔ TAY CHẤM BÀI TỰ LUẬN TRỰC TUYẾN</h3>
-      <div class="overflow-x-auto rounded-2xl border border-slate-100">
+    <div class="bg-white rounded-3xl shadow-2xl p-8 border border-slate-200 text-slate-800 space-y-5">
+      <h3 class="font-extrabold text-purple-950 text-base uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-3">📝 SỔ TAY CHẤM BÀI TỰ LUẬN TRỰC TUYẾN</h3>
+      <div class="overflow-x-auto rounded-2xl border border-slate-200 max-h-[400px] overflow-y-auto">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="bg-slate-900 text-white text-xs uppercase tracking-wider">
-              <th class="p-3.5">Học Sinh Nộp Bài</th>
-              <th class="p-3.5">Đề Bài</th>
-              <th class="p-3.5 text-center">Thời Gian Nộp</th>
-              <th class="p-3.5 text-center">Trạng Thái</th>
-              <th class="p-3.5 text-center">Thao Tác Chấm Điểm</th>
+            <tr class="bg-slate-900 text-white text-xs uppercase tracking-wider sticky top-0 z-10 shadow-sm">
+              <th class="p-4">Học Sinh Nộp Bài</th>
+              <th class="p-4">Đề Bài</th>
+              <th class="p-4 text-center">Thời Gian Nộp</th>
+              <th class="p-4 text-center">Trạng Thái</th>
+              <th class="p-4 text-center rounded-tr-2xl">Thao Tác Chấm Điểm</th>
             </tr>
           </thead>
           <tbody id="teacher-submissions-table" class="text-xs divide-y divide-slate-100 font-medium">
@@ -164,9 +172,9 @@
   </div>
 
 
-  <footer class="text-center py-4 text-xs">
+  <footer class="text-center py-6 text-xs border-t border-purple-950/30 mt-6">
     <div class="text-slate-400 mb-1">© 2026 Học Liệu Số - Hệ thống Đấu Trường Ngữ Văn 8 Đổi Mới.</div>
-    <div class="text-pink-500 font-bold tracking-wider">TAG NGAY MỘT ĐỒNG NGHIỆP YÊU VIẾT LẦN NHÉ!</div>
+    <div class="text-pink-500 font-bold tracking-wider uppercase">Tag ngay một đồng nghiệp yêu viết lách nhé!</div>
   </footer>
 
 
@@ -174,8 +182,8 @@
     <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl flex flex-col max-h-[90vh] text-slate-800 animate-fade-in">
       <div class="bg-purple-950 text-white p-5 rounded-t-3xl flex justify-between items-center">
         <div>
-          <h3 id="grade-modal-title" class="font-bold text-base text-[#D4AF37]">CHẤM BÀI CHI TIẾT: HOÀNG VĂN TRÍ</h3>
-          <p id="grade-modal-subtitle" class="text-[11px] text-slate-300 mt-0.5">Đề: Đọc hiểu văn bản Trong lòng mẹ</p>
+          <h3 id="grade-modal-title" class="font-bold text-base text-[#D4AF37]">CHẤM BÀI CHI TIẾT</h3>
+          <p id="grade-modal-subtitle" class="text-[11px] text-slate-300 mt-0.5">Mã học sinh đang chấm</p>
         </div>
         <button onclick="closeGradingModal()" class="text-white hover:text-rose-400 font-bold text-lg cursor-pointer">✕</button>
       </div>
@@ -183,7 +191,7 @@
       <div class="p-6 overflow-y-auto space-y-4 flex-grow text-xs leading-relaxed">
         <div class="bg-amber-50/60 border-l-4 border-purple-900 p-4 rounded-r-xl">
           <p class="font-bold text-purple-950 uppercase mb-1 tracking-wider text-[10px]">💬 Câu hỏi tự luận của thầy:</p>
-          <p id="grade-modal-question" class="text-slate-700 font-medium">Hãy viết đoạn văn biểu cảm về...</p>
+          <p id="grade-modal-question" class="text-slate-700 font-medium">Yêu cầu đề bài...</p>
         </div>
         
         <div>
@@ -219,7 +227,7 @@
 
         <div>
           <label class="block text-[10px] font-bold text-purple-950 uppercase mb-1 tracking-wider">Lời phê, nhận xét định hướng phát triển năng lực của thầy:</label>
-          <textarea id="grade-input-feedback" rows="3" placeholder="Ví dụ: Bài viết có cảm xúc sâu sắc, biết lựa chọn chi tiết hình ảnh đắt giá. Tuy nhiên cần chú ý dấu câu..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-slate-800 focus:ring-2 focus:ring-purple-600 outline-none resize-none"></textarea>
+          <textarea id="grade-input-feedback" rows="3" placeholder="Ví dụ: Bài viết có cảm xúc sâu sắc, biểu cảm tốt..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-slate-800 focus:ring-2 focus:ring-purple-600 outline-none resize-none"></textarea>
         </div>
       </div>
 
@@ -259,24 +267,22 @@
       }
     ];
 
-    // Dữ liệu học sinh giả lập
+    // ĐÃ CẬP NHẬT CHUẨN XÁC THÔNG TIN LỚP (8/1 và 8/3) ĐỒNG BỘ THEO SHEET CỦA THẦY
     let KHO_HOC_SINH_LOP = [
       { maHS: "HS001", hoTen: "Huỳnh Văn Trí", lop: "8/3", lv: 16, exp: 45, hp: 100, petIcon: "👑" },
-      { maHS: "HS002", hoTen: "Lê Nguyễn Thanh Bình", lop: "8/3", lv: 12, exp: 80, hp: 90, petIcon: "🦅" },
-      { maHS: "HS003", hoTen: "Hồ Ngọc Minh Châu", lop: "8/3", lv: 9, exp: 30, hp: 95, petIcon: "🐛" },
-      { maHS: "HS004", hoTen: "Lê Tấn Chương", lop: "8/3", lv: 4, exp: 15, hp: 60, petIcon: "🥚" },
-      { maHS: "HS005", hoTen: "Nguyễn Cao Thùy Duyên", lop: "8/3", lv: 2, exp: 90, hp: 100, petIcon: "🥚" }
+      { maHS: "HS002", hoTen: "Lê Nguyễn Thanh Bình", lop: "8/1", lv: 12, exp: 80, hp: 90, petIcon: "🦅" },
+      { maHS: "HS003", hoTen: "Hồ Ngọc Minh Châu", lop: "8/1", lv: 9, exp: 30, hp: 95, petIcon: "🐛" },
+      { maHS: "HS004", hoTen: "Lê Tấn Chương", lop: "8/1", lv: 4, exp: 15, hp: 60, petIcon: "🥚" },
+      { maHS: "HS005", hoTen: "Nguyễn Cao Thùy Duyên", lop: "8/1", lv: 2, exp: 90, hp: 100, petIcon: "🥚" }
     ];
 
-    // Kho lưu trữ bài nộp tự luận để giáo viên làm việc trực tiếp
     let KHO_BAI_LAM_NOP = [
-      { maHS: "HS001", hoTen: "Huỳnh Văn Trí", deId: "DE01", tieuDeDe: "Đọc hiểu văn bản 'Trong lòng mẹ'", thoiGian: "14:20 - 17/06/2026", cauHoiYeuCau: "Câu 2: Hãy viết một đoạn văn ngắn nói lên tình mẫu tử thiêng liêng.", baiLamText: "Tình mẫu tử là tình cảm thiêng liêng nhất trong cuộc đời mỗi con người. Trong đoạn trích 'Trong lòng mẹ', tình cảm ấy vỡ òa khi chú bé Hồng được ngả đầu vào lòng mẹ, cảm nhận mùi quần áo và hơi thở thơm tho nhai trầu của mẹ. Qua đó, em thấy tình mẹ có sức mạnh chữa lành mọi vết thương lòng, bảo vệ con trước những rẫy ruồng, ác độc của hoàn cảnh.", trangThai: "Chưa chấm", diemSo: "", loiPhe: "" },
-      { maHS: "HS002", hoTen: "Lê Nguyễn Thanh Bình", deId: "DE01", tieuDeDe: "Đọc hiểu văn bản 'Trong lòng mẹ'", thoiGian: "15:05 - 17/06/2026", cauHoiYeuCau: "Câu 2: Hãy viết một đoạn văn ngắn nói lên tình mẫu tử thiêng liêng.", baiLamText: "Tình mẫu tử vô cùng quý giá. Tác giả Nguyên Hồng đã khắc họa sâu sắc khoảnh khắc thiêng liêng khi hai mẹ con gặp lại nhau. Đoạn văn khiến người đọc xúc động trước khát khao tình mẹ cháy bỏng của bé Hồng.", trangThai: "Đã chấm", diemSo: "8.5", loiPhe: "Bài viết mạch lạc, có cảm xúc rất tốt." }
+      { maHS: "HS001", hoTen: "Huỳnh Văn Trí", deId: "DE01", tieuDeDe: "Đọc hiểu văn bản 'Trong lòng mẹ'", thoiGian: "14:20 - 17/06/2026", cauHoiYeuCau: "Câu 2: Hãy viết một đoạn văn ngắn nói lên tình mẫu tử thiêng liêng.", baiLamText: "Tình mẫu tử là tình cảm thiêng liêng nhất trong cuộc đời mỗi con người. Trong đoạn trích 'Trong lòng mẹ', tình cảm ấy vỡ òa khi chú bé Hồng được ngả đầu vào lòng mẹ, cảm nhận mùi quần áo và hơi thở thơm tho nhai trầu của mẹ. Qua đó, em thấy tình mẹ có sức mạnh chữa lành mọi vết thương lòng.", trangThai: "Chưa chấm", diemSo: "", loiPhe: "" },
+      { maHS: "HS004", hoTen: "Lê Tấn Chương", deId: "DE01", tieuDeDe: "Đọc hiểu văn bản 'Trong lòng mẹ'", thoiGian: "15:05 - 17/06/2026", cauHoiYeuCau: "Câu 2: Hãy viết một đoạn văn ngắn nói lên tình mẫu tử thiêng liêng.", baiLamText: "Tình mẫu tử vô cùng quý giá. Tác giả Nguyên Hồng đã khắc họa sâu sắc khoảnh khắc thiêng liêng khi hai mẹ con gặp lại nhau. Đoạn văn khiến người đọc xúc động trước khát khao tình mẹ cháy bỏng.", trangThai: "Đã chấm", diemSo: "8.5", loiPhe: "Bài viết mạch lạc, có cảm xúc rất tốt." }
     ];
 
-    let currentGradingIndex = null; // Đánh dấu bài đang chấm
+    let currentGradingIndex = null;
 
-    // Hàm Xử lý Đăng nhập Phân quyền
     function handleLogin() {
       const maHS = document.getElementById("login-maHS").value.trim();
       const matKhau = document.getElementById("login-password").value;
@@ -311,7 +317,7 @@
           sessionStorage.setItem("userRole", "student");
           sessionStorage.setItem("currentStudent", JSON.stringify(timThayMẫu));
           renderStudentDashboard();
-        } else { alert("Tài khoản học sinh thử nghiệm: HS001 -> HS005. Quản trị: GV01 / thaydung2026"); }
+        } else { alert("Mã thử nghiệm offline: HS001 -> HS005. Quản trị lớp: GV01 / thaydung2026"); }
       });
     }
 
@@ -353,7 +359,6 @@
       khoiTaoDanhSachDe();
     }
 
-    // GIAO DIỆN QUẢN LÝ DÀNH CHO GIÁO VIÊN
     function renderTeacherDashboard() {
       document.getElementById("view-login").classList.add("hidden");
       document.getElementById("view-teacher").classList.remove("hidden");
@@ -361,49 +366,53 @@
       loadTeacherSubmissionsTable();
     }
 
+    // HIỂN THỊ DANH SÁCH HỌC SINH RỘNG RÃI, THOÁNG MẮT
     function loadTeacherStudentTable(danhSach) {
       const tbody = document.getElementById("teacher-student-table");
+      if(danhSach.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-slate-400 font-medium">Không tìm thấy học sinh nào phù hợp...</td></tr>`;
+        return;
+      }
       tbody.innerHTML = danhSach.map(hs => `
-        <tr class="hover:bg-slate-50 border-b border-slate-100">
-          <td class="p-3.5 font-bold text-purple-950">${hs.maHS}</td>
-          <td class="p-3.5 font-bold text-slate-800">${hs.hoTen}</td>
-          <td class="p-3.5 text-slate-500">${hs.lop}</td>
-          <td class="p-3.5"><span class="bg-purple-100 text-purple-800 font-bold px-2.5 py-0.5 rounded-lg border border-purple-200">Cấp ${hs.lv} ${hs.petIcon}</span></td>
-          <td class="p-3.5 text-center">
-            <span class="text-emerald-600 font-bold">❤️ HP: ${hs.hp}</span> / 
-            <span class="text-amber-600 font-bold">⚡ EXP: ${hs.exp}</span>
+        <tr class="hover:bg-purple-50/40 transition-colors border-b border-slate-100/70">
+          <td class="p-5 font-bold text-purple-950 select-all">${hs.maHS}</td>
+          <td class="p-5 font-bold text-slate-800 text-sm">${hs.hoTen}</td>
+          <td class="p-5 text-center text-slate-500 font-semibold">${hs.lop}</td>
+          <td class="p-5 text-center"><span class="bg-purple-100 text-purple-900 font-bold px-3 py-1 rounded-xl border border-purple-200/60">Cấp ${hs.lv} ${hs.petIcon}</span></td>
+          <td class="p-5 text-center whitespace-nowrap">
+            <span class="text-emerald-600 font-bold bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-100 shadow-sm">❤️ HP: ${hs.hp}</span>
+            <span class="mx-1 text-slate-300">|</span>
+            <span class="text-amber-600 font-bold bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-100 shadow-sm">⚡ EXP: ${hs.exp}</span>
           </td>
-          <td class="p-2 text-center bg-amber-500/5 space-x-1 whitespace-nowrap">
-            <button onclick="changeStudentPoints('${hs.maHS}', 10, 0, 'Phát biểu xây dựng bài')" class="bg-emerald-600 text-white px-2 py-1 rounded-md font-bold hover:bg-emerald-700 cursor-pointer text-[11px]">🎤 Phát biểu (+10 EXP)</button>
-            <button onclick="changeStudentPoints('${hs.maHS}', 25, 0, 'Hoàn thành tốt phiếu học tập')" class="bg-indigo-600 text-white px-2 py-1 rounded-md font-bold hover:bg-indigo-700 cursor-pointer text-[11px]">📝 Phiếu bài tập (+25 EXP)</button>
-            <button onclick="changeStudentPoints('${hs.maHS}', 0, -15, 'Nói chuyện làm việc riêng')" class="bg-rose-600 text-white px-2 py-1 rounded-md font-bold hover:bg-rose-700 cursor-pointer text-[11px]">🤫 Nhắc nhở (-15 HP)</button>
+          <td class="p-5 text-center space-x-1.5 whitespace-nowrap">
+            <button onclick="changeStudentPoints('${hs.maHS}', 10, 0, 'Phát biểu hăng hái xây dựng bài văn')" class="bg-emerald-600 text-white px-3 py-2 rounded-xl font-bold hover:bg-emerald-700 hover:scale-[1.02] transition active:scale-95 cursor-pointer text-xs shadow-sm">🎤 Phát biểu (+10)</button>
+            <button onclick="changeStudentPoints('${hs.maHS}', 25, 0, 'Hoàn thành tốt phiếu thực hành cá nhân')" class="bg-indigo-600 text-white px-3 py-2 rounded-xl font-bold hover:bg-indigo-700 hover:scale-[1.02] transition active:scale-95 cursor-pointer text-xs shadow-sm">📝 Phiếu bài (+25)</button>
+            <button onclick="changeStudentPoints('${hs.maHS}', 0, -15, 'Làm việc riêng, mất trật tự trên lớp')" class="bg-rose-600 text-white px-3 py-2 rounded-xl font-bold hover:bg-rose-700 hover:scale-[1.02] transition active:scale-95 cursor-pointer text-xs shadow-sm">🤫 Nhắc nhở (-15)</button>
           </td>
         </tr>
       `).join("");
     }
 
-    // Nạp danh sách các bài làm văn tự luận của học sinh
     function loadTeacherSubmissionsTable() {
       const tbody = document.getElementById("teacher-submissions-table");
       tbody.innerHTML = KHO_BAI_LAM_NOP.map((bai, index) => {
-        const statusClass = bai.trangThai === "Chưa chấm" ? "bg-amber-100 text-amber-800 border border-amber-200" : "bg-emerald-100 text-emerald-800 border border-emerald-200";
+        const statusClass = bai.trangThai === "Chưa chấm" ? "bg-amber-100 text-amber-900 border border-amber-200" : "bg-emerald-100 text-emerald-900 border border-emerald-200";
         const actionBtn = bai.trangThai === "Chưa chấm" 
-          ? `<button onclick="openGradingModal(${index})" class="bg-[#D4AF37] text-purple-950 font-bold px-3 py-1.5 rounded-xl hover:bg-[#D4AF37]/90 cursor-pointer">✒️ Chấm Bài</button>`
-          : `<button onclick="openGradingModal(${index})" class="bg-slate-100 text-slate-700 font-medium px-3 py-1.5 rounded-xl hover:bg-slate-200 cursor-pointer">🔍 Xem Lại (${bai.diemSo}đ)</button>`;
+          ? `<button onclick="openGradingModal(${index})" class="bg-[#D4AF37] text-purple-950 font-extrabold px-3.5 py-1.5 rounded-xl hover:bg-[#D4AF37]/90 transition cursor-pointer shadow-sm text-xs">✒️ Chấm Bài</button>`
+          : `<button onclick="openGradingModal(${index})" class="bg-slate-100 text-slate-700 font-bold px-3 py-1.5 rounded-xl hover:bg-slate-200 transition cursor-pointer text-xs">🔍 Xem Lại (${bai.diemSo}đ)</button>`;
 
         return `
           <tr class="hover:bg-slate-50 border-b border-slate-100">
-            <td class="p-3.5 font-bold text-slate-800">${bai.hoTen} <span class="text-[10px] text-slate-400 font-normal">(${bai.maHS})</span></td>
-            <td class="p-3.5 text-slate-600 font-medium">${bai.tieuDeDe}</td>
-            <td class="p-3.5 text-center text-slate-400 font-serif">${bai.thoiGian}</td>
-            <td class="p-3.5 text-center"><span class="px-2.5 py-0.5 rounded-full font-bold text-[10px] ${statusClass}">${bai.trangThai}</span></td>
-            <td class="p-3.5 text-center">${actionBtn}</td>
+            <td class="p-4 font-bold text-slate-800">${bai.hoTen} <span class="text-[11px] text-slate-400 font-normal">(${bai.maHS})</span></td>
+            <td class="p-4 text-slate-600 font-medium">${bai.tieuDeDe}</td>
+            <td class="p-4 text-center text-slate-400 font-serif">${bai.thoiGian}</td>
+            <td class="p-4 text-center"><span class="px-2.5 py-0.5 rounded-full font-bold text-[10px] ${statusClass}">${bai.trangThai}</span></td>
+            <td class="p-4 text-center">${actionBtn}</td>
           </tr>
         `;
       }).join("");
     }
 
-    // Mở khung xem chi tiết để chấm bài
     function openGradingModal(index) {
       currentGradingIndex = index;
       const bai = KHO_BAI_LAM_NOP[index];
@@ -413,7 +422,6 @@
       document.getElementById("grade-modal-question").innerText = bai.cauHoiYeuCau;
       document.getElementById("grade-modal-essay").innerText = bai.baiLamText;
       
-      // Đổ dữ liệu cũ nếu bài này đã được chấm trước đó
       document.getElementById("grade-input-score").value = bai.diemSo || "";
       document.getElementById("grade-input-feedback").value = bai.loiPhe || "";
       document.getElementById("grade-input-exp").value = "10";
@@ -427,7 +435,6 @@
       currentGradingIndex = null;
     }
 
-    // Phê duyệt và lưu kết quả chấm văn tự luận
     function submitGradedAssignment() {
       if (currentGradingIndex === null) return;
       
@@ -443,7 +450,6 @@
       bai.diemSo = score;
       bai.loiPhe = feedback;
 
-      // Cộng điểm thưởng Pet trực tiếp cho học sinh đó
       const hocSinh = KHO_HOC_SINH_LOP.find(h => h.maHS === bai.maHS);
       if (hocSinh) {
         hocSinh.exp += expBonus;
@@ -458,7 +464,6 @@
       loadTeacherStudentTable(KHO_HOC_SINH_LOP);
       loadTeacherSubmissionsTable();
 
-      // Đẩy lệnh đồng bộ hóa bài chấm trực tuyến về Google Sheets cho thầy
       fetch(SCRIPT_URL, {
         method: "POST", mode: "cors",
         body: JSON.stringify({
@@ -470,7 +475,7 @@
           expBonus: expBonus,
           hpBonus: hpBonus
         })
-      }).catch(e => console.log("Lệnh gửi điểm tự luận đang đồng bộ hóa ngầm..."));
+      }).catch(e => console.log("Gửi điểm tự luận ngầm..."));
     }
 
     function changeStudentPoints(maHS, expGiaTri, hpGiaTri, lyDo) {
@@ -489,12 +494,12 @@
       fetch(SCRIPT_URL, {
         method: "POST", mode: "cors",
         body: JSON.stringify({ action: "giaoVienChamDiem", maHS: maHS, expChange: expGiaTri, hpChange: hpGiaTri, lyDo: lyDo })
-      }).catch(e => console.log("Đồng bộ thi đua chạy ngầm."));
+      }).catch(e => console.log("Đồng bộ thi đua..."));
     }
 
     function filterTeacherStudents() {
       const text = document.getElementById("teacher-search").value.toLowerCase();
-      const ketQua = KHO_HOC_SINH_LOP.filter(h => h.hoTen.toLowerCase().includes(text) || h.maHS.toLowerCase().includes(text));
+      const ketQua = KHO_HOC_SINH_LOP.filter(h => h.hoTen.toLowerCase().includes(text) || h.maHS.toLowerCase().includes(text) || h.lop.toLowerCase().includes(text));
       loadTeacherStudentTable(ketQua);
     }
 
@@ -531,18 +536,15 @@
     function handleSubmitAssignment() {
       const essayVal = document.getElementById("student-essay-input") ? document.getElementById("student-essay-input").value : "";
       const student = JSON.parse(sessionStorage.getItem("currentStudent"));
-      
-      alert("Nộp bài thành công! Bài làm của em đã được chuyển đến Sổ Tay Chấm Bài của thầy.");
-      
-      // Đẩy bài nộp về Web App Google Sheets
+      alert("Nộp bài thành công! Bài làm của em đã gửi tới thầy.");
       fetch(SCRIPT_URL, {
         method: "POST", mode: "cors",
         body: JSON.stringify({ action: "studentSubmit", maHS: student.maHS, deId: "DE01", baiLamText: essayVal })
-      }).catch(e => console.log("Gửi bài nộp trực tuyến..."));
+      }).catch(e => console.log("Gửi bài nộp..."));
     }
 
     function handleLogout() { sessionStorage.clear(); window.location.reload(); }
-    function showForgotPassword() { alert("Hãy liên hệ trực tiếp thầy để được cấp lại mật khẩu!"); }
+    function showForgotPassword() { alert("Hãy liên hệ thầy để cấp lại mật khẩu nhé!"); }
     function showChangePasswordModal() { document.getElementById("modal-password").classList.remove("hidden"); }
     function closeChangePasswordModal() { document.getElementById("modal-password").classList.add("hidden"); document.getElementById("new-password").value = ""; }
     
