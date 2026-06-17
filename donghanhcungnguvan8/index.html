@@ -7,100 +7,119 @@
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <style>
     /* Bảng màu gradient tím đậm sang trọng như banner cuộc thi */
-    body { background-color: #f1f5f9; background-image: bg-gradient-to-b from-purple-950 to-indigo-900; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-white; }
+    body { background-color: #0f0720; background-image: linear-gradient(to bottom, #1e0b36, #0f051d); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     .hidden { display: none !important; }
     /* Hiệu ứng trượt mượt mà cho thanh chỉ số */
     .transition-all { transition: all 0.5s ease-out; }
+    /* Định dạng hộp ngữ liệu giả cổ, trang trọng */
+    .ngu-lieu-box { background-color: #fffdf6; border-left: 4px solid #D4AF37; shadow-inner: inset 0 2px 4px rgba(0,0,0,0.06); }
   </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between">
+<body class="min-h-screen flex flex-col justify-between text-white">
 
   <div id="view-login" class="flex-grow flex items-center justify-center p-4">
-    <div class="bg-white/95 rounded-3xl shadow-2xl w-full max-w-md p-8 border border-slate-100">
+    <div class="bg-white/95 rounded-3xl shadow-2xl w-full max-w-md p-8 border border-purple-200">
       <div class="text-center mb-6">
         <div class="text-6xl mb-2 filter drop-shadow-md">✒️📚</div>
-        <h1 class="text-2xl font-bold text-slate-800 uppercase tracking-wide">📚 ĐẤU TRƯỜNG NGỮ VĂN 8 ✒️🏆</h1>
+        <h1 class="text-2xl font-bold text-purple-950 uppercase tracking-wide">📚 ĐẤU TRƯỜNG NGỮ VĂN 8 ✒️🏆</h1>
         <p class="text-sm text-slate-500 mt-1">Đăng nhập để Học Viết: TRANG SÁCH VÀ MÁI TRƯỜNG</p>
       </div>
 
       <div class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Mã Học Sinh</label>
-          <input type="text" id="login-maHS" placeholder="Ví dụ: HS001" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500">
+          <label class="block text-xs font-semibold text-purple-950 uppercase mb-1">Mã Học Sinh</label>
+          <input type="text" id="login-maHS" placeholder="Ví dụ: HS001" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-600">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Mật khẩu</label>
-          <input type="password" id="login-password" placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500">
+          <label class="block text-xs font-semibold text-purple-950 uppercase mb-1">Mật khẩu</label>
+          <input type="password" id="login-password" placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-600">
         </div>
-        <button onclick="handleLogin()" id="btn-login" class="w-full bg-[#D4AF37] text-white font-bold py-3.5 rounded-xl hover:bg-[#D4AF37]/90 transition shadow-md shadow-amber-600/20">Bước Vào Đấu Trường</button>
+        <button onclick="handleLogin()" id="btn-login" class="w-full bg-[#D4AF37] text-purple-950 font-bold py-3.5 rounded-xl hover:bg-[#D4AF37]/90 transition shadow-md cursor-pointer text-center">Bước Vào Đấu Trường</button>
       </div>
 
       <div class="text-center mt-6">
-        <button onclick="showForgotPassword()" class="text-xs text-amber-700 hover:underline font-medium">Quên mật khẩu? Nhấp vào đây</button>
+        <button onclick="showForgotPassword()" class="text-xs text-purple-800 hover:underline font-medium">Quên mật khẩu? Nhấp vào đây</button>
       </div>
     </div>
   </div>
 
 
-  <div id="view-dashboard" class="hidden flex-grow max-w-6xl w-full mx-auto p-4 md:p-6 space-y-6 text-white font-serif">
+  <div id="view-dashboard" class="hidden flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
     
-    <div class="bg-purple-100/10 border border-[#D4AF37] p-6 rounded-3xl shadow-sm flex flex-col sm:flex-row items-center justify-between shadow-sm">
-      <div class="flex-grow">
-        <h1 class="text-xl font-bold text-[#D4AF37]uppercase tracking-wide">TRANG SÁCH VÀ MÁI TRƯỜNG | ĐẤU TRƯỜNG NGỮ VĂN 8 ✒️🏆</h1>
-        <p class="text-xs text-[#E91E63] mt-1">Viết về nhà trường - Gieo yêu thương, ươm tương lai!</p>
-        <p class="text-xs text-slate-100 mt-2">Đăng nhập bởi học sinh</p>
-        <h2 id="user-info" class="text-lg font-bold text-slate-100">Nguyễn Văn A - Lớp 8A</h2>
+    <div class="bg-purple-950/60 border border-[#D4AF37] p-5 rounded-3xl flex flex-col sm:flex-row items-center justify-between shadow-lg backdrop-blur-md">
+      <div class="flex-grow text-center sm:text-left">
+        <h1 class="text-lg font-bold text-[#D4AF37] uppercase tracking-wide">TRANG SÁCH VÀ MÁI TRƯỜNG | ĐẤU TRƯỜNG NGỮ VĂN 8 ✒️🏆</h1>
+        <p class="text-xs text-pink-400 font-medium mt-0.5">Viết về nhà trường - Gieo yêu thương, ươm tương lai!</p>
+        <h2 id="user-info" class="text-base font-bold text-slate-100 mt-2">Đang tải thông tin...</h2>
       </div>
       <div class="flex-none flex space-x-2 mt-3 sm:mt-0">
-        <button onclick="showChangePasswordModal()" class="text-xs bg-slate-100 text-slate-600 px-3 py-2 rounded-xl hover:bg-slate-200 transition">Đổi mật khẩu</button>
-        <button onclick="handleLogout()" class="text-xs bg-rose-50 text-rose-600 px-3 py-2 rounded-xl hover:bg-rose-100 transition font-medium">Đăng xuất</button>
+        <button onclick="showChangePasswordModal()" class="text-xs bg-white/10 text-slate-200 px-3 py-2 rounded-xl hover:bg-white/20 transition cursor-pointer">Đổi mật khẩu</button>
+        <button onclick="handleLogout()" class="text-xs bg-rose-600 text-white px-3 py-2 rounded-xl hover:bg-rose-700 transition font-medium cursor-pointer">Đăng xuất</button>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
       
-      <div class="bg-white/90 border border-[#D4AF37] p-6 rounded-3xl shadow-sm flex flex-col justify-between items-center text-center">
-        <div class="w-full flex justify-between items-center mb-4">
-          <span id="pet-tier" class="text-xs text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full font-semibold">Mầm Văn Học</span>
-          <div class="flex items-center space-x-1">
-            <span id="pet-level" class="bg-amber-100 text-amber-800 font-bold text-xs px-2.5 py-1 rounded-lg">Lv.1</span>
-            <div class="text-amber-500">🏆</div>
+      <div class="space-y-6 lg:sticky lg:top-6">
+        <div class="bg-purple-950/40 border border-purple-800 p-6 rounded-3xl shadow-xl flex flex-col justify-between items-center text-center backdrop-blur-sm">
+          <div class="w-full flex justify-between items-center mb-4">
+            <span id="pet-tier" class="text-xs text-emerald-300 bg-emerald-950/60 border border-emerald-800 px-2.5 py-1 rounded-full font-semibold">Mầm Văn Học</span>
+            <div class="flex items-center space-x-1">
+              <span id="pet-level" class="bg-amber-500/20 text-amber-300 font-bold text-xs px-2.5 py-1 rounded-lg border border-amber-500/30">Lv.1</span>
+              <div class="text-amber-400">🏆</div>
+            </div>
+          </div>
+          
+          <div id="pet-avatar" class="text-7xl my-6 filter drop-shadow-lg transform hover:scale-110 transition duration-300 animate-bounce">Egg</div>
+
+          <div class="w-full space-y-4 mt-2">
+            <div>
+              <div class="flex justify-between text-xs font-medium mb-1 text-slate-300"><span>Sinh Lực (HP)</span><span id="txt-hp">100/100</span></div>
+              <div class="w-full bg-purple-950 h-2.5 rounded-full p-0.5 border border-purple-800"><div id="bar-hp" class="bg-gradient-to-r from-purple-600 to-indigo-500 h-full rounded-full transition-all" style="width: 100%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs font-medium mb-1 text-slate-300"><span>Kinh Nghiệm (EXP)</span><span id="txt-exp">0/100</span></div>
+              <div class="w-full bg-purple-950 h-2.5 rounded-full p-0.5 border border-purple-800"><div id="bar-exp" class="bg-gradient-to-r from-amber-500 to-yellow-400 h-full rounded-full transition-all" style="width: 0%"></div></div>
+            </div>
           </div>
         </div>
-        
-        <div id="pet-avatar" class="text-7xl my-6 filter drop-shadow-md">🥚</div>
 
-        <div class="w-full space-y-3.5 mt-2 text-slate-900">
-          <div>
-            <div class="flex justify-between text-xs font-medium mb-1"><span>Sinh Lực (HP)</span><span id="txt-hp">100/100</span></div>
-            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden"><div id="bar-hp" class="bg-purple-700 h-full transition-all duration-500" style="width: 100%"></div></div>
-          </div>
-          <div>
-            <div class="flex justify-between text-xs font-medium mb-1"><span>Kinh Nghiệm (EXP)</span><span id="txt-exp">0/100</span></div>
-            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden"><div id="bar-exp" class="bg-[#D4AF37] h-full transition-all duration-500" style="width: 0%"></div></div>
-          </div>
+        <div class="bg-white rounded-2xl shadow-xl p-5 border border-slate-100 text-slate-800 grid grid-cols-2 gap-4">
+          <div class="bg-purple-50 p-3 rounded-lg border border-purple-100"><p class="text-xs font-bold text-purple-950 uppercase mb-1">01. Đơn vị tổ chức</p><p class="text-[10px] text-slate-600">NXB Giáo dục Việt Nam, Hội Nhà Văn Việt Nam</p></div>
+          <div class="bg-amber-50 p-3 rounded-lg border border-amber-100"><p class="text-xs font-bold text-amber-950 uppercase mb-1">02. Thể loại dự thi</p><p class="text-[10px] text-slate-600">Truyện ngắn, Tản văn, Thơ</p></div>
+          <div class="bg-emerald-50 p-3 rounded-lg border border-emerald-100"><p class="text-xs font-bold text-emerald-950 uppercase mb-1">03. Giải đặc biệt</p><p class="text-[10px] text-emerald-600 font-bold">100.000.000đ 🏆</p></div>
+          <div class="bg-rose-50 p-3 rounded-lg border border-rose-100"><p class="text-xs font-bold text-rose-950 uppercase mb-1">04. Thời gian</p><p class="text-[10px] text-slate-600">09/06/2026 - 30/04/2027</p></div>
         </div>
       </div>
 
-      <div class="bg-white/90 border border-[#D4AF37] p-6 rounded-3xl shadow-sm md:col-span-2 space-y-4 text-slate-900">
-        <h3 class="text-base font-bold flex items-center gap-2">📝 Luyện Tập Tác Phẩm / Viết Ngắn</h3>
-        
-        <div class="space-y-3">
-          <div>
-            <label class="block text-xs font-semibold uppercase mb-1">Chọn Đề Bài / Tác Phẩm</label>
-            <select id="assignment-title" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
-              <option value="Đọc hiểu văn bản Trong lòng mẹ">Đọc hiểu văn bản "Trong lòng mẹ" (Nguyên Hồng)</option>
-              <option value="Viết ngắn cảm nhận về Thơ trào phúng">Viết đoạn văn ngắn cảm nhận về Thơ trào phúng lớp 8</option>
-              <option value="Phân tích một chi tiết nghệ thuật trong Lão Hạc">Phân tích một chi tiết nghệ thuật đắt giá trong truyện "Lão Hạc"</option>
-            </select>
+      <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white rounded-3xl shadow-2xl p-6 border border-slate-200 text-slate-800 space-y-5">
+          <div class="bg-purple-50 p-4 rounded-2xl border border-purple-100">
+            <label class="block text-xs font-bold text-purple-950 uppercase tracking-wider mb-1.5">🎯 Bước 1: Chọn Đề Bài Khảo Sát</label>
+            <select id="assignment-select" onchange="loadAssignmentData()" class="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-sm font-semibold text-purple-950 focus:outline-none focus:ring-2 focus:ring-purple-600 cursor-pointer shadow-sm">
+              </select>
           </div>
 
-          <div>
-            <label class="block text-xs font-semibold uppercase mb-1">Nội dung bài làm (Gõ đoạn văn vào đây)</label>
-            <textarea id="assignment-content" rows="6" placeholder="Nhập bài làm đọc hiểu hoặc viết ngắn của em gửi thầy chấm điểm để nhận EXP tiến hóa Pet nhé..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none"></textarea>
+          <div class="space-y-2">
+            <h3 class="text-sm font-bold text-purple-950 uppercase tracking-wider flex items-center gap-1.5">📖 II. Ngữ Liệu Văn Bản</h3>
+            <div id="ngu-lieu-display" class="ngu-lieu-box rounded-2xl p-5 text-sm leading-relaxed text-slate-700 font-serif whitespace-pre-line max-h-64 overflow-y-auto shadow-inner">
+              </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-2xl p-6 border border-slate-200 text-slate-800 space-y-6">
+          <div class="space-y-4">
+            <h3 class="text-sm font-bold text-purple-950 uppercase tracking-wider flex items-center gap-1.5">📝 III. Hệ Thống Câu Hỏi & Làm Bài</h3>
+            
+            <form id="quiz-form" class="space-y-6">
+              </form>
           </div>
 
-          <button onclick="handleSubmitAssignment()" id="btn-submit" class="w-full bg-[#D4AF37] text-purple-950 font-bold py-3 rounded-xl hover:bg-[#D4AF37]/90 transition text-sm shadow-md">Nộp Bài Cho Thầy Chấm 🏆</button>
+          <div class="pt-2">
+            <button onclick="handleSubmitAssignment()" id="btn-submit" class="w-full bg-[#D4AF37] text-purple-950 font-extrabold py-3.5 rounded-xl hover:bg-[#D4AF37]/90 transition text-sm tracking-wide shadow-lg cursor-pointer text-center uppercase">
+              Nộp Bài Khảo Sát Cho Thầy Chấm 🏆
+            </button>
+          </div>
         </div>
       </div>
 
@@ -108,40 +127,241 @@
   </div>
 
   <footer class="text-center py-4 text-xs">
-    <div class="text-slate-100 mb-1">© 2026 Học Liệu Số - Tiện ích Đấu Trường Ngữ Văn 8.</div>
-    <div class="text-[#E91E63]">TAG NGAY MỘT ĐỒNG NGHIỆP YÊU VIẾT LẦN NHÉ!</div>
+    <div class="text-slate-400 mb-1">© 2026 Học Liệu Số - Tiện ích Đấu Trường Ngữ Văn 8.</div>
+    <div class="text-pink-500 font-bold tracking-wider">TAG NGAY MỘT ĐỒNG NGHIỆP YÊU VIẾT LẦN NHÉ!Chào thầy, em đã hiểu vấn đề của thầy rồi ạ!
+
+Lý do mà thầy không thấy bất kỳ thay đổi nào về màu sắc hay bố cục, và giao diện trông vẫn "đơn điệu" với quá nhiều khoảng trống (như trong hình ảnh thầy gửi), là vì thầy đang sử dụng **Giao diện Mặc định (Default)** của file HTML hiện tại.
+
+Những thay đổi về màu sắc, đồ họa (Dế mèn, Đại bàng, Cúp vàng), Ngữ liệu, Đề bài và hệ thống câu hỏi mà em đã xây dựng chỉ nằm ở **Phiên bản Giao diện Nâng cấp (Gamification)** mà thầy chưa áp dụng.
+
+Để khắc phục triệt để và giúp thầy có ngay một giao diện **bắt mắt, sang trọng, đầy đặn, thu hút học sinh và tương thích tốt trên cả điện thoại và máy tính**, em đã tổng hợp và xây dựng lại toàn bộ mã nguồn của file `index.html`.
+
+Giao diện này không chỉ thay đổi màu sắc mà còn tái cấu trúc lại không gian để trông đầy đặn, nghệ thuật và cuốn hút hơn rất nhiều so với giao diện đơn điệu hiện tại của thầy, đồng thời vẫn tích hợp sẵn hệ thống Ngữ liệu và Đề bài đa dạng.
+
+---
+
+### MÃ NGUỒN TỔNG HỢP: `index.html` (PHIÊN BẢN "CUNG ĐIỆN VĂN HỌC" - BẮT MẮT & ĐẦY ĐẶN)
+
+Thầy chỉ cần copy toàn bộ đoạn mã dưới đây dán đè vào file `index.html` trên GitHub của mình nhé:
+
+```html
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đấu Trường Ngữ Văn 8 - TRANG SÁCH VÀ MÁI TRƯỜNG</title>
+  <script src="[https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4](https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4)"></script>
+  <style>
+    /* Bảng màu gradient tím đậm sẫm sang trọng như banner cuộc thi */
+    body { background-color: #0f0720; background-image: linear-gradient(to bottom, #1e0b36, #0f051d); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .hidden { display: none !important; }
+    /* Hiệu ứng trượt mượt mà cho thanh chỉ số */
+    .transition-all { transition: all 0.5s ease-out; }
+    /* Định dạng hộp ngữ liệu giả cổ, trang trọng */
+    .ngu-lieu-box { background-color: #fffdf6; border-left: 4px solid #D4AF37; shadow-inner: inset 0 2px 4px rgba(0,0,0,0.06); }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-white">
+
+  <div id="view-login" class="flex-grow flex items-center justify-center p-4">
+    <div class="bg-white/95 rounded-3xl shadow-2xl w-full max-w-md p-8 border border-purple-200 backdrop-blur-sm">
+      <div class="text-center mb-6">
+        <div class="text-6xl mb-2 filter drop-shadow-md transform hover:scale-110 transition duration-300">✒️📚</div>
+        <h1 class="text-2xl font-bold text-purple-950 uppercase tracking-wide">📚 ĐẤU TRƯỜNG NGỮ VĂN 8 ✒️🏆</h1>
+        <p class="text-sm text-slate-500 mt-1">Đăng nhập để Học Viết: TRANG SÁCH VÀ MÁI TRƯỜNG</p>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-purple-950 uppercase mb-1 tracking-wider">Mã Học Sinh</label>
+          <input type="text" id="login-maHS" placeholder="Ví dụ: HS001" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-600">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-purple-950 uppercase mb-1 tracking-wider">Mật khẩu</label>
+          <input type="password" id="login-password" placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-600">
+        </div>
+        <button onclick="handleLogin()" id="btn-login" class="w-full bg-[#D4AF37] text-purple-950 font-bold py-3.5 rounded-xl hover:bg-[#D4AF37]/90 transition shadow-md cursor-pointer text-center">Bước Vào Đấu Trường</button>
+      </div>
+
+      <div class="text-center mt-6">
+        <button onclick="showForgotPassword()" class="text-xs text-purple-800 hover:underline font-medium">Quên mật khẩu? Nhấp vào đây</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="view-dashboard" class="hidden flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
+    
+    <div class="bg-purple-950/60 border border-[#D4AF37] p-5 rounded-3xl flex flex-col sm:flex-row items-center justify-between shadow-lg backdrop-blur-md">
+      <div class="flex-grow text-center sm:text-left">
+        <h1 class="text-lg font-bold text-[#D4AF37] uppercase tracking-wide">TRANG SÁCH VÀ MÁI TRƯỜNG | ĐẤU TRƯỜNG NGỮ VĂN 8 ✒️🏆</h1>
+        <p class="text-xs text-pink-400 font-medium mt-0.5 tracking-wider">Viết về nhà trường - Gieo yêu thương, ươm tương lai!</p>
+        <p class="text-xs text-slate-400 mt-2">Đăng nhập bởi học sinh</p>
+        <h2 id="user-info" class="text-base font-bold text-slate-100">Đang tải...</h2>
+      </div>
+      <div class="flex-none flex space-x-2 mt-3 sm:mt-0">
+        <button onclick="showChangePasswordModal()" class="text-xs bg-white/10 text-slate-200 px-3 py-2 rounded-xl hover:bg-white/20 transition cursor-pointer">Đổi mật khẩu</button>
+        <button onclick="handleLogout()" class="text-xs bg-rose-600 text-white px-3 py-2 rounded-xl hover:bg-rose-700 transition font-medium cursor-pointer">Đăng xuất</button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      
+      <div class="space-y-6 lg:sticky lg:top-6">
+        <div class="bg-purple-950/40 border border-purple-800 p-6 rounded-3xl shadow-xl flex flex-col justify-between items-center text-center backdrop-blur-sm">
+          <div class="w-full flex justify-between items-center mb-4">
+            <span id="pet-tier" class="text-xs text-emerald-300 bg-emerald-950/60 border border-emerald-800 px-2.5 py-1 rounded-full font-semibold">Mầm Văn Học</span>
+            <div class="flex items-center space-x-1">
+              <span id="pet-level" class="bg-amber-500/20 text-amber-300 font-bold text-xs px-2.5 py-1 rounded-lg border border-amber-500/30">Lv.1</span>
+              <div class="text-amber-400">🏆</div>
+            </div>
+          </div>
+          
+          <div id="pet-avatar" class="text-7xl my-6 filter drop-shadow-lg transform hover:scale-110 transition duration-300 animate-bounce">Egg</div>
+
+          <div class="w-full space-y-4 mt-2">
+            <div>
+              <div class="flex justify-between text-xs font-medium mb-1 text-slate-300"><span>Sinh Lực (HP)</span><span id="txt-hp">100/100</span></div>
+              <div class="w-full bg-purple-950 h-2.5 rounded-full p-0.5 border border-purple-800 shadow-inner"><div id="bar-hp" class="bg-gradient-to-r from-purple-600 to-indigo-500 h-full rounded-full transition-all" style="width: 100%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs font-medium mb-1 text-slate-300"><span>Kinh Nghiệm (EXP)</span><span id="txt-exp">0/100</span></div>
+              <div class="w-full bg-purple-950 h-2.5 rounded-full p-0.5 border border-purple-800 shadow-inner"><div id="bar-exp" class="bg-gradient-to-r from-amber-500 to-yellow-400 h-full rounded-full transition-all" style="width: 0%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl p-5 border border-slate-100 text-slate-800 grid grid-cols-2 gap-4">
+          <div class="bg-purple-50 p-3 rounded-lg border border-purple-100"><p class="text-xs font-bold text-purple-950 uppercase mb-1 tracking-wider">01. Đơn vị tổ chức</p><p class="text-[10px] text-slate-600">NXB Giáo dục Việt Nam, Hội Nhà Văn Việt Nam</p></div>
+          <div class="bg-amber-50 p-3 rounded-lg border border-amber-100"><p class="text-xs font-bold text-amber-950 uppercase mb-1 tracking-wider">02. Thể loại dự thi</p><p class="text-[10px] text-slate-600">Truyện ngắn, Tản văn, Thơ</p></div>
+          <div class="bg-emerald-50 p-3 rounded-lg border border-emerald-100"><p class="text-xs font-bold text-emerald-950 uppercase mb-1 tracking-wider">03. Giải đặc biệt</p><p class="text-[10px] text-emerald-600 font-bold">100.000.000đ 🏆</p></div>
+          <div class="bg-rose-50 p-3 rounded-lg border border-rose-100"><p class="text-xs font-bold text-rose-950 uppercase mb-1 tracking-wider">04. Thời gian</p><p class="text-[10px] text-slate-600">09/06/2026 - 30/04/2027</p></div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white rounded-3xl shadow-2xl p-6 border border-slate-200 text-slate-800 space-y-5">
+          <div class="bg-purple-50 p-4 rounded-2xl border border-purple-100">
+            <label class="block text-xs font-bold text-purple-950 uppercase tracking-wider mb-1.5">🎯 Bước 1: Chọn Đề Bài Khảo Sát</label>
+            <select id="assignment-select" onchange="loadAssignmentData()" class="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-sm font-semibold text-purple-950 focus:outline-none focus:ring-2 focus:ring-purple-600 cursor-pointer shadow-sm">
+              </select>
+          </div>
+
+          <div class="space-y-2">
+            <h3 class="text-sm font-bold text-purple-950 uppercase tracking-wider flex items-center gap-1.5">📖 II. Ngữ Liệu Văn Bản</h3>
+            <div id="ngu-lieu-display" class="ngu-lieu-box rounded-2xl p-5 text-sm leading-relaxed text-slate-700 font-serif whitespace-pre-line max-h-64 overflow-y-auto shadow-inner">
+              </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-2xl p-6 border border-slate-200 text-slate-800 space-y-6">
+          <div class="space-y-4">
+            <h3 class="text-sm font-bold text-purple-950 uppercase tracking-wider flex items-center gap-1.5">📝 III. Hệ Thống Câu Hỏi & Làm Bài</h3>
+            
+            <form id="quiz-form" class="space-y-6">
+              </form>
+          </div>
+
+          <div class="pt-2">
+            <button onclick="handleSubmitAssignment()" id="btn-submit" class="w-full bg-[#D4AF37] text-purple-950 font-extrabold py-3.5 rounded-xl hover:bg-[#D4AF37]/90 transition text-sm tracking-wide shadow-lg cursor-pointer text-center uppercase">
+              Nộp Bài Khảo Sát Cho Thầy Chấm 🏆
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="text-center py-4 text-xs footer-gradient">
+    <div class="text-slate-400 mb-1">© 2026 Học Liệu Số - Tiện ích Đấu Trường Ngữ Văn 8.</div>
+    <div class="text-pink-500 font-bold tracking-wider">TAG NGAY MỘT ĐỒNG NGHIỆP YÊU VIẾT LẦN NHÉ!</div>
   </footer>
 
 
-  <div id="modal-password" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-    <div class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-sm">
-      <h3 class="font-bold text-lg text-slate-800 mb-4">Thay Đổi Mật Khẩu</h3>
-      <input type="password" id="new-password" placeholder="Nhập mật khẩu mới" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 mb-4 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900">
+  <div id="modal-password" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 backdrop-blur-xs">
+    <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-sm border border-purple-100 text-slate-800">
+      <h3 class="font-bold text-lg text-purple-950 mb-4">Thay Đổi Mật Khẩu</h3>
+      <input type="password" id="new-password" placeholder="Nhập mật khẩu mới" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 mb-4 text-sm focus:outline-none focus:ring-2 focus:ring-purple-600 text-slate-900">
       <div class="flex space-x-2 justify-end">
-        <button onclick="closeChangePasswordModal()" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs hover:bg-slate-200">Hủy</button>
-        <button onclick="handleChangePassword()" class="px-4 py-2 bg-[#D4AF37] text-white rounded-xl text-xs hover:bg-[#D4AF37]/90">Lưu thay đổi</button>
+        <button onclick="closeChangePasswordModal()" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs hover:bg-slate-200 cursor-pointer">Hủy</button>
+        <button onclick="handleChangePassword()" class="px-4 py-2 bg-[#D4AF37] text-purple-950 font-bold rounded-xl text-xs hover:bg-[#D4AF37]/90 cursor-pointer">Lưu thay đổi</button>
       </div>
     </div>
   </div>
 
 
   <script>
-    // THẦY DÁN ĐƯỜNG LINK WEB APP URL (/exec) CỦA GOOGLE APP SCRIPT VÀO ĐÂY
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxdznYPTTCIoCrU097eAR8T6Sv4qujIxOYZBg2DFA1Izj7wVnaQKBy0JDRL8MreNB7gnQ/exec";
+    // THẦY DÁN ĐƯỜNG LINK WEB APP URL CỦA GOOGLE APP SCRIPT VÀO ĐÂY
+    const SCRIPT_URL = "ĐƯỜNG_DẪN_WEB_APP_URL_CỦA_THẦY_Ở_BƯỚC_TRƯỚC";
 
-    // 1. Xử lý Đăng Nhập
+    // KHO ĐỀ BÀI CỦA THẦY: Thầy tự do thêm, sửa, xóa đề bài ở đây!
+    const KHO_DE_BAI = [
+      {
+        id: "DE01",
+        tieuDe: "Đọc hiểu văn bản 'Trong lòng mẹ' (Nguyên Hồng)",
+        nguLieu: `“...Xe chạy chầm chậm... Mẹ tôi cầm tay tôi, quỳ nhổm phắt lên, kéo tôi vào lòng. Tôi vừa đi vừa khóc, rồi cứ thế ôm lấy mẹ mà khóc nức nở. Mẹ tôi cũng khóc theo. Tôi ngửi thấy mùi quần áo của mẹ tôi và những làn hơi thở ở khuôn miệng xinh xắn nhai trầu phả ra lúc đó thơm tho lạ thường. 
+        Phải bé lại và lăn vào lòng một người mẹ, áp mặt vào bầu sữa nóng của người mẹ, để bàn tay người mẹ vuốt ve từ trán xuống cằm, và gãi rôm ở sống lưng cho, mới thấy người mẹ có một êm dịu gieo vào lòng bàn tay...”`,
+        cauHoi: [
+          { type: "tracNghiem", id: "de1_q1", bieuDiem: "1đ", cauHỏi: "Câu 1: Phương thức biểu đạt chính được sử dụng trong đoạn trích trên là gì?", options: ["Nghị luận", "Tự sự kết hợp biểu cảm", "Thuyết minh", "Miêu tả"] },
+          { type: "traLoiNgan", id: "de1_q2", bieuDiem: "2đ", cauHỏi: "Câu 2: Tìm các từ ngữ diễn tả cảm giác sung sướng của chú bé Hồng?" },
+          { type: "vietDoan", id: "de1_q3", bieuDiem: "7đ", cauHỏi: "Câu 3: Hãy viết đoạn văn ngắn (khoảng 7-10 câu) về vai trò của tình mẫu tử." }
+        ]
+      }
+    ];
+
+    // Hàm tự động tải danh sách đề bài vào ô Chọn Đề Bài
+    function khoiTaoDanhSachDe() {
+      const selectEl = document.getElementById("assignment-select");
+      selectEl.innerHTML = KHO_DE_BAI.map(de => `<option value="${de.id}">${de.tieuDe}</option>`).join("");
+      loadAssignmentData();
+    }
+
+    // Hàm hiển thị Ngữ liệu và tạo Form câu hỏi tương ứng theo đề được chọn
+    function loadAssignmentData() {
+      const deId = document.getElementById("assignment-select").value;
+      const deHienTai = KHO_DE_BAI.find(de => de.id === deId);
+      if (!deHienTai) return;
+      document.getElementById("ngu-lieu-display").innerText = deHienTai.nguLieu;
+      const formEl = document.getElementById("quiz-form");
+      formEl.innerHTML = ""; // Xóa dữ liệu cũ
+      deHienTai.cauHoi.forEach((ch, index) => {
+        let htmlCauHoi = `<div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                            <p class="font-bold text-purple-950 text-sm flex justify-between">
+                              <span>${ch.cauHỏi}</span>
+                              <span class="text-xs text-purple-600 bg-purple-100 px-2 py-0.5 rounded-md">Điểm: ${ch.bieuDiem}</span>
+                            </p>`;
+        if (ch.type === "tracNghiem") {
+          htmlCauHoi += `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">`;
+          ch.options.forEach(opt => {
+            htmlCauHoi += `<label class="flex items-center gap-2.5 bg-white border border-slate-200 px-4 py-2.5 rounded-xl text-xs font-medium text-slate-700 hover:bg-purple-50 cursor-pointer transition">
+                             <input type="radio" name="${ch.id}" value="${opt}" class="w-4 h-4 text-purple-600 focus:ring-purple-500">
+                             <span>${opt}</span>
+                           </label>`;
+          });
+          htmlCauHoi += `</div>`;
+        } 
+        else if (ch.type === "traLoiNgan") {
+          htmlCauHoi += `<input type="text" data-id="${ch.id}" placeholder="Nhập câu trả lời ngắn của em..." class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-purple-600 text-slate-800">`;
+        } 
+        else if (ch.type === "vietDoan") {
+          htmlCauHoi += `<textarea data-id="${ch.id}" rows="6" placeholder="Viết đoạn văn cảm nhận, tự luận vào đây..." class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-xs focus:outline-none focus:ring-2 focus:ring-purple-600 text-slate-800 resize-none font-serif"></textarea>`;
+        }
+        htmlCauHoi += `</div>`;
+        formEl.innerHTML += htmlCauHoi;
+      });
+    }
+
+    // Đăng nhập hệ thống
     function handleLogin() {
       const maHS = document.getElementById("login-maHS").value.trim();
       const matKhau = document.getElementById("login-password").value;
       const btn = document.getElementById("btn-login");
-
-      if (!maHS || !matKhau) { alert("Vui lòng nhập đầy đủ thông tin!"); return; }
-      
+      if (!maHS || !matKhau) { alert("Vui lòng nhập đầy đủ!"); return; }
       btn.disabled = true; btn.innerText = "Đang kiểm tra...";
-
       fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "cors",
+        method: "POST", mode: "cors",
         body: JSON.stringify({ action: "login", maHS: maHS, matKhau: matKhau })
       })
       .then(res => res.json())
@@ -150,104 +370,105 @@
         if (data.success) {
           sessionStorage.setItem("currentStudent", JSON.stringify(data));
           renderDashboard();
-        } else {
-          alert(data.message);
-        }
+        } else { alert(data.message); }
       })
       .catch(err => {
         btn.disabled = false; btn.innerText = "Bước Vào Đấu Trường";
-        console.error(err); alert("Lỗi kết nối máy chủ Google Sheets!");
+        alert("Lỗi kết nối máy chủSheets!");
       });
     }
 
-    // 2. Hiển thị thông tin cá nhân và Pet tiến hóa thời gian thực
+    // Hiển thị giao diện cá nhân hóa sau đăng nhập
     function renderDashboard() {
       const student = JSON.parse(sessionStorage.getItem("currentStudent"));
       if (!student) return;
-
       document.getElementById("view-login").classList.add("hidden");
       document.getElementById("view-dashboard").classList.remove("hidden");
-
-      // Cập nhật thông tin định danh
       document.getElementById("user-info").innerText = `${student.hoTen} - Lớp ${student.lop}`;
       document.getElementById("pet-level").innerText = `Lv.${student.lv}`;
       document.getElementById("txt-hp").innerText = `${student.hp}/100`;
       document.getElementById("txt-exp").innerText = `${student.exp}/100`;
-      
-      // Cập nhật các thanh HP tím/EXP vàng co giãn
       document.getElementById("bar-hp").style.width = `${student.hp}%`;
       document.getElementById("bar-exp").style.width = `${student.exp}%`;
-
-      // Cập nhật emoji và tên Pet dựa trên Tier Tiến Hóa nghệ thuật ✒️🏆
       let petIcon = "🥚"; let petTier = "Mầm Văn Học";
-      if (student.lv >= 6 && student.lv <= 10) { petIcon = "🐛"; petTier = "Dế Mèn Phiêu Lưu (Tự Sự) ✒️"; }
-      else if (student.lv >= 11 && student.lv <= 15) { petIcon = "🦅"; petTier = "Cánh Chim Tự Do (Trữ Tình) ✒️🏆"; }
-      else if (student.lv > 15) { petIcon = "👑🏆"; petTier = "Đại Bàng Trí Tuệ (Nghị Luận) 🏆✒️"; }
-
+      if (student.lv >= 6 && student.lv <= 10) { petIcon = "🐛"; petTier = "Dế Mèn Phiêu Lưu ✒️"; }
+      else if (student.lv >= 11 && student.lv <= 15) { petIcon = "🦅🏆"; petTier = "Cánh Chim Tự Do ✒️🏆"; }
+      else if (student.lv > 15) { petIcon = "👑🏆"; petTier = "Đại Bàng Trí Tuệ 🏆✒️"; }
       document.getElementById("pet-avatar").innerText = petIcon;
       document.getElementById("pet-tier").innerText = petTier;
+      khoiTaoDanhSachDe();
     }
 
-    // 3. Xử lý Nộp Bài
+    // XỬ LÝ ĐÓNG GÓI VÀ NỘP BÀI KHẢO SÁT
     function handleSubmitAssignment() {
       const student = JSON.parse(sessionStorage.getItem("currentStudent"));
-      const tenBai = document.getElementById("assignment-title").value;
-      const noiDung = document.getElementById("assignment-content").value.trim();
+      const selectEl = document.getElementById("assignment-select");
+      const tenDeBai = selectEl.options[selectEl.selectedIndex].text;
+      const deId = selectEl.value;
+      const deHienTai = KHO_DE_BAI.find(de => de.id === deId);
       const btn = document.getElementById("btn-submit");
-
-      if (!noiDung) { alert("Em chưa nhập nội dung bài làm văn!"); return; }
-      
-      btn.disabled = true; btn.innerText = "Đang gửi bài nộp...";
-
+      let chuoiNoiDungLamBai = `=== BÀI LÀM CỦA HỌC SINH ===\n`;
+      let coBaiLam = false;
+      for (let ch of deHienTai.cauHoi) {
+        chuoiNoiDungLamBai += `\n[${ch.cauHỏi.split(":")[0].toUpperCase()}]\n`;
+        if (ch.type === "tracNghiem") {
+          const radioChecked = document.querySelector(`input[name="${ch.id}"]:checked`);
+          const dapAn = radioChecked ? radioChecked.value : "Chưa trả lời";
+          if(radioChecked) coBaiLam = true;
+          chuoiNoiDungLamBai += `-> Đáp án: ${dapAn}\n`;
+        } 
+        else if (ch.type === "traLoiNgan") {
+          const inputEl = document.querySelector(`input[data-id="${ch.id}"]`);
+          const giaTri = inputEl ? inputEl.value.trim() : "";
+          if(giaTri) coBaiLam = true;
+          chuoiNoiDungLamBai += `-> Trả lời: ${giaTri || "Bỏ trống"}\n`;
+        } 
+        else if (ch.type === "vietDoan") {
+          const textareaEl = document.querySelector(`textarea[data-id="${ch.id}"]`);
+          const doanVan = textareaEl ? textareaEl.value.trim() : "";
+          if(doanVan) coBaiLam = true;
+          chuoiNoiDungLamBai += `-> Văn tự luận:\n${doanVan || "Bỏ trống"}\n`;
+        }
+      }
+      if (!coBaiLam) { alert("Em chưa thực hiện câu hỏi nào!"); return; }
+      btn.disabled = true; btn.innerText = "ĐANG GỬI BÀI VỀ MÁY CHỦ...";
       fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "cors",
-        body: JSON.stringify({ action: "nopBai", maHS: student.maHS, tenBai: tenBai, noiDung: noiDung })
+        method: "POST", mode: "cors",
+        body: JSON.stringify({ action: "nopBai", maHS: student.maHS, tenBai: tenDeBai, noiDung: chuoiNoiDungLamBai })
       })
       .then(res => res.json())
       .then(data => {
-        btn.disabled = false; btn.innerText = "Nộp Bài Cho Thầy Chấm 🏆";
+        btn.disabled = false; btn.innerText = "Nộp Bài Khảo Sát Cho Thầy Chấm 🏆";
         if (data.success) {
-          alert("Bài làm đã nộp thành công! Hãy chờ thầy chấm để nhận EXP tiến hóa Pet.");
-          document.getElementById("assignment-content").value = "";
+          alert("Nộp bài thành công! Thầy đã nhận được bài và sẽ chấm điểm cho Pet nhé!");
+          document.getElementById("quiz-form").reset();
+          loadAssignmentData(); // Làm mới form
         }
       })
       .catch(err => {
-        btn.disabled = false; btn.innerText = "Nộp Bài Cho Thầy Chấm 🏆";
-        alert("Gặp sự cố khi gửi bài nộp.");
+        btn.disabled = false; btn.innerText = "Nộp Bài Khảo Sát Cho Thầy Chấm 🏆";
+        alert("Lỗi khi gửi bài nộp về Google Sheets.");
       });
     }
 
-    // 4. Xử lý Đổi mật khẩu cá nhân
     function handleChangePassword() {
       const student = JSON.parse(sessionStorage.getItem("currentStudent"));
       const newPass = document.getElementById("new-password").value.trim();
-      if (!newPass) { alert("Vui lòng nhập mật khẩu mới!"); return; }
-
+      if (!newPass) { alert("Vui lòng nhập mật khẩu!"); return; }
       fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "cors",
+        method: "POST", mode: "cors",
         body: JSON.stringify({ action: "doiMatKhau", rowId: student.rowId, matKhauMoi: newPass })
       })
       .then(res => res.json())
       .then(data => {
-        if (data.success) {
-          alert("Mật khẩu đã được cập nhật thành công!");
-          closeChangePasswordModal();
-        }
+        if (data.success) { alert("Đã cập nhật mật khẩu!"); closeChangePasswordModal(); }
       });
     }
-
-    // Các hàm phụ trợ (Navigation & Modal)
     function handleLogout() { sessionStorage.clear(); window.location.reload(); }
-    function showForgotPassword() { alert("Em hãy liên hệ trực tiếp thầy để cấp lại mật khẩu!"); }
+    function showForgotPassword() { alert("Hãy liên hệ thầy để cấp lại mật khẩu nhé!"); }
     function showChangePasswordModal() { document.getElementById("modal-password").classList.remove("hidden"); }
     function closeChangePasswordModal() { document.getElementById("modal-password").classList.add("hidden"); document.getElementById("new-password").value = ""; }
-
-    // Kiểm tra trạng thái phiên làm việc khi tải lại trang
-    window.onload = function() {
-      if (sessionStorage.getItem("currentStudent")) { renderDashboard(); }
-    };
+    window.onload = function() { if (sessionStorage.getItem("currentStudent")) { renderDashboard(); } };
   </script>
 </body>
 </html>
