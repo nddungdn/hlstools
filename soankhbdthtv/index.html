@@ -346,13 +346,84 @@
     .ai-lp-config-panel::-webkit-scrollbar-thumb, .ai-lp-chat-history::-webkit-scrollbar-thumb { background: rgba(96, 37, 230, 0.2); border-radius: 3px; }
     .ai-lp-config-panel::-webkit-scrollbar-thumb:hover, .ai-lp-chat-history::-webkit-scrollbar-thumb:hover { background: rgba(96, 37, 230, 0.4); }
 
-    @media (max-width: 768px) {
-      #ai-lesson-planner-wrapper { height: auto; min-height: 1200px; }
-      .ai-lp-main-container { flex-direction: column; overflow: visible; }
-      .ai-lp-config-panel { width: 100%; height: auto; max-height: 450px; border-right: none; border-bottom: 2.5px solid var(--border-dim); }
-      .ai-lp-chat-panel { height: 500px; }
-      .ai-lp-header h1 { font-size: 1.15rem; }
-    }
+@media (max-width: 900px), (max-device-width: 900px) {
+  #ai-lesson-planner-wrapper {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    border-radius: 8px;
+  }
+
+  .ai-lp-header {
+    padding: 14px 10px;
+  }
+
+  .ai-lp-header h1 {
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+
+  .ai-lp-header .ai-lp-subtitle {
+    font-size: 0.78rem;
+  }
+
+  .ai-lp-header-actions {
+    max-width: 100%;
+  }
+
+  .ai-lp-api-box {
+    width: 100%;
+  }
+
+  .ai-lp-main-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    overflow: visible;
+  }
+
+  .ai-lp-config-panel {
+    order: 1;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    border-right: none;
+    border-bottom: 2px solid var(--border-color);
+    padding: 14px;
+  }
+
+  .ai-lp-chat-panel {
+    order: 2;
+    width: 100%;
+    min-height: 650px;
+    height: 650px;
+  }
+
+  .ai-lp-chat-history {
+    padding: 14px;
+  }
+
+  .ai-lp-message {
+    max-width: 100%;
+  }
+
+  .ai-lp-chat-input-container {
+    padding: 12px;
+  }
+
+  .ai-lp-chat-input-wrapper {
+    flex-direction: column;
+  }
+
+  .ai-lp-chat-input-wrapper input {
+    width: 100%;
+  }
+
+  .ai-lp-chat-input-wrapper .ai-lp-btn-start {
+    width: 100% !important;
+  }
+}
   </style>
 
   <div id="ai-lp-root" style="display: flex; flex-direction: column; height: 100%;"></div>
@@ -451,7 +522,9 @@ TÊN BÀI HỌC: [TÊN BÀI HỌC]
           .replace(/<br\s*\/?>/gi, '</p><p>');
 
         const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-        <head><meta charset='utf-8'><title>Giáo Án</title>
+        <head>
+        <meta content='width=device-width, initial-scale=1.0' name='viewport'/>
+        <meta charset='utf-8'><title>Giáo Án</title>
         <style>
           @page { size: A4; margin: 2cm; }
           body { font-family: 'Times New Roman', serif; font-size: 14pt; text-align: justify; }
