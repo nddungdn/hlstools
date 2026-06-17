@@ -1,3 +1,28 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Trợ lí soạn KHBD Thực hành tiếng Việt</title>
+  <style>
+    html,
+    body {
+      width: 100%;
+      max-width: 100%;
+      min-height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      background: #f5eedc;
+    }
+
+    body {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+  </style>
+</head>
+<body>
 <div id="ai-lesson-planner-wrapper">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap');
@@ -346,78 +371,105 @@
     .ai-lp-config-panel::-webkit-scrollbar-thumb, .ai-lp-chat-history::-webkit-scrollbar-thumb { background: rgba(96, 37, 230, 0.2); border-radius: 3px; }
     .ai-lp-config-panel::-webkit-scrollbar-thumb:hover, .ai-lp-chat-history::-webkit-scrollbar-thumb:hover { background: rgba(96, 37, 230, 0.4); }
 
-@media (max-width: 900px), (max-device-width: 900px) {
+@media screen and (max-width: 900px) {
   #ai-lesson-planner-wrapper {
-    width: 100%;
-    height: auto;
-    min-height: 0;
-    overflow: visible;
-    border-radius: 8px;
+    width: 100% !important;
+    max-width: 100vw !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    border-radius: 8px !important;
+  }
+
+  #ai-lp-root {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 
   .ai-lp-header {
-    padding: 14px 10px;
+    width: 100% !important;
+    padding: 14px 10px !important;
   }
 
   .ai-lp-header h1 {
-    font-size: 1rem;
-    line-height: 1.35;
+    font-size: 1rem !important;
+    line-height: 1.35 !important;
   }
 
   .ai-lp-header .ai-lp-subtitle {
-    font-size: 0.78rem;
+    font-size: 0.78rem !important;
   }
 
   .ai-lp-header-actions {
-    max-width: 100%;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   .ai-lp-api-box {
-    width: 100%;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   .ai-lp-main-container {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    overflow: visible;
+    display: flex !important;
+    flex-direction: column !important;
+    flex: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
   }
 
   .ai-lp-config-panel {
-    order: 1;
-    width: 100%;
-    height: auto;
-    max-height: none;
-    border-right: none;
-    border-bottom: 2px solid var(--border-color);
-    padding: 14px;
+    order: 1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    flex: none !important;
+    flex-shrink: 1 !important;
+    overflow-y: visible !important;
+    border-right: none !important;
+    border-bottom: 2px solid var(--border-color) !important;
+    padding: 14px !important;
   }
 
   .ai-lp-chat-panel {
-    order: 2;
-    width: 100%;
-    min-height: 650px;
-    height: 650px;
+    order: 2 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 650px !important;
+    min-height: 650px !important;
+    flex: none !important;
   }
 
   .ai-lp-chat-history {
-    padding: 14px;
+    padding: 14px !important;
   }
 
   .ai-lp-message {
-    max-width: 100%;
+    max-width: 100% !important;
+  }
+
+  .ai-lp-label-header {
+    gap: 8px !important;
+    flex-wrap: wrap !important;
   }
 
   .ai-lp-chat-input-container {
-    padding: 12px;
+    padding: 12px !important;
   }
 
   .ai-lp-chat-input-wrapper {
-    flex-direction: column;
+    flex-direction: column !important;
+    width: 100% !important;
   }
 
   .ai-lp-chat-input-wrapper input {
-    width: 100%;
+    width: 100% !important;
   }
 
   .ai-lp-chat-input-wrapper .ai-lp-btn-start {
@@ -848,3 +900,6 @@ ${contextTextbook}`;
     root.render(<App />);
   </script>
 </div>
+
+</body>
+</html>
