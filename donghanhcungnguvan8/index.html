@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PET Văn chương 8 - Hành trình đọc, viết và trưởng thành</title>
+  <title>PET Ngữ văn 8 - Hành trình trưởng thành</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <style>
     :root {
@@ -80,7 +80,7 @@
       <div class="text-center">
         <div class="text-6xl mb-3 pet-shadow">🥚📚</div>
         <h1 class="text-2xl font-extrabold text-purple-950 uppercase leading-tight">
-          PET Văn chương 8 - Hành trình đọc, viết và trưởng thành
+          PET Ngữ văn 8 - Hành trình trưởng thành
         </h1>
         <p class="text-sm text-slate-500 mt-2">
           PET lớn lên khi em đọc kĩ hơn, viết rõ hơn, dám nói hơn và biết sửa lỗi.
@@ -220,7 +220,7 @@
           <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div>
               <h3 class="text-lg font-extrabold text-purple-950">📌 Nhiệm vụ nuôi PET</h3>
-              <p class="text-sm text-slate-500">Chọn một nhiệm vụ, đọc kĩ ngữ liệu và hoàn thành bài làm.</p>
+              <p class="text-sm text-slate-500">Chọn nhiệm vụ trong menu sổ xuống, đọc kĩ ngữ liệu và hoàn thành bài làm.</p>
             </div>
             <span class="rounded-full bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 text-xs font-bold">Không đua điểm, chỉ cần tiến bộ</span>
           </div>
@@ -381,7 +381,7 @@
   </main>
 
   <footer class="max-w-7xl mx-auto px-4 md:px-6 pb-6 text-center text-xs text-slate-400">
-    © 2026 Học Liệu Số - PET Văn chương 8 - Hành trình đọc, viết và trưởng thành.
+    © 2026 Học Liệu Số - PET Ngữ văn 8 - Hành trình trưởng thành!
   </footer>
 
   <script>
@@ -671,24 +671,52 @@
         return;
       }
 
-      list.innerHTML = assignments.map(de => `
-        <button onclick="selectAssignment('${escapeHtml(de.id)}')"
-          class="text-left rounded-2xl border border-slate-200 bg-slate-50 hover:bg-purple-50 hover:border-purple-300 p-4 transition">
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-xs font-bold text-purple-700">${escapeHtml(de.id)}</span>
-            <span class="rounded-full bg-amber-100 text-amber-700 px-2 py-0.5 text-[11px] font-bold">+${Number(de.expHoanThanh) || 0} EXP</span>
+      const options = assignments.map(de => {
+        const exp = Number(de.expHoanThanh) || 0;
+        const label = `${de.id} - ${de.tieuDe || "Nhiệm vụ"} (${de.kieuNhiemVu || "Nhiệm vụ"} · ${de.nangLuc || "Ngữ văn"} · +${exp} EXP)`;
+        return `<option value="${escapeHtml(de.id)}">${escapeHtml(label)}</option>`;
+      }).join("");
+
+      list.innerHTML = `
+        <div class="col-span-full rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <label for="assignment-select" class="block text-xs font-extrabold text-purple-950 uppercase tracking-wider mb-2">
+            Chọn nhiệm vụ / đề bài
+          </label>
+          <select id="assignment-select" onchange="selectAssignment(this.value)"
+            class="w-full rounded-xl border border-purple-200 bg-white px-4 py-3 text-sm font-bold text-purple-950 outline-none focus:ring-2 focus:ring-purple-600">
+            <option value="">-- Chọn một nhiệm vụ để bắt đầu --</option>
+            ${options}
+          </select>
+          <div id="assignment-selected-hint" class="mt-3 rounded-xl bg-white border border-slate-200 px-4 py-3 text-xs text-slate-500">
+            Sau khi chọn, ngữ liệu và câu hỏi sẽ hiện ngay bên dưới.
           </div>
-          <h4 class="font-extrabold text-slate-900 mt-2">${escapeHtml(de.tieuDe)}</h4>
-          <p class="text-xs text-slate-500 mt-1">${escapeHtml(de.kieuNhiemVu || "Nhiệm vụ")} · ${escapeHtml(de.nangLuc || "Ngữ văn")}</p>
-        </button>
-      `).join("");
+        </div>
+      `;
     }
 
     function selectAssignment(id) {
       const assignments = STUDENT_HOME.assignments || [];
       SELECTED_ASSIGNMENT = assignments.find(de => String(de.id) === String(id));
 
-      if (!SELECTED_ASSIGNMENT) return;
+      if (!SELECTED_ASSIGNMENT) {
+        document.getElementById("assignment-workspace").classList.add("hidden");
+        const hint = document.getElementById("assignment-selected-hint");
+        if (hint) hint.innerHTML = "Sau khi chọn, ngữ liệu và câu hỏi sẽ hiện ngay bên dưới.";
+        return;
+      }
+
+      const hint = document.getElementById("assignment-selected-hint");
+      if (hint) {
+        hint.innerHTML = `
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+            <div>
+              <span class="font-extrabold text-purple-900">${escapeHtml(SELECTED_ASSIGNMENT.id)} - ${escapeHtml(SELECTED_ASSIGNMENT.tieuDe || "Nhiệm vụ")}</span>
+              <p class="mt-1 text-slate-500">${escapeHtml(SELECTED_ASSIGNMENT.kieuNhiemVu || "Nhiệm vụ")} · ${escapeHtml(SELECTED_ASSIGNMENT.nangLuc || "Ngữ văn")}</p>
+            </div>
+            <span class="self-start md:self-auto rounded-full bg-amber-100 text-amber-700 px-3 py-1 text-[11px] font-bold">+${Number(SELECTED_ASSIGNMENT.expHoanThanh) || 0} EXP</span>
+          </div>
+        `;
+      }
 
       document.getElementById("assignment-workspace").classList.remove("hidden");
       document.getElementById("selected-assignment-meta").textContent =
