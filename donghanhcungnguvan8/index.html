@@ -145,6 +145,15 @@
           <h2 id="student-pet-name" class="text-2xl font-extrabold text-amber-300">Mầm chữ</h2>
           <p id="student-pet-desc" class="text-sm text-slate-300 mt-2 leading-relaxed">PET mới bắt đầu hành trình học Văn.</p>
 
+          <button onclick="togglePetChooser()" class="mt-4 rounded-xl bg-white/10 border border-white/10 px-4 py-2 text-sm font-bold hover:bg-white/20 transition">
+            Đổi PET đồng hành
+          </button>
+
+          <div id="pet-chooser-box" class="hidden mt-4 rounded-2xl bg-white/10 border border-white/10 p-3 text-left">
+            <p class="text-xs text-slate-300 mb-3 text-center">Chọn một PET em muốn đồng hành trong môn Ngữ văn:</p>
+            <div id="pet-chooser-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
+          </div>
+
           <div class="mt-6 space-y-4 text-left">
             <div>
               <div class="flex justify-between text-xs font-bold mb-1">
@@ -386,6 +395,7 @@
     let STUDENT_HOME = null;
     let TEACHER_HOME = null;
     let SELECTED_ASSIGNMENT = null;
+    let PET_ICON_CATALOG = [];
 
     // =================================================================
     // 2. API HELPER
@@ -542,6 +552,7 @@
     function renderStudentHome() {
       const s = STUDENT_HOME.student;
       const p = STUDENT_HOME.petLevel || {};
+      if (Array.isArray(STUDENT_HOME.petCatalog)) PET_ICON_CATALOG = STUDENT_HOME.petCatalog;
 
       document.getElementById("student-title").textContent = `${s.hoTen} - Lớp ${s.lop}`;
       document.getElementById("student-class-badge").textContent = `Lớp ${s.lop}`;
@@ -565,6 +576,74 @@
       renderStudentSubmissions();
       renderStudentLogs();
       renderStudentBadges();
+    }
+
+
+    async function togglePetChooser() {
+      const box = document.getElementById("pet-chooser-box");
+      box.classList.toggle("hidden");
+
+      if (!box.classList.contains("hidden")) {
+        await loadPetIconCatalog();
+        renderPetChooser();
+      }
+    }
+
+    async function loadPetIconCatalog() {
+      if (PET_ICON_CATALOG.length > 0) return;
+
+      try {
+        const data = await api("getPetIconCatalog", {});
+        if (data.success) {
+          PET_ICON_CATALOG = data.pets || [];
+        } else {
+          showToast(data.message || "Không tải được danh sách PET.", "error");
+        }
+      } catch (err) {
+        showToast("Lỗi tải danh sách PET.", "error");
+      }
+    }
+
+    function renderPetChooser() {
+      const grid = document.getElementById("pet-chooser-grid");
+
+      if (!PET_ICON_CATALOG || PET_ICON_CATALOG.length === 0) {
+        grid.innerHTML = `<div class="col-span-3 text-xs text-slate-300 text-center">Chưa có danh mục PET. Thầy/cô cần chạy CAI_DAT_BAN_DAU trong Apps Script.</div>`;
+        return;
+      }
+
+      grid.innerHTML = PET_ICON_CATALOG.map(pet => `
+        <button onclick='choosePetIcon(${JSON.stringify(pet.petIcon)})'
+          title="${escapeHtml(pet.moTa || pet.tenPet || "")}" 
+          class="rounded-xl bg-white/10 hover:bg-amber-400/20 border border-white/10 p-3 text-center transition ${STUDENT_HOME?.student?.petIcon === pet.petIcon ? "ring-2 ring-amber-300" : ""}">
+          <div class="text-3xl">${escapeHtml(pet.petIcon)}</div>
+          <div class="text-[11px] mt-1 text-slate-200 leading-tight">${escapeHtml(pet.tenPet || "PET")}</div>
+        </button>
+      `).join("");
+    }
+
+    async function choosePetIcon(petIcon) {
+      if (!CURRENT_USER || CURRENT_USER.role !== "student") return;
+
+      try {
+        const data = await api("updatePetIcon", {
+          maHS: CURRENT_USER.maHS,
+          petIcon: petIcon
+        });
+
+        if (!data.success) {
+          showToast(data.message || "Không đổi được PET.", "error");
+          return;
+        }
+
+        showToast("Em đã chọn PET đồng hành mới.", "success");
+        document.getElementById("pet-chooser-box").classList.add("hidden");
+        PET_ICON_CATALOG = [];
+        await refreshStudentHome();
+
+      } catch (err) {
+        showToast("Lỗi đổi PET.", "error");
+      }
     }
 
     function renderStudentGoal() {
