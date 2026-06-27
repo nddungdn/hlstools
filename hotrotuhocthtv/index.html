@@ -114,14 +114,38 @@
     .header-form {
       margin-top: 18px;
       display: grid;
-      grid-template-columns: 1.1fr .65fr 1.2fr auto auto;
-      gap: 10px;
-      align-items: end;
+      grid-template-columns: 1fr 1.25fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .header-card {
       padding: 14px;
       border-radius: 20px;
       background: rgba(255,255,255,.13);
       border: 1px solid rgba(255,255,255,.24);
       backdrop-filter: blur(10px);
+    }
+
+    .header-card-title {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      font-weight: 850;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      align-items: end;
+    }
+
+    .header-card-grid.ai-grid {
+      grid-template-columns: 1.2fr .85fr auto auto;
     }
 
     .field {
@@ -491,7 +515,10 @@
     .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
     @media (max-width: 980px) {
-      .header-form { grid-template-columns: 1fr 1fr; }
+      .header-form { grid-template-columns: 1fr; }
+      .header-card-grid,
+      .header-card-grid.ai-grid { grid-template-columns: 1fr; }
+      .header-card-grid.ai-grid { grid-template-columns: 1fr 1fr; }
     }
 
     @media (max-width: 820px) {
@@ -500,6 +527,8 @@
       .menu { max-height: 260px; }
       .grid-2 { grid-template-columns: 1fr; }
       .header-form { grid-template-columns: 1fr; }
+      .header-card-grid,
+      .header-card-grid.ai-grid { grid-template-columns: 1fr; }
       .btn { width: 100%; }
       .btn.small { width: auto; }
       .card { padding: 15px; }
@@ -532,23 +561,38 @@
       </div>
 
       <div class="header-form" aria-label="Thông tin học sinh và cấu hình AI">
-        <div class="field">
-          <label for="studentName">Họ và tên</label>
-          <input id="studentName" type="text" placeholder="Nhập họ tên học sinh" autocomplete="name">
-        </div>
+        <section class="header-card" aria-label="Thông tin học sinh">
+          <h2 class="header-card-title">👤 Thông tin học sinh</h2>
+          <div class="header-card-grid">
+            <div class="field">
+              <label for="studentName">Họ và tên</label>
+              <input id="studentName" type="text" placeholder="Nhập họ tên học sinh" autocomplete="name">
+            </div>
 
-        <div class="field">
-          <label for="studentClass">Lớp học</label>
-          <input id="studentClass" type="text" placeholder="Ví dụ: 8A1">
-        </div>
+            <div class="field">
+              <label for="studentClass">Lớp học</label>
+              <input id="studentClass" type="text" placeholder="Ví dụ: 8A1">
+            </div>
+          </div>
+        </section>
 
-        <div class="field">
-          <label for="apiKey">API key Gemini cá nhân <span style="font-weight:500">(không bắt buộc)</span></label>
-          <input id="apiKey" type="password" placeholder="Không nhập vẫn làm bài được, chỉ không dùng AI">
-        </div>
+        <section class="header-card" aria-label="Cấu hình AI">
+          <h2 class="header-card-title">🤖 Cấu hình AI</h2>
+          <div class="header-card-grid ai-grid">
+            <div class="field">
+              <label for="apiKey">API key Gemini cá nhân <span style="font-weight:500">(không bắt buộc)</span></label>
+              <input id="apiKey" type="password" placeholder="Không nhập vẫn làm bài được, chỉ không dùng AI">
+            </div>
 
-        <button class="btn light" id="toggleKeyBtn" type="button">Hiện key</button>
-        <button class="btn light" id="saveInfoBtn" type="button">Lưu thông tin</button>
+            <div class="field">
+              <label for="aiModel">Model AI</label>
+              <input id="aiModel" type="text" placeholder="gemini-1.5-flash" value="gemini-1.5-flash">
+            </div>
+
+            <button class="btn light" id="toggleKeyBtn" type="button">Hiện key</button>
+            <button class="btn light" id="saveInfoBtn" type="button">Lưu thông tin</button>
+          </div>
+        </section>
       </div>
     </div>
   </header>
@@ -727,6 +771,7 @@
       studentName: document.getElementById("studentName"),
       studentClass: document.getElementById("studentClass"),
       apiKey: document.getElementById("apiKey"),
+      aiModel: document.getElementById("aiModel"),
       toggleKeyBtn: document.getElementById("toggleKeyBtn"),
       saveInfoBtn: document.getElementById("saveInfoBtn"),
       gradeSelect: document.getElementById("gradeSelect"),
@@ -863,6 +908,7 @@
       localStorage.setItem(storageKey("studentName"), els.studentName.value.trim());
       localStorage.setItem(storageKey("studentClass"), els.studentClass.value.trim());
       localStorage.setItem(storageKey("apiKey"), els.apiKey.value.trim());
+      localStorage.setItem(storageKey("aiModel"), els.aiModel.value.trim() || CONFIG.GEMINI_MODEL);
       updateAiAvailability();
       toast("Đã lưu thông tin trên trình duyệt này.");
     }
@@ -871,6 +917,7 @@
       els.studentName.value = localStorage.getItem(storageKey("studentName")) || "";
       els.studentClass.value = localStorage.getItem(storageKey("studentClass")) || "";
       els.apiKey.value = localStorage.getItem(storageKey("apiKey")) || "";
+      els.aiModel.value = localStorage.getItem(storageKey("aiModel")) || CONFIG.GEMINI_MODEL;
       updateAiAvailability();
     }
 
@@ -1261,7 +1308,8 @@ Lời động viên:`;
       const apiKey = els.apiKey.value.trim();
       if (!apiKey) throw new Error("Chưa nhập API key. Em vẫn có thể làm bài và gửi kết quả, chỉ không dùng được AI.");
 
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(CONFIG.GEMINI_MODEL)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+      const model = (els.aiModel.value || CONFIG.GEMINI_MODEL).trim();
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
       const body = {
         contents: [{ role: "user", parts: [{ text: prompt }] }],
         generationConfig: { temperature: 0.35, maxOutputTokens: 900 }
@@ -1412,6 +1460,9 @@ Lời động viên:`;
       els.gradeSelect.addEventListener("change", filterMenu);
       els.searchInput.addEventListener("input", filterMenu);
       els.apiKey.addEventListener("input", updateAiAvailability);
+      els.aiModel.addEventListener("change", () => {
+        localStorage.setItem(storageKey("aiModel"), els.aiModel.value.trim() || CONFIG.GEMINI_MODEL);
+      });
       els.saveInfoBtn.addEventListener("click", saveLocalInfo);
       els.toggleKeyBtn.addEventListener("click", () => {
         const showing = els.apiKey.type === "text";
