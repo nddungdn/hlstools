@@ -735,7 +735,7 @@
         </div>
 
         <div class="notice blue">
-          Nếu không dùng AI, em vẫn có thể làm bài và gửi kết quả cho giáo viên. Giáo viên sẽ xem lại trong Google Sheet.
+          Nếu không dùng AI, em vẫn có thể làm bài và gửi kết quả cho giáo viên. Giáo viên sẽ xem lại.
         </div>
       </article>
 
@@ -1035,7 +1035,7 @@
         let json;
         try {
           const res = await fetch(url, { method: "GET", redirect: "follow" });
-          if (!res.ok) throw new Error("Không tải được dữ liệu từ Google Sheet.");
+          if (!res.ok) throw new Error("Không tải được dữ liệu.");
           json = await res.json();
         } catch (fetchError) {
           console.warn("Fetch bị lỗi, chuyển sang JSONP:", fetchError);
@@ -1049,7 +1049,7 @@
         state.data.exercises = Array.isArray(state.data.exercises) ? state.data.exercises : [];
         state.data.config = state.data.config || {};
 
-        els.dataStatus.textContent = "Đã kết nối Google Sheet";
+        els.dataStatus.textContent = "Đã kết nối dữ liệu";
         filterMenu();
 
         if (!state.data.knowledge.length) {
@@ -1059,7 +1059,7 @@
         console.error(error);
         els.dataStatus.textContent = "Lỗi dữ liệu";
         els.menuList.innerHTML = `<div class="notice">Không tải được dữ liệu: ${escapeText(error.message)}</div>`;
-        toast("Không tải được dữ liệu từ Google Sheet.");
+        toast("Không tải được dữ liệu.");
       }
     }
 
@@ -1573,7 +1573,7 @@ Lời động viên:`;
       if (els.reloadDataBtn) {
         els.reloadDataBtn.addEventListener("click", async () => {
           await loadData();
-          toast("Đã tải lại dữ liệu mới từ Google Sheet.");
+          toast("Đã tải lại dữ liệu mới.");
         });
       }
       els.gradeSelect.addEventListener("change", filterMenu);
