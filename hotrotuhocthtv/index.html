@@ -4,18 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Công cụ hỗ trợ tự học tiếng Việt | Học liệu số</title>
-  <meta name="description" content="Công cụ hỗ trợ học sinh tự học phần thực hành tiếng Việt: nhắc lại kiến thức, luyện tập, thực hành viết và nhận góp ý AI." />
+  <meta name="description" content="Công cụ hỗ trợ học sinh tự học phần thực hành tiếng Việt từ lớp 6 đến lớp 12." />
   <style>
     :root {
       --bg: #f5f7fb;
       --card: #ffffff;
       --text: #1f2937;
-      --muted: #6b7280;
+      --muted: #64748b;
       --line: #e5e7eb;
       --primary: #2563eb;
       --primary-dark: #1d4ed8;
       --soft: #eff6ff;
-      --soft-2: #f8fafc;
+      --soft2: #f8fafc;
       --success: #16a34a;
       --warning: #d97706;
       --danger: #dc2626;
@@ -23,110 +23,87 @@
       --shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
-    html {
-      scroll-behavior: smooth;
-    }
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
       background:
         radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 34rem),
         linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
-      color: var(--text);
       line-height: 1.6;
     }
 
-    button,
-    input,
-    select,
-    textarea {
-      font: inherit;
-    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
 
-    button {
-      cursor: pointer;
-    }
-
-    .app {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .header {
-      padding: 28px 18px 20px;
-      background: linear-gradient(135deg, #1d4ed8, #2563eb 55%, #3b82f6);
-      color: #fff;
-      border-bottom-left-radius: 28px;
-      border-bottom-right-radius: 28px;
-      box-shadow: 0 16px 32px rgba(37, 99, 235, 0.22);
-    }
-
-    .header-inner,
-    .main,
-    .footer-inner {
+    .wrap {
       width: min(1180px, calc(100% - 28px));
       margin: 0 auto;
     }
 
-    .brand-row {
+    .header {
+      color: #fff;
+      background: linear-gradient(135deg, #1d4ed8, #2563eb 58%, #60a5fa);
+      border-bottom-left-radius: 30px;
+      border-bottom-right-radius: 30px;
+      box-shadow: 0 16px 32px rgba(37, 99, 235, 0.22);
+      padding: 24px 0 18px;
+    }
+
+    .topbar {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 14px;
+      gap: 16px;
+      align-items: center;
       flex-wrap: wrap;
     }
 
-    .logo {
+    .brand {
       display: flex;
-      align-items: center;
       gap: 12px;
+      align-items: center;
     }
 
-    .logo-mark {
-      width: 46px;
-      height: 46px;
-      border-radius: 14px;
+    .logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 15px;
       display: grid;
       place-items: center;
-      background: rgba(255, 255, 255, 0.18);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      font-size: 24px;
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.28);
+      font-size: 25px;
     }
 
-    .header h1 {
-      font-size: clamp(1.55rem, 3vw, 2.25rem);
-      line-height: 1.15;
+    h1 {
       margin: 0;
+      font-size: clamp(1.45rem, 3vw, 2.2rem);
+      line-height: 1.15;
       letter-spacing: -0.02em;
     }
 
     .subtitle {
-      margin: 7px 0 0;
-      color: rgba(255, 255, 255, 0.88);
-      font-size: 1rem;
+      margin: 6px 0 0;
+      color: rgba(255,255,255,.88);
     }
 
-    .status-pill {
+    .status {
       display: inline-flex;
-      align-items: center;
       gap: 8px;
+      align-items: center;
       padding: 9px 12px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.14);
-      border: 1px solid rgba(255, 255, 255, 0.26);
-      color: #fff;
-      font-weight: 650;
-      font-size: 0.92rem;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.24);
+      font-weight: 750;
       white-space: nowrap;
     }
 
-    .dot {
+    .status-dot {
       width: 9px;
       height: 9px;
       border-radius: 999px;
@@ -134,17 +111,104 @@
       box-shadow: 0 0 0 4px rgba(134, 239, 172, 0.18);
     }
 
-    .main {
-      flex: 1;
+    .header-form {
+      margin-top: 18px;
       display: grid;
-      grid-template-columns: 315px minmax(0, 1fr);
+      grid-template-columns: 1.1fr .65fr 1.2fr auto auto;
+      gap: 10px;
+      align-items: end;
+      padding: 14px;
+      border-radius: 20px;
+      background: rgba(255,255,255,.13);
+      border: 1px solid rgba(255,255,255,.24);
+      backdrop-filter: blur(10px);
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: .86rem;
+      font-weight: 780;
+      color: rgba(255,255,255,.94);
+    }
+
+    .main .field label,
+    .card .field label,
+    .exercise-card .field label {
+      color: #374151;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 10px 11px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: .15s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.14);
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 13px;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: .12s ease;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .btn:disabled { opacity: .48; cursor: not-allowed; transform: none; }
+
+    .btn.light {
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.3);
+      color: #fff;
+    }
+
+    .btn.secondary {
+      background: #f3f4f6;
+      color: #1f2937;
+      border: 1px solid #e5e7eb;
+    }
+    .btn.secondary:hover { background: #e5e7eb; }
+
+    .btn.success { background: var(--success); }
+    .btn.warning { background: var(--warning); }
+    .btn.danger { background: var(--danger); }
+    .btn.small { padding: 7px 10px; border-radius: 10px; font-size: .88rem; }
+
+    .main {
+      display: grid;
+      grid-template-columns: 300px minmax(0, 1fr);
       gap: 18px;
       padding: 22px 0 26px;
     }
 
     .panel {
-      background: rgba(255, 255, 255, 0.9);
-      border: 1px solid rgba(226, 232, 240, 0.95);
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(226,232,240,.96);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       backdrop-filter: blur(10px);
@@ -154,142 +218,25 @@
       position: sticky;
       top: 14px;
       height: fit-content;
-      overflow: hidden;
-    }
-
-    .section {
       padding: 16px;
-      border-bottom: 1px solid var(--line);
     }
 
-    .section:last-child {
-      border-bottom: 0;
-    }
-
-    .section-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.98rem;
-      font-weight: 800;
-      margin: 0 0 10px;
+    .side-title {
+      margin: 0 0 12px;
+      font-size: 1.05rem;
       color: #111827;
     }
 
-    .small-note {
-      margin: 8px 0 0;
-      font-size: 0.86rem;
-      color: var(--muted);
-    }
-
-    .field {
+    .menu {
+      margin-top: 12px;
       display: grid;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-
-    .field label {
-      font-size: 0.87rem;
-      color: #374151;
-      font-weight: 700;
-    }
-
-    input,
-    select,
-    textarea {
-      width: 100%;
-      border: 1px solid #d1d5db;
-      border-radius: 12px;
-      padding: 10px 11px;
-      background: #fff;
-      color: var(--text);
-      outline: none;
-      transition: 0.15s ease;
-    }
-
-    input:focus,
-    select:focus,
-    textarea:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
-    }
-
-    textarea {
-      min-height: 112px;
-      resize: vertical;
-    }
-
-    .api-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
       gap: 8px;
-      align-items: end;
-    }
-
-    .btn {
-      border: 0;
-      border-radius: 12px;
-      padding: 10px 13px;
-      background: var(--primary);
-      color: #fff;
-      font-weight: 750;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      transition: transform 0.12s ease, background 0.12s ease, opacity 0.12s ease;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-
-    .btn:hover {
-      background: var(--primary-dark);
-      transform: translateY(-1px);
-    }
-
-    .btn:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .btn.secondary {
-      background: #f3f4f6;
-      color: #1f2937;
-      border: 1px solid #e5e7eb;
-    }
-
-    .btn.secondary:hover {
-      background: #e5e7eb;
-    }
-
-    .btn.success {
-      background: var(--success);
-    }
-
-    .btn.warning {
-      background: var(--warning);
-    }
-
-    .btn.danger {
-      background: var(--danger);
-    }
-
-    .btn.small {
-      padding: 7px 10px;
-      border-radius: 10px;
-      font-size: 0.88rem;
-    }
-
-    .knowledge-list {
-      max-height: 420px;
+      max-height: 560px;
       overflow: auto;
-      display: grid;
-      gap: 8px;
       padding-right: 4px;
     }
 
-    .knowledge-btn {
+    .menu-btn {
       width: 100%;
       text-align: left;
       border: 1px solid #e5e7eb;
@@ -299,58 +246,52 @@
       padding: 10px 11px;
       display: grid;
       gap: 2px;
-      transition: 0.12s ease;
+      transition: .12s ease;
     }
 
-    .knowledge-btn:hover {
+    .menu-btn:hover {
       border-color: #93c5fd;
       background: #eff6ff;
     }
 
-    .knowledge-btn.active {
-      border-color: #2563eb;
+    .menu-btn.active {
+      border-color: var(--primary);
       background: #eff6ff;
-      box-shadow: inset 4px 0 0 #2563eb;
+      box-shadow: inset 4px 0 0 var(--primary);
     }
 
-    .knowledge-name {
-      font-weight: 800;
-    }
-
-    .knowledge-meta {
-      font-size: 0.82rem;
-      color: var(--muted);
-    }
+    .menu-name { font-weight: 850; }
+    .menu-meta { color: var(--muted); font-size: .82rem; }
 
     .content {
+      min-width: 0;
       display: grid;
       gap: 16px;
-      min-width: 0;
     }
 
     .card {
       padding: 18px;
     }
 
-    .card-header {
+    .card-head {
       display: flex;
-      justify-content: space-between;
       align-items: flex-start;
+      justify-content: space-between;
       gap: 12px;
       margin-bottom: 12px;
     }
 
     .card h2 {
       margin: 0;
-      font-size: 1.18rem;
-      line-height: 1.25;
+      font-size: 1.16rem;
       color: #111827;
+      line-height: 1.28;
     }
 
-    .card-sub {
+    .card-desc {
       margin: 4px 0 0;
       color: var(--muted);
-      font-size: 0.93rem;
+      font-size: .93rem;
     }
 
     .tag {
@@ -361,8 +302,8 @@
       border-radius: 999px;
       background: var(--soft);
       color: #1d4ed8;
-      font-size: 0.82rem;
-      font-weight: 800;
+      font-size: .82rem;
+      font-weight: 850;
       white-space: nowrap;
     }
 
@@ -372,68 +313,84 @@
       gap: 12px;
     }
 
-    .info-box {
-      background: var(--soft-2);
+    .box {
       border: 1px solid #e5e7eb;
+      background: var(--soft2);
       border-radius: 14px;
       padding: 12px;
     }
 
-    .info-box h3 {
-      margin: 0 0 6px;
-      font-size: 0.94rem;
-      color: #374151;
+    .box h3 {
+      margin: 0 0 7px;
+      font-size: .95rem;
+      color: #334155;
     }
 
-    .info-box p,
-    .info-box ul {
-      margin: 0;
+    .rich {
+      overflow-wrap: anywhere;
     }
 
-    .info-box ul {
-      padding-left: 18px;
-    }
+    .rich b { font-weight: 850; }
+    .rich i { color: #475569; }
+    .rich br { line-height: 1.8; }
 
-    .exercise-list {
+    .level-block {
       display: grid;
-      gap: 12px;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .level-title {
+      margin: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1rem;
+      color: #0f172a;
     }
 
     .exercise-card {
       border: 1px solid #e5e7eb;
-      background: #fff;
       border-radius: 14px;
+      background: #fff;
       padding: 13px;
+      display: grid;
+      gap: 9px;
     }
 
-    .exercise-top {
+    .exercise-head {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       gap: 8px;
-      margin-bottom: 8px;
     }
 
     .exercise-q {
       margin: 0;
-      font-weight: 760;
+      font-weight: 780;
+      color: #111827;
     }
 
-    .level-badge {
-      font-size: 0.78rem;
-      font-weight: 800;
-      color: #92400e;
-      background: #fffbeb;
-      border: 1px solid #fde68a;
-      padding: 4px 7px;
+    .exercise-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .mini-tag {
+      display: inline-flex;
       border-radius: 999px;
+      padding: 3px 7px;
+      background: #f1f5f9;
+      color: #475569;
+      font-size: .76rem;
+      font-weight: 800;
       white-space: nowrap;
     }
 
     .options {
       display: grid;
       gap: 8px;
-      margin-top: 9px;
     }
 
     .option {
@@ -452,33 +409,18 @@
     }
 
     .feedback {
-      margin-top: 10px;
-      padding: 10px 11px;
+      display: none;
       border-radius: 12px;
+      padding: 10px 11px;
       border: 1px solid #bfdbfe;
       background: #eff6ff;
       color: #1e3a8a;
-      font-size: 0.92rem;
-      display: none;
+      font-size: .92rem;
     }
 
-    .feedback.show {
-      display: block;
-    }
+    .feedback.show { display: block; }
 
-    .feedback.good {
-      border-color: #bbf7d0;
-      background: #f0fdf4;
-      color: #14532d;
-    }
-
-    .feedback.bad {
-      border-color: #fecaca;
-      background: #fef2f2;
-      color: #7f1d1d;
-    }
-
-    .action-row {
+    .actions {
       display: flex;
       flex-wrap: wrap;
       gap: 9px;
@@ -486,8 +428,8 @@
       align-items: center;
     }
 
-    .ai-output {
-      min-height: 130px;
+    .ai-box {
+      min-height: 126px;
       background: #0f172a;
       color: #e5e7eb;
       border-radius: 15px;
@@ -496,25 +438,40 @@
       overflow-wrap: anywhere;
     }
 
-    .ai-output.empty {
+    .ai-box.empty {
       color: #94a3b8;
     }
 
-    .progress-line {
-      height: 8px;
-      border-radius: 999px;
-      background: #e5e7eb;
-      overflow: hidden;
-      margin-top: 8px;
+    .notice {
+      border: 1px solid #fde68a;
+      background: #fffbeb;
+      color: #92400e;
+      border-radius: 13px;
+      padding: 10px 11px;
+      font-size: .92rem;
+      margin-top: 10px;
     }
 
-    .progress-line span {
-      display: block;
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #2563eb, #22c55e);
-      transition: width 0.2s ease;
+    .notice.blue {
+      border-color: #bfdbfe;
+      background: #eff6ff;
+      color: #1e3a8a;
     }
+
+    .notice.green {
+      border-color: #bbf7d0;
+      background: #f0fdf4;
+      color: #14532d;
+    }
+
+    .footer {
+      text-align: center;
+      color: #475569;
+      padding: 18px 0 24px;
+    }
+
+    .footer p { margin: 3px 0; }
+    .footer small { color: #64748b; }
 
     .toast {
       position: fixed;
@@ -526,473 +483,285 @@
       color: #fff;
       border-radius: 14px;
       padding: 11px 14px;
-      box-shadow: 0 18px 38px rgba(0, 0, 0, 0.22);
+      box-shadow: 0 18px 38px rgba(0,0,0,.22);
       z-index: 20;
-      transition: 0.22s ease;
+      transition: .22s ease;
       opacity: 0;
     }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-    .toast.show {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
+    @media (max-width: 980px) {
+      .header-form { grid-template-columns: 1fr 1fr; }
     }
 
-    .footer {
-      padding: 18px 0 24px;
-      color: #475569;
-      text-align: center;
-    }
-
-    .footer p {
-      margin: 3px 0;
-    }
-
-    .footer small {
-      color: #64748b;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    @media (max-width: 860px) {
-      .main {
-        grid-template-columns: 1fr;
-      }
-
-      .sidebar {
-        position: static;
-      }
-
-      .knowledge-list {
-        max-height: 260px;
-      }
-
-      .grid-2 {
-        grid-template-columns: 1fr;
-      }
-
-      .card {
-        padding: 15px;
-      }
-
-      .api-row {
-        grid-template-columns: 1fr;
-      }
-
-      .btn {
-        width: 100%;
-      }
-
-      .btn.small {
-        width: auto;
-      }
+    @media (max-width: 820px) {
+      .main { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      .menu { max-height: 260px; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .header-form { grid-template-columns: 1fr; }
+      .btn { width: 100%; }
+      .btn.small { width: auto; }
+      .card { padding: 15px; }
+      .exercise-head { display: grid; }
     }
 
     @media print {
-      body {
-        background: #fff;
-      }
-
-      .sidebar,
-      .header,
-      .footer,
-      .action-row,
-      .toast {
-        display: none !important;
-      }
-
-      .main {
-        display: block;
-        width: 100%;
-        padding: 0;
-      }
-
-      .panel {
-        box-shadow: none;
-        border: 1px solid #ddd;
-        break-inside: avoid;
-        margin-bottom: 12px;
-      }
+      body { background: #fff; }
+      .header, .sidebar, .footer, .actions, .toast { display: none !important; }
+      .main { display: block; width: 100%; padding: 0; }
+      .panel { box-shadow: none; border: 1px solid #ddd; margin-bottom: 12px; break-inside: avoid; }
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <header class="header">
-      <div class="header-inner">
-        <div class="brand-row">
-          <div class="logo">
-            <div class="logo-mark" aria-hidden="true">📘</div>
-            <div>
-              <h1>Công cụ hỗ trợ tự học tiếng Việt</h1>
-              <p class="subtitle">Công cụ hỗ trợ học sinh tự học</p>
-            </div>
-          </div>
-          <div class="status-pill" title="Dữ liệu có thể lấy từ Google Sheet qua Apps Script">
-            <span class="dot"></span>
-            <span id="dataStatus">Đang khởi tạo</span>
+  <header class="header">
+    <div class="wrap">
+      <div class="topbar">
+        <div class="brand">
+          <div class="logo" aria-hidden="true">📘</div>
+          <div>
+            <h1>Công cụ hỗ trợ tự học tiếng Việt</h1>
+            <p class="subtitle">Công cụ hỗ trợ học sinh tự học</p>
           </div>
         </div>
+        <div class="status">
+          <span class="status-dot"></span>
+          <span id="dataStatus">Đang khởi tạo</span>
+        </div>
       </div>
-    </header>
 
-    <main class="main">
-      <aside class="sidebar panel">
-        <section class="section">
-          <h2 class="section-title">👤 Thông tin học sinh</h2>
-          <div class="field">
-            <label for="studentName">Họ và tên</label>
-            <input id="studentName" type="text" placeholder="Nhập họ tên học sinh" autocomplete="name" />
-          </div>
-          <div class="field">
-            <label for="studentClass">Lớp học</label>
-            <input id="studentClass" type="text" placeholder="Ví dụ: 8A1" />
-          </div>
-          <p class="small-note">Thông tin này dùng để lưu kết quả về Google Sheet cho giáo viên kiểm tra.</p>
-        </section>
+      <div class="header-form" aria-label="Thông tin học sinh và cấu hình AI">
+        <div class="field">
+          <label for="studentName">Họ và tên</label>
+          <input id="studentName" type="text" placeholder="Nhập họ tên học sinh" autocomplete="name">
+        </div>
 
-        <section class="section">
-          <h2 class="section-title">🔑 Cấu hình AI</h2>
-          <div class="field">
-            <label for="aiProvider">Dịch vụ AI</label>
-            <select id="aiProvider">
-              <option value="gemini">Google Gemini API</option>
-              <option value="openai_compatible">OpenAI-compatible API</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="aiModel">Tên model</label>
-            <input id="aiModel" type="text" value="gemini-1.5-flash" />
-          </div>
-          <div class="field">
-            <label for="apiKey">API key cá nhân</label>
-            <div class="api-row">
-              <input id="apiKey" type="password" placeholder="Dán API key của học sinh tại đây" />
-              <button class="btn secondary" id="toggleKeyBtn" type="button">Hiện</button>
-            </div>
-          </div>
-          <div class="action-row">
-            <button class="btn small" id="saveKeyBtn" type="button">Lưu trên máy này</button>
-            <button class="btn small danger" id="clearKeyBtn" type="button">Xóa key</button>
-          </div>
-          <p class="small-note">API key chỉ lưu cục bộ trên trình duyệt, không gửi về Google Sheet. Không chia sẻ API key cho người khác.</p>
-        </section>
+        <div class="field">
+          <label for="studentClass">Lớp học</label>
+          <input id="studentClass" type="text" placeholder="Ví dụ: 8A1">
+        </div>
 
-        <section class="section">
-          <h2 class="section-title">📚 Mục lục kiến thức</h2>
-          <div class="field">
-            <label for="gradeSelect">Chọn lớp</label>
-            <select id="gradeSelect"></select>
-          </div>
-          <div class="field">
-            <label for="searchKnowledge">Tìm kiến thức</label>
-            <input id="searchKnowledge" type="search" placeholder="Ví dụ: Ẩn dụ, từ ghép..." />
-          </div>
-          <div id="knowledgeList" class="knowledge-list" aria-label="Danh sách kiến thức tiếng Việt"></div>
-        </section>
-      </aside>
+        <div class="field">
+          <label for="apiKey">API key Gemini cá nhân <span style="font-weight:500">(không bắt buộc)</span></label>
+          <input id="apiKey" type="password" placeholder="Không nhập vẫn làm bài được, chỉ không dùng AI">
+        </div>
 
-      <section class="content">
-        <article class="panel card" id="knowledgeCard">
-          <div class="card-header">
-            <div>
-              <h2>1. Em cần nhớ</h2>
-              <p class="card-sub">Nhắc lại kiến thức trọng tâm từ dữ liệu giáo viên đã chuẩn bị.</p>
-            </div>
-            <span class="tag" id="selectedTag">Chưa chọn</span>
-          </div>
-          <div class="grid-2">
-            <div class="info-box">
-              <h3>Khái niệm</h3>
-              <p id="conceptText">Hãy chọn một đơn vị kiến thức ở cột bên trái.</p>
-            </div>
-            <div class="info-box">
-              <h3>Dấu hiệu nhận biết</h3>
-              <p id="signText">Nội dung sẽ hiển thị tại đây.</p>
-            </div>
-            <div class="info-box">
-              <h3>Ví dụ</h3>
-              <p id="exampleText">Nội dung sẽ hiển thị tại đây.</p>
-            </div>
-            <div class="info-box">
-              <h3>Lưu ý dễ nhầm</h3>
-              <p id="noteText">Nội dung sẽ hiển thị tại đây.</p>
-            </div>
-          </div>
-        </article>
-
-        <article class="panel card" id="exerciseCard">
-          <div class="card-header">
-            <div>
-              <h2>2. Em luyện nhận biết và thông hiểu</h2>
-              <p class="card-sub">Làm bài tập ngắn trước khi chuyển sang phần vận dụng viết.</p>
-            </div>
-            <span class="tag" id="exerciseCount">0 bài</span>
-          </div>
-          <div id="exerciseList" class="exercise-list"></div>
-          <div class="action-row">
-            <button class="btn" id="checkExerciseBtn" type="button">Kiểm tra bài tập</button>
-            <button class="btn secondary" id="resetExerciseBtn" type="button">Làm lại</button>
-          </div>
-        </article>
-
-        <article class="panel card" id="writingCard">
-          <div class="card-header">
-            <div>
-              <h2>3. Em thực hành sử dụng</h2>
-              <p class="card-sub">Viết câu hoặc đoạn có sử dụng kiến thức tiếng Việt vừa học.</p>
-            </div>
-            <span class="tag">Vận dụng</span>
-          </div>
-          <div class="info-box">
-            <h3>Yêu cầu viết</h3>
-            <p id="writingPrompt">Hãy chọn một đơn vị kiến thức để hiện yêu cầu viết.</p>
-          </div>
-          <div class="field" style="margin-top:12px">
-            <label for="studentWriting">Bài làm của em</label>
-            <textarea id="studentWriting" placeholder="Học sinh viết câu hoặc đoạn văn tại đây..."></textarea>
-          </div>
-          <div class="field">
-            <label for="selfAssessment">Em tự đánh giá mức độ hiểu bài</label>
-            <select id="selfAssessment">
-              <option value="">Chọn một mức</option>
-              <option value="Em đã hiểu rõ">Em đã hiểu rõ</option>
-              <option value="Em hiểu một phần">Em hiểu một phần</option>
-              <option value="Em còn chưa hiểu">Em còn chưa hiểu</option>
-              <option value="Em cần giáo viên hỗ trợ thêm">Em cần giáo viên hỗ trợ thêm</option>
-            </select>
-          </div>
-          <div class="action-row">
-            <button class="btn secondary" id="hintBtn" type="button">Gợi ý nhẹ</button>
-            <button class="btn" id="checkWritingBtn" type="button">AI góp ý bài viết</button>
-            <button class="btn secondary" id="clearWritingBtn" type="button">Xóa bài viết</button>
-          </div>
-        </article>
-
-        <article class="panel card" id="aiCard">
-          <div class="card-header">
-            <div>
-              <h2>4. AI góp ý và hỏi đáp</h2>
-              <p class="card-sub">AI chỉ đưa kết quả tham khảo, học sinh cần đối chiếu với hướng dẫn của giáo viên.</p>
-            </div>
-            <span class="tag" id="aiStatus">Sẵn sàng</span>
-          </div>
-          <div id="aiOutput" class="ai-output empty">Kết quả góp ý của AI sẽ hiển thị tại đây.</div>
-          <div class="progress-line" aria-hidden="true"><span id="progressBar"></span></div>
-          <div class="field" style="margin-top:12px">
-            <label for="aiQuestion">Câu hỏi thêm của em</label>
-            <textarea id="aiQuestion" placeholder="Ví dụ: Vì sao câu em viết chưa phải câu đặc biệt?"></textarea>
-          </div>
-          <div class="action-row">
-            <button class="btn" id="askAiBtn" type="button">Hỏi AI</button>
-            <button class="btn success" id="saveResultBtn" type="button">Gửi kết quả cho giáo viên</button>
-            <button class="btn secondary" id="printBtn" type="button">In / lưu PDF</button>
-          </div>
-        </article>
-      </section>
-    </main>
-
-    <footer class="footer">
-      <div class="footer-inner">
-        <p><strong>Công cụ được tạo và vận hành bởi “Học liệu số”.</strong></p>
-        <p><small>Công cụ có sử dụng AI nên có thể có sai sót trong phần kết quả tham khảo.</small></p>
+        <button class="btn light" id="toggleKeyBtn" type="button">Hiện key</button>
+        <button class="btn light" id="saveInfoBtn" type="button">Lưu thông tin</button>
       </div>
-    </footer>
-  </div>
+    </div>
+  </header>
+
+  <main class="wrap main">
+    <aside class="panel sidebar">
+      <h2 class="side-title">📚 Mục lục kiến thức</h2>
+
+      <div class="field">
+        <label for="gradeSelect">Chọn lớp</label>
+        <select id="gradeSelect">
+          <option value="6">Lớp 6</option>
+          <option value="7">Lớp 7</option>
+          <option value="8">Lớp 8</option>
+          <option value="9">Lớp 9</option>
+          <option value="10">Lớp 10</option>
+          <option value="11">Lớp 11</option>
+          <option value="12">Lớp 12</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="searchInput">Tìm kiến thức</label>
+        <input id="searchInput" type="search" placeholder="Ví dụ: từ ghép, ẩn dụ...">
+      </div>
+
+      <div id="menuList" class="menu"></div>
+    </aside>
+
+    <section class="content">
+      <article class="panel card">
+        <div class="card-head">
+          <div>
+            <h2>1. Em cần nhớ</h2>
+            <p class="card-desc">Nội dung được lấy từ sheet KienThuc do giáo viên chuẩn bị.</p>
+          </div>
+          <span class="tag" id="selectedTag">Chưa chọn</span>
+        </div>
+
+        <div class="grid-2">
+          <div class="box">
+            <h3>Kiến thức</h3>
+            <div id="knowledgeText" class="rich">Hãy chọn một đơn vị kiến thức ở cột bên trái.</div>
+          </div>
+          <div class="box">
+            <h3>Dấu hiệu nhận biết</h3>
+            <div id="signText" class="rich">Nội dung sẽ hiển thị tại đây.</div>
+          </div>
+          <div class="box">
+            <h3>Ví dụ</h3>
+            <div id="exampleText" class="rich">Nội dung sẽ hiển thị tại đây.</div>
+          </div>
+          <div class="box">
+            <h3>Lưu ý</h3>
+            <div id="noteText" class="rich">Nội dung sẽ hiển thị tại đây.</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel card">
+        <div class="card-head">
+          <div>
+            <h2>2. Em luyện nhận biết và thông hiểu</h2>
+            <p class="card-desc">Bài tập được chọn ngẫu nhiên từ sheet BaiTap theo mức độ tư duy.</p>
+          </div>
+          <span class="tag" id="exerciseCountTag">0 bài</span>
+        </div>
+
+        <div id="exerciseContainer">
+          <div class="notice">Chưa có bài tập. Hãy chọn một đơn vị kiến thức.</div>
+        </div>
+
+        <div class="actions">
+          <button class="btn secondary" id="rerollBtn" type="button">Đổi bộ bài ngẫu nhiên</button>
+          <button class="btn" id="checkExerciseBtn" type="button">Kiểm tra / xem tham khảo</button>
+        </div>
+
+        <div class="notice blue">
+          Nếu không dùng AI, em vẫn có thể làm bài và gửi kết quả cho giáo viên. Giáo viên sẽ xem lại trong Google Sheet.
+        </div>
+      </article>
+
+      <article class="panel card">
+        <div class="card-head">
+          <div>
+            <h2>3. Em thực hành sử dụng</h2>
+            <p class="card-desc">Yêu cầu viết được chọn từ bài tập mức Vận dụng hoặc từ sheet KienThuc.</p>
+          </div>
+          <span class="tag">Vận dụng</span>
+        </div>
+
+        <div class="box">
+          <h3>Yêu cầu viết</h3>
+          <div id="writingPrompt" class="rich">Hãy chọn một đơn vị kiến thức để hiện yêu cầu viết.</div>
+        </div>
+
+        <div class="field" style="margin-top:12px">
+          <label for="writingAnswer">Bài làm của em</label>
+          <textarea id="writingAnswer" placeholder="Viết câu hoặc đoạn văn tại đây..."></textarea>
+        </div>
+
+        <div class="field">
+          <label for="selfAssessment">Em tự đánh giá mức độ hiểu bài</label>
+          <select id="selfAssessment">
+            <option value="">Chọn một mức</option>
+            <option value="Em đã hiểu rõ">Em đã hiểu rõ</option>
+            <option value="Em hiểu một phần">Em hiểu một phần</option>
+            <option value="Em còn chưa hiểu">Em còn chưa hiểu</option>
+            <option value="Em cần giáo viên hỗ trợ thêm">Em cần giáo viên hỗ trợ thêm</option>
+          </select>
+        </div>
+
+        <div class="actions">
+          <button class="btn secondary" id="clearWorkBtn" type="button">Xóa bài làm</button>
+          <button class="btn" id="aiReviewBtn" type="button" disabled>AI góp ý bài làm</button>
+        </div>
+      </article>
+
+      <article class="panel card">
+        <div class="card-head">
+          <div>
+            <h2>4. Kết quả tham khảo và hỏi đáp AI</h2>
+            <p class="card-desc">Phần AI chỉ hoạt động khi học sinh nhập API key cá nhân.</p>
+          </div>
+          <span class="tag" id="aiStatus">Chưa có API key</span>
+        </div>
+
+        <div id="aiOutput" class="ai-box empty">Chưa có kết quả AI. Học sinh không nhập API key vẫn có thể làm bài và gửi kết quả cho giáo viên.</div>
+
+        <div class="field" style="margin-top:12px">
+          <label for="aiQuestion">Câu hỏi thêm của em</label>
+          <textarea id="aiQuestion" placeholder="Ví dụ: Vì sao câu em viết chưa đúng?"></textarea>
+        </div>
+
+        <div class="actions">
+          <button class="btn" id="askAiBtn" type="button" disabled>Hỏi AI</button>
+          <button class="btn success" id="saveResultBtn" type="button">Gửi kết quả cho giáo viên</button>
+          <button class="btn secondary" id="printBtn" type="button">In / lưu PDF</button>
+        </div>
+
+        <div class="notice">
+          Công cụ có sử dụng AI nên kết quả tham khảo có thể còn sai sót. Học sinh cần đối chiếu với hướng dẫn của giáo viên.
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <p><strong>Công cụ được tạo và vận hành bởi “Học liệu số”.</strong></p>
+      <p><small>Công cụ có sử dụng AI nên có thể có sai sót trong phần kết quả tham khảo.</small></p>
+    </div>
+  </footer>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script>
     /*
-      CẤU HÌNH NHANH
-      1) Đưa file này lên GitHub tại: /hotrotuhoctiengviet/index.html
-      2) Nếu đã có Google Apps Script Web App, dán URL vào APPS_SCRIPT_URL.
-      3) Apps Script nên hỗ trợ:
-         - GET  ?action=getData
-         - POST { action: "saveResult", payload: {...} }
-      4) Nếu APPS_SCRIPT_URL để trống, công cụ chạy bằng dữ liệu mẫu để thử giao diện.
+      CẤU HÌNH BẮT BUỘC
+      Dán URL Google Apps Script Web App vào APPS_SCRIPT_URL.
+      File này không dùng dữ liệu mẫu.
     */
     const CONFIG = {
       APPS_SCRIPT_URL: "",
-      STORAGE_PREFIX: "hls_tu_hoc_tieng_viet_"
-    };
-
-    const DEMO_DATA = {
-      knowledge: [
-        {
-          lop: "6",
-          chuDe: "Từ và cấu tạo từ",
-          donVi: "Từ đơn",
-          khaiNiem: "Từ đơn là từ chỉ gồm một tiếng có nghĩa.",
-          dauHieu: "Chỉ có một tiếng; tiếng đó tự nó có nghĩa và dùng để tạo câu.",
-          viDu: "nhà, cây, sách, đẹp, học, chạy.",
-          luuY: "Không nhầm từ đơn với từ ghép. Từ ghép thường có từ hai tiếng trở lên.",
-          yeuCauViet: "Em hãy đặt 2 câu, mỗi câu có sử dụng ít nhất một từ đơn và gạch rõ từ đơn đó trong ngoặc đơn."
-        },
-        {
-          lop: "6",
-          chuDe: "Từ và cấu tạo từ",
-          donVi: "Từ ghép",
-          khaiNiem: "Từ ghép là từ phức được tạo bằng cách ghép các tiếng có quan hệ với nhau về nghĩa.",
-          dauHieu: "Thường gồm hai tiếng trở lên; các tiếng có quan hệ nghĩa với nhau.",
-          viDu: "sách vở, nhà cửa, học sinh, quê hương, xanh biếc.",
-          luuY: "Cần phân biệt từ ghép với từ láy. Từ láy có quan hệ láy âm; từ ghép có quan hệ nghĩa.",
-          yeuCauViet: "Em hãy đặt 2 câu có sử dụng từ ghép. Sau mỗi câu, ghi rõ từ ghép em đã dùng."
-        },
-        {
-          lop: "7",
-          chuDe: "Câu",
-          donVi: "Câu rút gọn",
-          khaiNiem: "Câu rút gọn là câu được lược bỏ một số thành phần nhưng vẫn có thể hiểu được nhờ ngữ cảnh.",
-          dauHieu: "Có thành phần bị lược bỏ; có thể khôi phục thành câu đầy đủ trong ngữ cảnh.",
-          viDu: "Đang học bài. → Có thể hiểu: Tôi/Chúng em đang học bài.",
-          luuY: "Không nhầm câu rút gọn với câu đặc biệt. Câu rút gọn có thể khôi phục thành phần bị lược bỏ.",
-          yeuCauViet: "Em hãy viết 2 câu rút gọn. Sau mỗi câu, cho biết câu đã rút gọn thành phần nào."
-        },
-        {
-          lop: "7",
-          chuDe: "Câu",
-          donVi: "Câu đặc biệt",
-          khaiNiem: "Câu đặc biệt là câu không cấu tạo theo mô hình chủ ngữ - vị ngữ thông thường.",
-          dauHieu: "Không xác định được đầy đủ chủ ngữ, vị ngữ theo kiểu câu bình thường; thường dùng để gọi đáp, bộc lộ cảm xúc, xác định thời gian/nơi chốn hoặc liệt kê.",
-          viDu: "Mưa! Một buổi sáng trong lành. Ôi, đẹp quá!",
-          luuY: "Câu đặc biệt không phải là câu thiếu chủ ngữ do viết sai. Câu đặc biệt vẫn có giá trị giao tiếp rõ.",
-          yeuCauViet: "Em hãy viết 3 câu đặc biệt: một câu bộc lộ cảm xúc, một câu xác định thời gian/nơi chốn, một câu liệt kê."
-        },
-        {
-          lop: "8",
-          chuDe: "Biện pháp tu từ",
-          donVi: "Ẩn dụ",
-          khaiNiem: "Ẩn dụ là gọi tên sự vật, hiện tượng này bằng tên sự vật, hiện tượng khác có nét tương đồng với nó.",
-          dauHieu: "Có sự chuyển đổi tên gọi dựa trên nét giống nhau; thường làm hình ảnh trở nên gợi cảm, hàm súc.",
-          viDu: "Người Cha mái tóc bạc. Từ “Người Cha” có thể được dùng để chỉ Bác Hồ trong một số ngữ cảnh thơ ca.",
-          luuY: "Cần chỉ ra được hai đối tượng có nét tương đồng và tác dụng biểu đạt của ẩn dụ.",
-          yeuCauViet: "Em hãy viết 2 câu có sử dụng ẩn dụ. Sau mỗi câu, giải thích ngắn gọn hình ảnh ẩn dụ."
-        },
-        {
-          lop: "8",
-          chuDe: "Liên kết câu",
-          donVi: "Phép lặp",
-          khaiNiem: "Phép lặp là cách lặp lại từ ngữ đã xuất hiện ở câu trước để tạo sự liên kết giữa các câu.",
-          dauHieu: "Một từ hoặc cụm từ quan trọng được nhắc lại ở câu sau.",
-          viDu: "Sách mở ra những chân trời mới. Sách giúp con người hiểu thêm về cuộc sống.",
-          luuY: "Lặp có tác dụng liên kết nhưng không nên lặp quá nhiều gây đơn điệu.",
-          yeuCauViet: "Em hãy viết một đoạn văn 4–5 câu về việc đọc sách, trong đó có sử dụng phép lặp để liên kết câu."
-        }
-      ],
-      exercises: [
-        {
-          id: "BT001",
-          lop: "6",
-          donVi: "Từ ghép",
-          mucDo: "Nhận biết",
-          kieu: "trac_nghiem",
-          cauHoi: "Trong các từ sau, từ nào là từ ghép?",
-          luaChon: "nhà cửa|lung linh|xanh xanh|lấp lánh",
-          dapAn: "nhà cửa",
-          giaiThich: "“nhà cửa” là từ ghép vì hai tiếng có quan hệ nghĩa với nhau."
-        },
-        {
-          id: "BT002",
-          lop: "6",
-          donVi: "Từ ghép",
-          mucDo: "Thông hiểu",
-          kieu: "tu_luan_ngan",
-          cauHoi: "Vì sao “sách vở” được xem là từ ghép?",
-          dapAn: "Vì hai tiếng sách và vở đều có nghĩa, có quan hệ với nhau về nghĩa.",
-          giaiThich: "Cần nêu được quan hệ nghĩa giữa các tiếng."
-        },
-        {
-          id: "BT003",
-          lop: "7",
-          donVi: "Câu rút gọn",
-          mucDo: "Nhận biết",
-          kieu: "trac_nghiem",
-          cauHoi: "Câu nào sau đây là câu rút gọn?",
-          luaChon: "Trời mưa rất to.|Đang làm bài tập.|Một buổi sáng đẹp trời.|Ôi, tuyệt quá!",
-          dapAn: "Đang làm bài tập.",
-          giaiThich: "Câu này lược bỏ chủ ngữ, có thể khôi phục: Em/Chúng em đang làm bài tập."
-        },
-        {
-          id: "BT004",
-          lop: "7",
-          donVi: "Câu đặc biệt",
-          mucDo: "Nhận biết",
-          kieu: "trac_nghiem",
-          cauHoi: "Câu nào sau đây là câu đặc biệt?",
-          luaChon: "Em đang đọc sách.|Mưa!|Bạn Lan học rất chăm.|Sân trường rất rộng.",
-          dapAn: "Mưa!",
-          giaiThich: "“Mưa!” là câu đặc biệt, không cấu tạo theo mô hình chủ ngữ - vị ngữ thông thường."
-        },
-        {
-          id: "BT005",
-          lop: "8",
-          donVi: "Ẩn dụ",
-          mucDo: "Thông hiểu",
-          kieu: "tu_luan_ngan",
-          cauHoi: "Khi phân tích một hình ảnh ẩn dụ, em cần chỉ ra những điều gì?",
-          dapAn: "Cần chỉ ra hình ảnh ẩn dụ, đối tượng được nói tới, nét tương đồng và tác dụng biểu đạt.",
-          giaiThich: "Phân tích ẩn dụ không chỉ gọi tên mà còn cần nêu tác dụng."
-        },
-        {
-          id: "BT006",
-          lop: "8",
-          donVi: "Phép lặp",
-          mucDo: "Nhận biết",
-          kieu: "trac_nghiem",
-          cauHoi: "Đoạn sau dùng phép liên kết nào: “Sách giúp em hiểu cuộc sống. Sách còn nuôi dưỡng tâm hồn em.”",
-          luaChon: "Phép lặp|Phép nối|Phép thế|Phép liên tưởng",
-          dapAn: "Phép lặp",
-          giaiThich: "Từ “Sách” được lặp lại ở hai câu để tạo liên kết."
-        }
-      ]
+      GEMINI_MODEL: "gemini-1.5-flash",
+      STORAGE_PREFIX: "hls_hotro_tuhoc_tiengviet_",
+      DEFAULT_COUNTS: {
+        "Nhận biết": 2,
+        "Thông hiểu": 2,
+        "Vận dụng": 1
+      }
     };
 
     const els = {
       dataStatus: document.getElementById("dataStatus"),
+      studentName: document.getElementById("studentName"),
+      studentClass: document.getElementById("studentClass"),
+      apiKey: document.getElementById("apiKey"),
+      toggleKeyBtn: document.getElementById("toggleKeyBtn"),
+      saveInfoBtn: document.getElementById("saveInfoBtn"),
       gradeSelect: document.getElementById("gradeSelect"),
-      searchKnowledge: document.getElementById("searchKnowledge"),
-      knowledgeList: document.getElementById("knowledgeList"),
+      searchInput: document.getElementById("searchInput"),
+      menuList: document.getElementById("menuList"),
       selectedTag: document.getElementById("selectedTag"),
-      conceptText: document.getElementById("conceptText"),
+      knowledgeText: document.getElementById("knowledgeText"),
       signText: document.getElementById("signText"),
       exampleText: document.getElementById("exampleText"),
       noteText: document.getElementById("noteText"),
-      exerciseList: document.getElementById("exerciseList"),
-      exerciseCount: document.getElementById("exerciseCount"),
+      exerciseContainer: document.getElementById("exerciseContainer"),
+      exerciseCountTag: document.getElementById("exerciseCountTag"),
+      rerollBtn: document.getElementById("rerollBtn"),
       checkExerciseBtn: document.getElementById("checkExerciseBtn"),
-      resetExerciseBtn: document.getElementById("resetExerciseBtn"),
       writingPrompt: document.getElementById("writingPrompt"),
-      studentWriting: document.getElementById("studentWriting"),
+      writingAnswer: document.getElementById("writingAnswer"),
       selfAssessment: document.getElementById("selfAssessment"),
-      hintBtn: document.getElementById("hintBtn"),
-      checkWritingBtn: document.getElementById("checkWritingBtn"),
-      clearWritingBtn: document.getElementById("clearWritingBtn"),
-      aiOutput: document.getElementById("aiOutput"),
+      clearWorkBtn: document.getElementById("clearWorkBtn"),
+      aiReviewBtn: document.getElementById("aiReviewBtn"),
       aiStatus: document.getElementById("aiStatus"),
+      aiOutput: document.getElementById("aiOutput"),
       aiQuestion: document.getElementById("aiQuestion"),
       askAiBtn: document.getElementById("askAiBtn"),
       saveResultBtn: document.getElementById("saveResultBtn"),
       printBtn: document.getElementById("printBtn"),
-      progressBar: document.getElementById("progressBar"),
-      toast: document.getElementById("toast"),
-      studentName: document.getElementById("studentName"),
-      studentClass: document.getElementById("studentClass"),
-      aiProvider: document.getElementById("aiProvider"),
-      aiModel: document.getElementById("aiModel"),
-      apiKey: document.getElementById("apiKey"),
-      saveKeyBtn: document.getElementById("saveKeyBtn"),
-      clearKeyBtn: document.getElementById("clearKeyBtn"),
-      toggleKeyBtn: document.getElementById("toggleKeyBtn")
+      toast: document.getElementById("toast")
     };
 
     const state = {
-      data: { knowledge: [], exercises: [] },
-      selected: null,
+      data: { knowledge: [], exercises: [], config: {} },
       filtered: [],
-      lastExerciseResult: null,
-      lastAiFeedback: ""
+      selected: null,
+      selectedExercises: [],
+      selectedWritingExercise: null,
+      lastAiText: ""
     };
 
     function storageKey(name) {
@@ -1002,17 +771,8 @@
     function toast(message) {
       els.toast.textContent = message;
       els.toast.classList.add("show");
-      window.clearTimeout(toast._timer);
-      toast._timer = window.setTimeout(() => els.toast.classList.remove("show"), 3000);
-    }
-
-    function escapeHtml(value) {
-      return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => els.toast.classList.remove("show"), 3300);
     }
 
     function normalize(value) {
@@ -1023,558 +783,662 @@
         .trim();
     }
 
-    function unique(arr) {
-      return [...new Set(arr.filter(Boolean))];
+    function normalizeLevel(value) {
+      const v = normalize(value);
+      if (v.includes("nhan")) return "Nhận biết";
+      if (v.includes("thong")) return "Thông hiểu";
+      if (v.includes("van") || v.includes("dung")) return "Vận dụng";
+      return String(value || "").trim() || "Khác";
     }
 
-    function setLoading(isLoading, label = "Đang xử lí") {
-      els.aiStatus.textContent = isLoading ? label : "Sẵn sàng";
-      els.progressBar.style.width = isLoading ? "72%" : "0%";
-      [els.hintBtn, els.checkWritingBtn, els.askAiBtn].forEach(btn => btn.disabled = isLoading);
+    function normalizeType(value) {
+      const v = normalize(value);
+      if (v.includes("trac") || v.includes("chon") || v.includes("tn")) return "Trắc nghiệm";
+      if (v.includes("viet doan")) return "Viết đoạn";
+      if (v.includes("viet cau")) return "Viết câu";
+      if (v.includes("tu luan") || v.includes("ngan")) return "Tự luận ngắn";
+      return String(value || "").trim() || "Tự luận ngắn";
     }
 
-    function setAiOutput(text, isEmpty = false) {
-      els.aiOutput.textContent = text;
-      els.aiOutput.classList.toggle("empty", isEmpty);
-    }
+    function safeBasicHtml(value) {
+      let raw = String(value || "");
+      raw = raw
+        .replace(/<\/br\s*>/gi, "<br>")
+        .replace(/<br\s*\/?>/gi, "<br>")
+        .replace(/\r?\n/g, "<br>");
 
-    function getApiKey() {
-      return els.apiKey.value.trim();
-    }
+      const template = document.createElement("template");
+      template.innerHTML = raw;
 
-    function saveLocalSettings() {
-      localStorage.setItem(storageKey("student_name"), els.studentName.value.trim());
-      localStorage.setItem(storageKey("student_class"), els.studentClass.value.trim());
-      localStorage.setItem(storageKey("ai_provider"), els.aiProvider.value);
-      localStorage.setItem(storageKey("ai_model"), els.aiModel.value.trim());
-      localStorage.setItem(storageKey("api_key"), els.apiKey.value.trim());
-      toast("Đã lưu cấu hình trên trình duyệt này.");
-    }
+      const allowed = ["B", "I", "BR"];
 
-    function loadLocalSettings() {
-      els.studentName.value = localStorage.getItem(storageKey("student_name")) || "";
-      els.studentClass.value = localStorage.getItem(storageKey("student_class")) || "";
-      els.aiProvider.value = localStorage.getItem(storageKey("ai_provider")) || "gemini";
-      els.aiModel.value = localStorage.getItem(storageKey("ai_model")) || "gemini-1.5-flash";
-      els.apiKey.value = localStorage.getItem(storageKey("api_key")) || "";
-      updateModelPlaceholder();
-    }
-
-    function updateModelPlaceholder() {
-      if (els.aiProvider.value === "gemini") {
-        els.aiModel.placeholder = "Ví dụ: gemini-1.5-flash";
-        if (!els.aiModel.value || els.aiModel.value.startsWith("gpt-")) els.aiModel.value = "gemini-1.5-flash";
-      } else {
-        els.aiModel.placeholder = "Ví dụ: gpt-4o-mini";
-        if (!els.aiModel.value || els.aiModel.value.startsWith("gemini")) els.aiModel.value = "gpt-4o-mini";
+      function clean(node) {
+        [...node.children].forEach(child => {
+          if (!allowed.includes(child.tagName)) {
+            child.replaceWith(...child.childNodes);
+            return;
+          }
+          [...child.attributes].forEach(attr => child.removeAttribute(attr.name));
+          clean(child);
+        });
       }
+
+      clean(template.content);
+      return template.innerHTML || "Chưa có nội dung.";
+    }
+
+    function setBasicHtml(element, value) {
+      element.innerHTML = safeBasicHtml(value || "Chưa có nội dung.");
+    }
+
+    function escapeText(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function setAiOutput(text, empty = false) {
+      els.aiOutput.textContent = text;
+      els.aiOutput.classList.toggle("empty", empty);
+    }
+
+    function hasApiKey() {
+      return Boolean(els.apiKey.value.trim());
+    }
+
+    function updateAiAvailability() {
+      const available = hasApiKey();
+      els.aiReviewBtn.disabled = !available;
+      els.askAiBtn.disabled = !available;
+      els.aiStatus.textContent = available ? "Đã có API key" : "Chưa có API key";
+      if (!available) {
+        setAiOutput("Chưa nhập API key. Học sinh vẫn có thể làm bài và gửi kết quả cho giáo viên; chỉ các phần AI không hoạt động.", true);
+      }
+    }
+
+    function saveLocalInfo() {
+      localStorage.setItem(storageKey("studentName"), els.studentName.value.trim());
+      localStorage.setItem(storageKey("studentClass"), els.studentClass.value.trim());
+      localStorage.setItem(storageKey("apiKey"), els.apiKey.value.trim());
+      updateAiAvailability();
+      toast("Đã lưu thông tin trên trình duyệt này.");
+    }
+
+    function loadLocalInfo() {
+      els.studentName.value = localStorage.getItem(storageKey("studentName")) || "";
+      els.studentClass.value = localStorage.getItem(storageKey("studentClass")) || "";
+      els.apiKey.value = localStorage.getItem(storageKey("apiKey")) || "";
+      updateAiAvailability();
     }
 
     async function loadData() {
-      try {
-        if (!CONFIG.APPS_SCRIPT_URL) {
-          state.data = DEMO_DATA;
-          els.dataStatus.textContent = "Dữ liệu mẫu";
-          toast("Đang dùng dữ liệu mẫu. Khi dùng thật, hãy cấu hình APPS_SCRIPT_URL.");
-        } else {
-          const url = CONFIG.APPS_SCRIPT_URL + "?action=getData&t=" + Date.now();
-          const res = await fetch(url, { method: "GET" });
-          if (!res.ok) throw new Error("Không tải được dữ liệu từ Google Sheet.");
-          const json = await res.json();
-          state.data = json.data || json;
-          els.dataStatus.textContent = "Đã kết nối dữ liệu";
-        }
-        initGradeSelect();
-        filterKnowledge();
-      } catch (err) {
-        console.error(err);
-        state.data = DEMO_DATA;
-        els.dataStatus.textContent = "Dùng dữ liệu mẫu";
-        toast("Lỗi tải dữ liệu. Tạm dùng dữ liệu mẫu để mở công cụ.");
-        initGradeSelect();
-        filterKnowledge();
-      }
-    }
-
-    function initGradeSelect() {
-      const grades = unique(state.data.knowledge.map(item => String(item.lop)));
-      els.gradeSelect.innerHTML = "";
-      grades.forEach(grade => {
-        const opt = document.createElement("option");
-        opt.value = grade;
-        opt.textContent = "Lớp " + grade;
-        els.gradeSelect.appendChild(opt);
-      });
-      if (grades.length) els.gradeSelect.value = grades[0];
-    }
-
-    function filterKnowledge() {
-      const grade = els.gradeSelect.value;
-      const q = normalize(els.searchKnowledge.value);
-      state.filtered = state.data.knowledge.filter(item => {
-        const sameGrade = String(item.lop) === String(grade);
-        const text = normalize([item.donVi, item.chuDe, item.khaiNiem].join(" "));
-        return sameGrade && (!q || text.includes(q));
-      });
-      renderKnowledgeList();
-      if (!state.selected || String(state.selected.lop) !== String(grade) || !state.filtered.some(x => x.donVi === state.selected.donVi)) {
-        selectKnowledge(state.filtered[0] || null);
-      }
-    }
-
-    function renderKnowledgeList() {
-      if (!state.filtered.length) {
-        els.knowledgeList.innerHTML = '<p class="small-note">Chưa có đơn vị kiến thức phù hợp.</p>';
+      if (!CONFIG.APPS_SCRIPT_URL) {
+        els.dataStatus.textContent = "Chưa cấu hình dữ liệu";
+        els.menuList.innerHTML = '<div class="notice">Chưa cấu hình APPS_SCRIPT_URL trong file index.html.</div>';
+        toast("Hãy dán URL Apps Script vào APPS_SCRIPT_URL.");
         return;
       }
 
-      els.knowledgeList.innerHTML = state.filtered.map((item, idx) => `
-        <button class="knowledge-btn ${state.selected && state.selected.donVi === item.donVi ? "active" : ""}" type="button" data-index="${idx}">
-          <span class="knowledge-name">${escapeHtml(item.donVi)}</span>
-          <span class="knowledge-meta">${escapeHtml(item.chuDe || "Tiếng Việt")} · Lớp ${escapeHtml(item.lop)}</span>
-        </button>
-      `).join("");
+      try {
+        els.dataStatus.textContent = "Đang tải dữ liệu";
+        const url = CONFIG.APPS_SCRIPT_URL + "?action=getData&t=" + Date.now();
+        const res = await fetch(url, { method: "GET" });
+        if (!res.ok) throw new Error("Không tải được dữ liệu từ Google Sheet.");
+        const json = await res.json();
+        if (json.success === false) throw new Error(json.message || "Lỗi dữ liệu.");
+        state.data = json.data || { knowledge: [], exercises: [], config: {} };
+        state.data.knowledge = Array.isArray(state.data.knowledge) ? state.data.knowledge : [];
+        state.data.exercises = Array.isArray(state.data.exercises) ? state.data.exercises : [];
+        state.data.config = state.data.config || {};
+        els.dataStatus.textContent = "Đã kết nối Google Sheet";
+        filterMenu();
+      } catch (error) {
+        console.error(error);
+        els.dataStatus.textContent = "Lỗi dữ liệu";
+        els.menuList.innerHTML = `<div class="notice">Không tải được dữ liệu: ${escapeText(error.message)}</div>`;
+        toast("Không tải được dữ liệu từ Google Sheet.");
+      }
+    }
 
-      els.knowledgeList.querySelectorAll(".knowledge-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const item = state.filtered[Number(btn.dataset.index)];
-          selectKnowledge(item);
-        });
+    function getKnowledgeTitle(item) {
+      return item.donViKienThuc || "";
+    }
+
+    function filterMenu() {
+      const grade = String(els.gradeSelect.value);
+      const q = normalize(els.searchInput.value);
+
+      state.filtered = (state.data.knowledge || []).filter(item => {
+        const sameGrade = String(item.lop || "") === grade;
+        const title = getKnowledgeTitle(item);
+        const text = normalize([title, item.kienThuc, item.dauHieu, item.viDu, item.luuY].join(" "));
+        return sameGrade && (!q || text.includes(q));
+      });
+
+      renderMenu();
+
+      if (!state.filtered.length) {
+        selectItem(null);
+        return;
+      }
+
+      if (!state.selected || String(state.selected.lop || "") !== grade || !state.filtered.some(x => x === state.selected)) {
+        selectItem(state.filtered[0]);
+      }
+    }
+
+    function renderMenu() {
+      if (!state.filtered.length) {
+        els.menuList.innerHTML = '<div class="notice">Chưa có kiến thức ở lớp này hoặc chưa khớp từ khóa tìm kiếm.</div>';
+        return;
+      }
+
+      els.menuList.innerHTML = state.filtered.map((item, index) => {
+        const title = getKnowledgeTitle(item);
+        const active = state.selected === item ? "active" : "";
+        const count = countExercisesFor(item);
+        return `
+          <button class="menu-btn ${active}" type="button" data-index="${index}">
+            <span class="menu-name">${escapeText(title)}</span>
+            <span class="menu-meta">Lớp ${escapeText(item.lop || "")} · ${count} bài tập</span>
+          </button>
+        `;
+      }).join("");
+
+      els.menuList.querySelectorAll(".menu-btn").forEach(btn => {
+        btn.addEventListener("click", () => selectItem(state.filtered[Number(btn.dataset.index)]));
       });
     }
 
-    function selectKnowledge(item) {
+    function countExercisesFor(item) {
+      if (!item) return 0;
+      const title = getKnowledgeTitle(item);
+      return (state.data.exercises || []).filter(ex =>
+        String(ex.lop || "") === String(item.lop || "") &&
+        String(ex.donViKienThuc || "") === String(title) &&
+        isActiveExercise(ex)
+      ).length;
+    }
+
+    function isActiveExercise(ex) {
+      const v = normalize(ex.trangThai || "Bật");
+      return !v || v === "bat" || v === "bật" || v === "active" || v === "on" || v === "1" || v === "true";
+    }
+
+    function selectItem(item) {
       state.selected = item;
-      state.lastExerciseResult = null;
-      state.lastAiFeedback = "";
-      els.studentWriting.value = "";
+      state.lastAiText = "";
+      state.selectedExercises = [];
+      state.selectedWritingExercise = null;
+      els.writingAnswer.value = "";
+      els.aiQuestion.value = "";
       els.selfAssessment.value = "";
-      setAiOutput("Kết quả góp ý của AI sẽ hiển thị tại đây.", true);
 
       if (!item) {
         els.selectedTag.textContent = "Chưa chọn";
-        els.conceptText.textContent = "Chưa có dữ liệu.";
-        els.signText.textContent = "Chưa có dữ liệu.";
-        els.exampleText.textContent = "Chưa có dữ liệu.";
-        els.noteText.textContent = "Chưa có dữ liệu.";
-        els.writingPrompt.textContent = "Chưa có yêu cầu viết.";
-        renderExercises([]);
-        renderKnowledgeList();
+        setBasicHtml(els.knowledgeText, "Chưa có nội dung.");
+        setBasicHtml(els.signText, "Chưa có nội dung.");
+        setBasicHtml(els.exampleText, "Chưa có nội dung.");
+        setBasicHtml(els.noteText, "Chưa có nội dung.");
+        setBasicHtml(els.writingPrompt, "Hãy chọn một đơn vị kiến thức.");
+        els.exerciseContainer.innerHTML = '<div class="notice">Chưa có bài tập.</div>';
+        els.exerciseCountTag.textContent = "0 bài";
+        updateAiAvailability();
+        renderMenu();
         return;
       }
 
-      els.selectedTag.textContent = `${item.donVi} · Lớp ${item.lop}`;
-      els.conceptText.textContent = item.khaiNiem || "Chưa có nội dung.";
-      els.signText.textContent = item.dauHieu || "Chưa có nội dung.";
-      els.exampleText.textContent = item.viDu || "Chưa có nội dung.";
-      els.noteText.textContent = item.luuY || "Chưa có nội dung.";
-      els.writingPrompt.textContent = item.yeuCauViet || `Em hãy viết câu hoặc đoạn có sử dụng kiến thức: ${item.donVi}.`;
+      const title = getKnowledgeTitle(item);
+      els.selectedTag.textContent = `${title} · Lớp ${item.lop}`;
+      setBasicHtml(els.knowledgeText, item.kienThuc);
+      setBasicHtml(els.signText, item.dauHieu);
+      setBasicHtml(els.exampleText, item.viDu);
+      setBasicHtml(els.noteText, item.luuY);
 
-      const exercises = state.data.exercises.filter(ex => String(ex.lop) === String(item.lop) && ex.donVi === item.donVi);
-      renderExercises(exercises);
-      renderKnowledgeList();
+      rerollExercises(false);
+      updateAiAvailability();
+      renderMenu();
     }
 
-    function renderExercises(exercises) {
-      els.exerciseCount.textContent = `${exercises.length} bài`;
-      if (!exercises.length) {
-        els.exerciseList.innerHTML = '<div class="info-box"><p>Chưa có bài tập cho đơn vị kiến thức này.</p></div>';
+    function getCountsForCurrentGrade() {
+      const grade = String(els.gradeSelect.value);
+      const cfg = state.data.config || {};
+      const byGrade = cfg.byGrade || {};
+      const raw = byGrade[grade] || cfg.default || {};
+
+      return {
+        "Nhận biết": Number(raw.nhanBiet || raw["Nhận biết"] || CONFIG.DEFAULT_COUNTS["Nhận biết"] || 2),
+        "Thông hiểu": Number(raw.thongHieu || raw["Thông hiểu"] || CONFIG.DEFAULT_COUNTS["Thông hiểu"] || 2),
+        "Vận dụng": Number(raw.vanDung || raw["Vận dụng"] || CONFIG.DEFAULT_COUNTS["Vận dụng"] || 1)
+      };
+    }
+
+    function getExercisesForSelected() {
+      if (!state.selected) return [];
+      const title = getKnowledgeTitle(state.selected);
+      return (state.data.exercises || []).filter(ex =>
+        String(ex.lop || "") === String(state.selected.lop || "") &&
+        String(ex.donViKienThuc || "") === String(title) &&
+        isActiveExercise(ex)
+      );
+    }
+
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function rerollExercises(showToast = true) {
+      if (!state.selected) return;
+
+      const all = getExercisesForSelected();
+      const counts = getCountsForCurrentGrade();
+
+      const recognition = shuffle(all.filter(ex => normalizeLevel(ex.mucDo) === "Nhận biết")).slice(0, counts["Nhận biết"]);
+      const understanding = shuffle(all.filter(ex => normalizeLevel(ex.mucDo) === "Thông hiểu")).slice(0, counts["Thông hiểu"]);
+      const applying = shuffle(all.filter(ex => normalizeLevel(ex.mucDo) === "Vận dụng")).slice(0, counts["Vận dụng"]);
+
+      state.selectedExercises = [...recognition, ...understanding];
+      state.selectedWritingExercise = applying[0] || null;
+
+      renderExercises();
+      renderWritingPrompt();
+
+      if (showToast) toast("Đã đổi bộ bài ngẫu nhiên.");
+    }
+
+    function renderExercises() {
+      const list = state.selectedExercises || [];
+      els.exerciseCountTag.textContent = `${list.length} bài`;
+
+      if (!state.selected) {
+        els.exerciseContainer.innerHTML = '<div class="notice">Hãy chọn một đơn vị kiến thức.</div>';
         return;
       }
 
-      els.exerciseList.innerHTML = exercises.map((ex, idx) => {
-        const options = String(ex.luaChon || "").split("|").filter(Boolean);
-        const body = ex.kieu === "trac_nghiem" && options.length
-          ? `<div class="options">${options.map((op, opIdx) => `
-              <label class="option">
-                <input type="radio" name="ex_${escapeHtml(ex.id || idx)}" value="${escapeHtml(op)}" />
-                <span>${escapeHtml(op)}</span>
-              </label>
-            `).join("")}</div>`
-          : `<textarea data-answer-for="${escapeHtml(ex.id || idx)}" placeholder="Nhập câu trả lời ngắn của em..."></textarea>`;
+      if (!list.length) {
+        els.exerciseContainer.innerHTML = '<div class="notice">Chưa có bài tập Nhận biết/Thông hiểu phù hợp trong sheet BaiTap.</div>';
+        return;
+      }
 
+      const groups = {
+        "Nhận biết": list.filter(ex => normalizeLevel(ex.mucDo) === "Nhận biết"),
+        "Thông hiểu": list.filter(ex => normalizeLevel(ex.mucDo) === "Thông hiểu")
+      };
+
+      els.exerciseContainer.innerHTML = Object.keys(groups).map(level => {
+        const items = groups[level];
+        if (!items.length) return "";
         return `
-          <div class="exercise-card" data-ex-id="${escapeHtml(ex.id || idx)}">
-            <div class="exercise-top">
-              <p class="exercise-q">${idx + 1}. ${escapeHtml(ex.cauHoi)}</p>
-              <span class="level-badge">${escapeHtml(ex.mucDo || "Luyện tập")}</span>
-            </div>
-            ${body}
-            <div class="feedback" id="fb_${escapeHtml(ex.id || idx)}"></div>
+          <div class="level-block">
+            <h3 class="level-title">📌 ${level}</h3>
+            ${items.map((ex, index) => renderExerciseCard(ex, index)).join("")}
           </div>
         `;
-      }).join("");
+      }).join("") || '<div class="notice">Chưa có bài tập để hiển thị.</div>';
     }
 
-    function getCurrentExercises() {
-      if (!state.selected) return [];
-      return state.data.exercises.filter(ex => String(ex.lop) === String(state.selected.lop) && ex.donVi === state.selected.donVi);
+    function renderExerciseCard(ex, index) {
+      const type = normalizeType(ex.kieuBai);
+      const exId = escapeText(ex.id || `EX_${index}`);
+      const options = parseOptions(ex.luaChon);
+
+      let inputHtml = "";
+
+      if (type === "Trắc nghiệm" && options.length) {
+        inputHtml = `<div class="options">${options.map((op, i) => `
+          <label class="option">
+            <input type="radio" name="ex_${exId}" value="${escapeText(op.value)}" data-ex-id="${exId}">
+            <span>${escapeText(op.label)}</span>
+          </label>
+        `).join("")}</div>`;
+      } else {
+        inputHtml = `
+          <div class="field">
+            <label>Câu trả lời của em</label>
+            <textarea data-ex-answer="${exId}" placeholder="Nhập câu trả lời tại đây..."></textarea>
+          </div>`;
+      }
+
+      return `
+        <div class="exercise-card" data-ex-id="${exId}">
+          <div class="exercise-head">
+            <p class="exercise-q">${escapeText(ex.cauHoi || "Chưa có câu hỏi.")}</p>
+            <div class="exercise-meta">
+              <span class="mini-tag">${escapeText(normalizeLevel(ex.mucDo))}</span>
+              <span class="mini-tag">${escapeText(type)}</span>
+            </div>
+          </div>
+          ${inputHtml}
+          ${ex.goiY ? `<div class="notice blue"><b>Gợi ý:</b> ${safeBasicHtml(ex.goiY)}</div>` : ""}
+          <div class="feedback" id="fb_${exId}"></div>
+        </div>
+      `;
+    }
+
+    function parseOptions(raw) {
+      return String(raw || "")
+        .split("|")
+        .map(s => s.trim())
+        .filter(Boolean)
+        .map((item, idx) => {
+          const m = item.match(/^([A-Da-d])[\.\)]\s*(.+)$/);
+          if (m) return { value: m[1].toUpperCase(), label: `${m[1].toUpperCase()}. ${m[2]}` };
+          return { value: item, label: item };
+        });
+    }
+
+    function renderWritingPrompt() {
+      if (!state.selected) {
+        setBasicHtml(els.writingPrompt, "Hãy chọn một đơn vị kiến thức.");
+        return;
+      }
+
+      if (state.selectedWritingExercise) {
+        setBasicHtml(els.writingPrompt, state.selectedWritingExercise.cauHoi || "Hãy thực hành viết câu/đoạn.");
+        return;
+      }
+
+      setBasicHtml(
+        els.writingPrompt,
+        state.selected.yeuCauViet ||
+        `Em hãy viết 1–2 câu hoặc một đoạn ngắn có sử dụng kiến thức <b>${getKnowledgeTitle(state.selected)}</b>.`
+      );
+    }
+
+    function getExerciseAnswer(ex) {
+      const exId = String(ex.id || "");
+      const type = normalizeType(ex.kieuBai);
+
+      if (type === "Trắc nghiệm") {
+        const checked = document.querySelector(`input[data-ex-id="${CSS.escape(exId)}"]:checked`);
+        return checked ? checked.value : "";
+      }
+
+      const textarea = document.querySelector(`[data-ex-answer="${CSS.escape(exId)}"]`);
+      return textarea ? textarea.value.trim() : "";
     }
 
     function checkExercises() {
-      const exercises = getCurrentExercises();
-      if (!exercises.length) {
+      if (!state.selectedExercises.length) {
         toast("Chưa có bài tập để kiểm tra.");
         return;
       }
 
-      let correct = 0;
-      const answers = [];
+      state.selectedExercises.forEach(ex => {
+        const exId = String(ex.id || "");
+        const student = getExerciseAnswer(ex);
+        const answer = String(ex.dapAn || "").trim();
+        const explain = String(ex.giaiThich || "").trim();
+        const fb = document.getElementById("fb_" + CSS.escape(exId));
 
-      exercises.forEach((ex, idx) => {
-        const exId = ex.id || idx;
-        let studentAnswer = "";
-        if (ex.kieu === "trac_nghiem") {
-          const selected = document.querySelector(`input[name="ex_${CSS.escape(String(exId))}"]:checked`);
-          studentAnswer = selected ? selected.value : "";
+        if (!fb) return;
+
+        let resultLine = "";
+        if (normalizeType(ex.kieuBai) === "Trắc nghiệm" && answer) {
+          const ok = normalize(student) === normalize(answer) || normalize(student).startsWith(normalize(answer));
+          resultLine = `<b>${ok ? "Kết quả: Có thể đúng." : "Kết quả: Cần xem lại."}</b><br>`;
         } else {
-          const input = document.querySelector(`[data-answer-for="${CSS.escape(String(exId))}"]`);
-          studentAnswer = input ? input.value.trim() : "";
+          resultLine = `<b>Kết quả tham khảo:</b><br>`;
         }
 
-        const expected = String(ex.dapAn || "").trim();
-        let isCorrect = false;
-
-        if (ex.kieu === "trac_nghiem") {
-          isCorrect = normalize(studentAnswer) === normalize(expected);
-        } else {
-          const studentNorm = normalize(studentAnswer);
-          const expectedWords = normalize(expected).split(/\s+/).filter(w => w.length > 2);
-          const hit = expectedWords.filter(w => studentNorm.includes(w)).length;
-          isCorrect = studentAnswer.length > 0 && hit >= Math.min(3, expectedWords.length);
-        }
-
-        if (isCorrect) correct++;
-
-        const fb = document.getElementById("fb_" + exId);
-        if (fb) {
-          fb.className = "feedback show " + (isCorrect ? "good" : "bad");
-          fb.innerHTML = `
-            <strong>${isCorrect ? "Đúng/khá phù hợp." : "Cần xem lại."}</strong><br>
-            <span>Đáp án/kết quả tham khảo: ${escapeHtml(expected || "Giáo viên chưa nhập đáp án.")}</span><br>
-            <span>${escapeHtml(ex.giaiThich || "")}</span>
-          `;
-        }
-
-        answers.push({
-          id: ex.id || "",
-          cauHoi: ex.cauHoi,
-          mucDo: ex.mucDo,
-          kieu: ex.kieu,
-          hocSinhTraLoi: studentAnswer,
-          dapAnThamKhao: expected,
-          dung: isCorrect
-        });
+        fb.classList.add("show");
+        fb.innerHTML = `
+          ${resultLine}
+          ${answer ? `<b>Đáp án/gợi ý:</b> ${escapeText(answer)}<br>` : ""}
+          ${explain ? `<b>Giải thích:</b> ${safeBasicHtml(explain)}` : "Giáo viên chưa nhập giải thích."}
+        `;
       });
 
-      state.lastExerciseResult = {
-        total: exercises.length,
-        correct,
-        answers
-      };
-
-      toast(`Đã kiểm tra: ${correct}/${exercises.length} câu phù hợp.`);
+      toast("Đã hiển thị kết quả/gợi ý tham khảo.");
     }
 
-    function resetExercises() {
-      document.querySelectorAll("#exerciseList input[type='radio']").forEach(input => input.checked = false);
-      document.querySelectorAll("#exerciseList textarea").forEach(textarea => textarea.value = "");
-      document.querySelectorAll("#exerciseList .feedback").forEach(fb => {
-        fb.className = "feedback";
-        fb.innerHTML = "";
-      });
-      state.lastExerciseResult = null;
-      toast("Đã làm mới phần bài tập.");
+    function stripHtml(value) {
+      const div = document.createElement("div");
+      div.innerHTML = safeBasicHtml(value || "");
+      return div.textContent || "";
     }
 
-    function buildContext() {
-      const item = state.selected;
-      return {
-        donVi: item?.donVi || "",
-        lop: item?.lop || "",
-        chuDe: item?.chuDe || "",
-        khaiNiem: item?.khaiNiem || "",
-        dauHieu: item?.dauHieu || "",
-        viDu: item?.viDu || "",
-        luuY: item?.luuY || "",
-        yeuCauViet: item?.yeuCauViet || els.writingPrompt.textContent || "",
-        baiLam: els.studentWriting.value.trim()
-      };
-    }
+    function buildAiPrompt(type) {
+      if (!state.selected) throw new Error("Hãy chọn một đơn vị kiến thức trước.");
 
-    function buildWritingPrompt(mode = "check") {
-      const ctx = buildContext();
-      if (!ctx.donVi) throw new Error("Hãy chọn một đơn vị kiến thức trước.");
+      const title = getKnowledgeTitle(state.selected);
+      const exerciseAnswers = collectExerciseResults(false);
 
-      if (mode === "hint") {
-        return `Bạn là giáo viên Ngữ văn ở Việt Nam, đang hỗ trợ học sinh tự học phần thực hành tiếng Việt.
-Đơn vị kiến thức: ${ctx.donVi}, lớp ${ctx.lop}.
-Yêu cầu viết: ${ctx.yeuCauViet}
+      const base = `Bạn là giáo viên Ngữ văn ở Việt Nam, đang hỗ trợ học sinh tự học phần thực hành tiếng Việt.
 
-Hãy đưa GỢI Ý NHẸ để học sinh tự làm, không viết thay đáp án hoàn chỉnh.
-Trả lời ngắn gọn, thân thiện, dễ hiểu.`;
-      }
+KIẾN THỨC ĐANG HỌC:
+- Lớp: ${state.selected.lop || ""}
+- Đơn vị kiến thức: ${title}
+- Kiến thức: ${stripHtml(state.selected.kienThuc || "")}
+- Dấu hiệu: ${stripHtml(state.selected.dauHieu || "")}
+- Ví dụ: ${stripHtml(state.selected.viDu || "")}
+- Lưu ý: ${stripHtml(state.selected.luuY || "")}
 
-      return `Bạn là giáo viên Ngữ văn ở Việt Nam, đang hỗ trợ học sinh tự học phần thực hành tiếng Việt.
-
-THÔNG TIN KIẾN THỨC CHUẨN:
-- Lớp: ${ctx.lop}
-- Chủ đề: ${ctx.chuDe}
-- Đơn vị kiến thức: ${ctx.donVi}
-- Khái niệm: ${ctx.khaiNiem}
-- Dấu hiệu nhận biết: ${ctx.dauHieu}
-- Ví dụ: ${ctx.viDu}
-- Lưu ý: ${ctx.luuY}
+BÀI TẬP VÀ BÀI LÀM:
+${JSON.stringify(exerciseAnswers, null, 2)}
 
 YÊU CẦU VIẾT:
-${ctx.yeuCauViet}
+${stripHtml(els.writingPrompt.innerHTML)}
 
-BÀI LÀM CỦA HỌC SINH:
-${ctx.baiLam || "(Học sinh chưa nhập bài làm)"}
+BÀI VIẾT CỦA HỌC SINH:
+${els.writingAnswer.value.trim() || "(chưa viết)"}
 
-NHIỆM VỤ CỦA BẠN:
-1. Kiểm tra bài làm có đúng yêu cầu thực hành tiếng Việt không.
-2. Chỉ ra yếu tố tiếng Việt học sinh đã dùng, nếu có.
-3. Giải thích ngắn gọn vì sao đạt/chưa đạt.
-4. Gợi ý sửa trên chính bài làm của học sinh, không viết thay bài dài.
-5. Đưa một lời khen hoặc động viên phù hợp.
+Yêu cầu phản hồi:
+- Không làm thay toàn bộ bài cho học sinh.
+- Chỉ ra điểm đúng, điểm cần sửa.
+- Gợi ý sửa cụ thể, ngắn gọn.
+- Có lời khen hoặc động viên phù hợp.
+- Kết luận theo mức: Đạt / Cần sửa thêm / Chưa đạt.`;
 
-Trả lời theo đúng cấu trúc:
+      if (type === "question") {
+        return `${base}
+
+CÂU HỎI THÊM CỦA HỌC SINH:
+${els.aiQuestion.value.trim()}
+
+Hãy trả lời ngắn gọn, dễ hiểu, có tính gợi mở.`;
+      }
+
+      return `${base}
+
+Hãy góp ý bài làm theo cấu trúc:
 Kết quả:
 Phần đúng:
 Phần cần sửa:
-Giải thích ngắn:
 Gợi ý sửa:
 Lời động viên:`;
     }
 
-    async function callAI(prompt) {
-      const apiKey = getApiKey();
-      if (!apiKey) throw new Error("Chưa nhập API key cá nhân.");
+    async function callGemini(prompt) {
+      const apiKey = els.apiKey.value.trim();
+      if (!apiKey) throw new Error("Chưa nhập API key. Em vẫn có thể làm bài và gửi kết quả, chỉ không dùng được AI.");
 
-      const provider = els.aiProvider.value;
-      const model = els.aiModel.value.trim();
-
-      if (provider === "gemini") {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
-        const body = {
-          contents: [
-            {
-              role: "user",
-              parts: [{ text: prompt }]
-            }
-          ],
-          generationConfig: {
-            temperature: 0.35,
-            maxOutputTokens: 900
-          }
-        };
-
-        const res = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body)
-        });
-
-        const json = await res.json();
-        if (!res.ok) {
-          const msg = json?.error?.message || "Không gọi được Gemini API.";
-          throw new Error(msg);
-        }
-
-        return json?.candidates?.[0]?.content?.parts?.map(p => p.text).join("\n").trim() || "AI chưa trả về nội dung.";
-      }
-
-      const url = "https://api.openai.com/v1/chat/completions";
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(CONFIG.GEMINI_MODEL)}:generateContent?key=${encodeURIComponent(apiKey)}`;
       const body = {
-        model,
-        messages: [
-          { role: "system", content: "Bạn là giáo viên Ngữ văn ở Việt Nam. Trả lời bằng tiếng Việt, rõ ràng, thân thiện, không làm thay học sinh." },
-          { role: "user", content: prompt }
-        ],
-        temperature: 0.35,
-        max_tokens: 900
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.35, maxOutputTokens: 900 }
       };
 
       const res = await fetch(url, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
       });
 
       const json = await res.json();
-      if (!res.ok) {
-        const msg = json?.error?.message || "Không gọi được OpenAI-compatible API.";
-        throw new Error(msg);
-      }
+      if (!res.ok) throw new Error(json?.error?.message || "Không gọi được Gemini API.");
 
-      return json?.choices?.[0]?.message?.content?.trim() || "AI chưa trả về nội dung.";
+      return json?.candidates?.[0]?.content?.parts?.map(p => p.text).join("\n").trim() || "AI chưa trả về nội dung.";
     }
 
-    async function handleHint() {
+    async function handleAiReview() {
       try {
-        setLoading(true, "Đang gợi ý");
-        const prompt = buildWritingPrompt("hint");
-        const text = await callAI(prompt);
-        state.lastAiFeedback = text;
-        setAiOutput(text);
-      } catch (err) {
-        setAiOutput("Không tạo được gợi ý: " + err.message);
-        toast(err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    async function handleCheckWriting() {
-      try {
-        if (!els.studentWriting.value.trim()) {
-          toast("Hãy nhập bài viết trước khi nhờ AI góp ý.");
+        if (!hasApiKey()) {
+          toast("Chưa nhập API key. Em vẫn có thể làm bài và gửi kết quả.");
           return;
         }
-        setLoading(true, "Đang góp ý");
-        const prompt = buildWritingPrompt("check");
-        const text = await callAI(prompt);
-        state.lastAiFeedback = text;
+        setAiWorking(true, "AI đang góp ý...");
+        const text = await callGemini(buildAiPrompt("review"));
+        state.lastAiText = text;
         setAiOutput(text);
-      } catch (err) {
-        setAiOutput("Không nhận được góp ý AI: " + err.message);
-        toast(err.message);
+      } catch (error) {
+        console.error(error);
+        setAiOutput("Không nhận được góp ý AI: " + error.message);
+        toast(error.message);
       } finally {
-        setLoading(false);
+        setAiWorking(false);
       }
     }
 
-    async function handleAskAI() {
+    async function handleAskAi() {
       try {
-        const question = els.aiQuestion.value.trim();
-        if (!question) {
+        if (!hasApiKey()) {
+          toast("Chưa nhập API key. Em vẫn có thể làm bài và gửi kết quả.");
+          return;
+        }
+        if (!els.aiQuestion.value.trim()) {
           toast("Hãy nhập câu hỏi trước khi hỏi AI.");
           return;
         }
-        const ctx = buildContext();
-        setLoading(true, "Đang trả lời");
-        const prompt = `Bạn là giáo viên Ngữ văn ở Việt Nam, đang hỗ trợ học sinh tự học phần thực hành tiếng Việt.
-Đơn vị kiến thức: ${ctx.donVi}
-Kiến thức chuẩn:
-- Khái niệm: ${ctx.khaiNiem}
-- Dấu hiệu: ${ctx.dauHieu}
-- Ví dụ: ${ctx.viDu}
-- Lưu ý: ${ctx.luuY}
-Yêu cầu viết: ${ctx.yeuCauViet}
-Bài học sinh đã viết: ${ctx.baiLam || "(chưa có)"}
-
-Câu hỏi của học sinh:
-${question}
-
-Hãy trả lời ngắn gọn, dễ hiểu, có tính gợi mở. Không viết thay toàn bộ bài cho học sinh.`;
-        const text = await callAI(prompt);
-        state.lastAiFeedback = text;
+        setAiWorking(true, "AI đang trả lời...");
+        const text = await callGemini(buildAiPrompt("question"));
+        state.lastAiText = text;
         setAiOutput(text);
-      } catch (err) {
-        setAiOutput("Không trả lời được câu hỏi: " + err.message);
-        toast(err.message);
+      } catch (error) {
+        console.error(error);
+        setAiOutput("Không trả lời được câu hỏi: " + error.message);
+        toast(error.message);
       } finally {
-        setLoading(false);
+        setAiWorking(false);
       }
     }
 
-    async function saveResult() {
-      const studentName = els.studentName.value.trim();
-      const studentClass = els.studentClass.value.trim();
-      if (!studentName || !studentClass) {
-        toast("Hãy nhập họ tên và lớp học trước khi gửi kết quả.");
-        return;
-      }
-      if (!state.selected) {
-        toast("Hãy chọn một đơn vị kiến thức trước khi gửi kết quả.");
-        return;
-      }
+    function setAiWorking(isWorking, label = "Đang xử lí") {
+      els.aiStatus.textContent = isWorking ? label : (hasApiKey() ? "Đã có API key" : "Chưa có API key");
+      els.aiReviewBtn.disabled = isWorking || !hasApiKey();
+      els.askAiBtn.disabled = isWorking || !hasApiKey();
+    }
 
-      const payload = {
+    function collectExerciseResults(includeAnswers = true) {
+      return state.selectedExercises.map(ex => ({
+        id: ex.id || "",
+        mucDo: normalizeLevel(ex.mucDo),
+        kieuBai: normalizeType(ex.kieuBai),
+        cauHoi: ex.cauHoi || "",
+        hocSinhTraLoi: getExerciseAnswer(ex),
+        dapAnThamKhao: includeAnswers ? (ex.dapAn || "") : "",
+        giaiThich: includeAnswers ? (ex.giaiThich || "") : ""
+      }));
+    }
+
+    function buildPayload() {
+      if (!state.selected) throw new Error("Hãy chọn một đơn vị kiến thức trước.");
+
+      return {
         thoiGian: new Date().toISOString(),
-        hoTen: studentName,
-        lopHocSinh: studentClass,
-        lopKienThuc: state.selected.lop,
-        chuDe: state.selected.chuDe || "",
-        donViKienThuc: state.selected.donVi || "",
-        yeuCauViet: els.writingPrompt.textContent.trim(),
-        baiVietHocSinh: els.studentWriting.value.trim(),
+        hoTen: els.studentName.value.trim(),
+        lopHocSinh: els.studentClass.value.trim(),
+        lopKienThuc: state.selected.lop || "",
+        donViKienThuc: getKnowledgeTitle(state.selected),
+        baiTapDuocChon: collectExerciseResults(true),
+        yeuCauViet: stripHtml(els.writingPrompt.innerHTML),
+        baiViet: els.writingAnswer.value.trim(),
         tuDanhGia: els.selfAssessment.value,
-        ketQuaBaiTap: state.lastExerciseResult,
-        nhanXetAI: state.lastAiFeedback || els.aiOutput.textContent.trim(),
+        coDungAI: hasApiKey() ? "Có" : "Không",
+        nhanXetAI: state.lastAiText || "",
         userAgent: navigator.userAgent
       };
+    }
 
-      if (!CONFIG.APPS_SCRIPT_URL) {
-        console.log("DEMO SAVE RESULT", payload);
-        toast("Đang dùng bản mẫu nên chưa gửi về Google Sheet. Hãy cấu hình APPS_SCRIPT_URL.");
-        return;
-      }
-
+    async function saveResult() {
       try {
-        els.saveResultBtn.disabled = true;
-        const res = await fetch(CONFIG.APPS_SCRIPT_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ action: "saveResult", payload })
-        });
-        const json = await res.json();
-        if (!res.ok || json.success === false) {
-          throw new Error(json.message || "Không lưu được kết quả.");
+        const payload = buildPayload();
+
+        if (!payload.hoTen || !payload.lopHocSinh) {
+          toast("Hãy nhập họ tên và lớp học trước khi gửi kết quả.");
+          return;
         }
-        toast("Đã gửi kết quả cho giáo viên.");
-      } catch (err) {
-        console.error(err);
-        toast("Lỗi lưu kết quả: " + err.message);
+
+        const hasAnyExerciseAnswer = payload.baiTapDuocChon.some(x => String(x.hocSinhTraLoi || "").trim());
+        if (!hasAnyExerciseAnswer && !payload.baiViet) {
+          toast("Hãy làm ít nhất một phần bài trước khi gửi.");
+          return;
+        }
+
+        if (!CONFIG.APPS_SCRIPT_URL) {
+          toast("Chưa cấu hình APPS_SCRIPT_URL nên chưa gửi được kết quả.");
+          return;
+        }
+
+        els.saveResultBtn.disabled = true;
+        const body = JSON.stringify({ action: "saveResult", payload });
+
+        try {
+          const res = await fetch(CONFIG.APPS_SCRIPT_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body
+          });
+
+          const json = await res.json();
+          if (json.success === false) throw new Error(json.message || "Không lưu được kết quả.");
+          toast("Đã gửi kết quả cho giáo viên.");
+        } catch (firstError) {
+          await fetch(CONFIG.APPS_SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body
+          });
+          toast("Đã gửi yêu cầu lưu kết quả. Trình duyệt không xác nhận phản hồi, nhưng dữ liệu thường vẫn được gửi.");
+        }
+      } catch (error) {
+        console.error(error);
+        toast("Lỗi: " + error.message);
       } finally {
         els.saveResultBtn.disabled = false;
       }
     }
 
     function bindEvents() {
-      els.gradeSelect.addEventListener("change", filterKnowledge);
-      els.searchKnowledge.addEventListener("input", filterKnowledge);
-      els.checkExerciseBtn.addEventListener("click", checkExercises);
-      els.resetExerciseBtn.addEventListener("click", resetExercises);
-      els.hintBtn.addEventListener("click", handleHint);
-      els.checkWritingBtn.addEventListener("click", handleCheckWriting);
-      els.askAiBtn.addEventListener("click", handleAskAI);
-      els.saveResultBtn.addEventListener("click", saveResult);
-      els.clearWritingBtn.addEventListener("click", () => {
-        els.studentWriting.value = "";
-        toast("Đã xóa bài viết.");
-      });
-      els.printBtn.addEventListener("click", () => window.print());
-
-      els.saveKeyBtn.addEventListener("click", saveLocalSettings);
-      els.clearKeyBtn.addEventListener("click", () => {
-        els.apiKey.value = "";
-        localStorage.removeItem(storageKey("api_key"));
-        toast("Đã xóa API key khỏi trình duyệt này.");
-      });
+      els.gradeSelect.addEventListener("change", filterMenu);
+      els.searchInput.addEventListener("input", filterMenu);
+      els.apiKey.addEventListener("input", updateAiAvailability);
+      els.saveInfoBtn.addEventListener("click", saveLocalInfo);
       els.toggleKeyBtn.addEventListener("click", () => {
-        const isPwd = els.apiKey.type === "password";
-        els.apiKey.type = isPwd ? "text" : "password";
-        els.toggleKeyBtn.textContent = isPwd ? "Ẩn" : "Hiện";
+        const showing = els.apiKey.type === "text";
+        els.apiKey.type = showing ? "password" : "text";
+        els.toggleKeyBtn.textContent = showing ? "Hiện key" : "Ẩn key";
       });
-      els.aiProvider.addEventListener("change", updateModelPlaceholder);
-
-      [els.studentName, els.studentClass, els.aiProvider, els.aiModel].forEach(el => {
-        el.addEventListener("change", () => {
-          localStorage.setItem(storageKey("student_name"), els.studentName.value.trim());
-          localStorage.setItem(storageKey("student_class"), els.studentClass.value.trim());
-          localStorage.setItem(storageKey("ai_provider"), els.aiProvider.value);
-          localStorage.setItem(storageKey("ai_model"), els.aiModel.value.trim());
+      els.rerollBtn.addEventListener("click", () => rerollExercises(true));
+      els.checkExerciseBtn.addEventListener("click", checkExercises);
+      els.clearWorkBtn.addEventListener("click", () => {
+        document.querySelectorAll("[data-ex-answer]").forEach(el => el.value = "");
+        document.querySelectorAll("input[type='radio'][data-ex-id]").forEach(el => el.checked = false);
+        document.querySelectorAll(".feedback").forEach(el => {
+          el.classList.remove("show");
+          el.innerHTML = "";
         });
+        els.writingAnswer.value = "";
+        els.selfAssessment.value = "";
+        toast("Đã xóa bài làm.");
       });
+      els.aiReviewBtn.addEventListener("click", handleAiReview);
+      els.askAiBtn.addEventListener("click", handleAskAi);
+      els.saveResultBtn.addEventListener("click", saveResult);
+      els.printBtn.addEventListener("click", () => window.print());
     }
 
     async function init() {
-      loadLocalSettings();
+      loadLocalInfo();
       bindEvents();
       await loadData();
     }
