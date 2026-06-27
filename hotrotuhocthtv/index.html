@@ -1186,7 +1186,7 @@
 
     function isActiveExercise(ex) {
       const v = normalize(ex.trangThai || "Bật");
-      return !v || v === "bat" || v === "bật" || v === "active" || v === "on" || v === "1" || v === "true";
+      return !v || v === "bat" || v === "bật" || v === "mo" || v === "mở" || v === "active" || v === "on" || v === "1" || v === "true";
     }
 
     function selectItem(item) {
@@ -1317,7 +1317,7 @@
         inputHtml = `<div class="options">${options.map((op, i) => `
           <label class="option">
             <input type="radio" name="ex_${exId}" value="${escapeText(op.value)}" data-ex-id="${exId}">
-            <span>${escapeText(op.label)}</span>
+            <span>${safeBasicHtml(op.label)}</span>
           </label>
         `).join("")}</div>`;
       } else {
@@ -1331,7 +1331,7 @@
       return `
         <div class="exercise-card" data-ex-id="${exId}">
           <div class="exercise-head">
-            <p class="exercise-q">${escapeText(ex.cauHoi || "Chưa có câu hỏi.")}</p>
+            <p class="exercise-q">${safeBasicHtml(ex.cauHoi || "Chưa có câu hỏi.")}</p>
             <div class="exercise-meta">
               <span class="mini-tag">${escapeText(normalizeLevel(ex.mucDo))}</span>
               <span class="mini-tag">${escapeText(type)}</span>
@@ -1413,7 +1413,7 @@
         fb.classList.add("show");
         fb.innerHTML = `
           ${resultLine}
-          ${answer ? `<b>Đáp án/gợi ý:</b> ${escapeText(answer)}<br>` : ""}
+          ${answer ? `<b>Đáp án/gợi ý:</b> ${safeBasicHtml(answer)}<br>` : ""}
           ${explain ? `<b>Giải thích:</b> ${safeBasicHtml(explain)}` : "Giáo viên chưa nhập giải thích."}
         `;
       });
@@ -1554,7 +1554,7 @@ Lời động viên:`;
         id: ex.id || "",
         mucDo: normalizeLevel(ex.mucDo),
         kieuBai: normalizeType(ex.kieuBai),
-        cauHoi: ex.cauHoi || "",
+        cauHoi: stripHtml(ex.cauHoi || ""),
         hocSinhTraLoi: getExerciseAnswer(ex),
         dapAnThamKhao: includeAnswers ? (ex.dapAn || "") : "",
         giaiThich: includeAnswers ? (ex.giaiThich || "") : ""
