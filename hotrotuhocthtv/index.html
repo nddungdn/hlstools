@@ -131,6 +131,37 @@
       box-shadow: 0 0 0 4px rgba(162, 28, 175, 0.14);
     }
 
+    .data-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: nowrap;
+    }
+
+    .reload-data-btn {
+      flex: 0 0 auto;
+      width: auto;
+      min-width: max-content;
+    }
+
+    .api-help {
+      margin: 10px 0 0;
+      font-size: .88rem;
+      color: var(--muted);
+    }
+
+    .api-help a {
+      color: var(--primary);
+      font-weight: 850;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(162, 28, 175, .28);
+    }
+
+    .api-help a:hover {
+      border-bottom-color: var(--primary);
+    }
+
+
     .header-form {
       margin-top: 18px;
       display: grid;
@@ -590,7 +621,33 @@
       .header-form { grid-template-columns: 1fr; }
       .header-card-grid,
       .header-card-grid.ai-grid { grid-template-columns: 1fr; }
+
+      .data-actions {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+        gap: 8px;
+      }
+
+      .data-actions .status {
+        flex: 0 1 auto;
+        min-width: 0;
+        padding: 8px 10px;
+        font-size: .92rem;
+      }
+
+      .data-actions .reload-data-btn {
+        width: auto;
+        flex: 0 0 auto;
+        min-width: max-content;
+        padding: 8px 10px;
+        font-size: .92rem;
+      }
+
       .btn { width: 100%; }
+      .reload-data-btn { width: auto; }
       .btn.small { width: auto; }
       .card { padding: 15px; }
       .exercise-head { display: grid; }
@@ -615,12 +672,12 @@
             <p class="subtitle">Công cụ đang trong quá trình hoàn thiện nên có thể thiếu một số nội dung kiến thức.</p>
           </div>
         </div>
-        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap">
+        <div class="data-actions">
           <div class="status">
             <span class="status-dot"></span>
             <span id="dataStatus">Đang khởi tạo</span>
           </div>
-          <button class="btn secondary" id="reloadDataBtn" type="button">Tải lại dữ liệu</button>
+          <button class="btn secondary reload-data-btn" id="reloadDataBtn" type="button">Tải lại dữ liệu</button>
         </div>
       </div>
 
@@ -656,6 +713,10 @@
             <button class="btn light" id="toggleKeyBtn" type="button">Hiện key</button>
             <button class="btn light" id="saveInfoBtn" type="button">Lưu thông tin</button>
           </div>
+          <p class="api-help">
+            Chưa có API key? Xem hướng dẫn:
+            <a href="https://www.hoclieuso.id.vn/2026/06/cach-tao-api-key-google-ai-studio.html" target="_blank" rel="noopener noreferrer">Cách tạo API key</a>
+          </p>
         </section>
       </div>
     </div>
@@ -806,7 +867,7 @@
 
   <footer class="footer">
     <div class="wrap">
-      <p><strong>Sản phẩm được xây dựng và vận hành bởi Wbsite “Học liệu số”.</strong></p>
+      <p><strong>Sản phẩm được xây dựng và vận hành bởi Website “Học liệu số”.</strong></p>
       <p><small>Công cụ có sử dụng AI nên có thể có sai sót trong phần kết quả tham khảo.</small></p>
     </div>
   </footer>
