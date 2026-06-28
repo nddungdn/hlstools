@@ -446,6 +446,26 @@
     .rich i { color: var(--muted); }
     .rich br { line-height: 1.8; }
 
+
+    .rich img,
+    .exercise-q img,
+    .feedback img,
+    .notice img {
+      display: block;
+      max-width: min(100%, 760px);
+      height: auto;
+      margin: 12px auto;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      box-shadow: 0 14px 32px -24px rgba(28, 25, 23, 0.35);
+      background: #fff;
+    }
+
+    .exercise-q img {
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
     .level-block {
       display: grid;
       gap: 10px;
@@ -459,26 +479,6 @@
       gap: 8px;
       font-size: 1rem;
       color: #0f172a;
-    }
-
-
-    .exercise-picker {
-      display: grid;
-      gap: 6px;
-      padding: 10px 12px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: #fffdf9;
-    }
-
-    .exercise-picker label {
-      font-size: .86rem;
-      font-weight: 850;
-      color: var(--muted);
-    }
-
-    .exercise-picker select {
-      width: 100%;
     }
 
     .exercise-card {
@@ -820,7 +820,7 @@
         </div>
 
         <div class="actions">
-          <button class="btn secondary" id="rerollBtn" type="button">Chọn bài ngẫu nhiên</button>
+          <button class="btn secondary" id="rerollBtn" type="button">Đổi bộ bài ngẫu nhiên</button>
           <button class="btn" id="checkExerciseBtn" type="button">Kiểm tra / xem tham khảo</button>
         </div>
 
@@ -960,7 +960,6 @@
       filtered: [],
       selected: null,
       selectedExercises: [],
-      selectedExerciseIds: {},
       selectedWritingExercise: null,
       lastAiText: ""
     };
@@ -1011,7 +1010,24 @@
       const template = document.createElement("template");
       template.innerHTML = raw;
 
-      const allowed = ["B", "I", "BR"];
+      const allowed = ["B", "I", "BR", "IMG"];
+
+      function isSafeImageSrc(src) {
+        const value = String(src || "").trim();
+
+        if (!value) return false;
+
+        // Cho phép link ảnh công khai và đường dẫn tương đối trong cùng website.
+        if (/^https?:\/\//i.test(value)) return true;
+        if (/^\.\//.test(value)) return true;
+        if (/^\//.test(value)) return true;
+        if (/^images\//i.test(value)) return true;
+
+        // Cho phép data URI ảnh nhỏ nếu thật sự cần, nhưng không khuyến khích dùng nhiều.
+        if (/^data:image\/(png|jpe?g|gif|webp|svg\+xml);base64,/i.test(value)) return true;
+
+        return false;
+      }
 
       function clean(node) {
         [...node.children].forEach(child => {
@@ -1019,6 +1035,26 @@
             child.replaceWith(...child.childNodes);
             return;
           }
+
+          if (child.tagName === "IMG") {
+            const src = child.getAttribute("src") || "";
+            const alt = child.getAttribute("alt") || "Hình ảnh minh họa";
+
+            [...child.attributes].forEach(attr => child.removeAttribute(attr.name));
+
+            if (!isSafeImageSrc(src)) {
+              child.remove();
+              return;
+            }
+
+            child.setAttribute("src", src.trim());
+            child.setAttribute("alt", alt.trim() || "Hình ảnh minh họa");
+            child.setAttribute("loading", "lazy");
+            child.setAttribute("decoding", "async");
+            child.setAttribute("referrerpolicy", "no-referrer");
+            return;
+          }
+
           [...child.attributes].forEach(attr => child.removeAttribute(attr.name));
           clean(child);
         });
@@ -1223,7 +1259,6 @@
       state.selected = item;
       state.lastAiText = "";
       state.selectedExercises = [];
-      state.selectedExerciseIds = {};
       state.selectedWritingExercise = null;
       els.writingAnswer.value = "";
       els.aiQuestion.value = "";
@@ -1291,26 +1326,19 @@
       if (!state.selected) return;
 
       const all = getExercisesForSelected();
+      const counts = getCountsForCurrentGrade();
 
-      const recognition = all.filter(ex => normalizeLevel(ex.mucDo) === "Nhận biết");
-      const understanding = all.filter(ex => normalizeLevel(ex.mucDo) === "Thông hiểu");
-      const applying = all.filter(ex => normalizeLevel(ex.mucDo) === "Vận dụng");
+      const recognition = shuffle(all.filter(ex => normalizeLevel(ex.mucDo) === "Nhận biết")).slice(0, counts["Nhận biết"]);
+      const understanding = shuffle(all.filter(ex => normalizeLevel(ex.mucDo) === "Thông hiểu")).slice(0, counts["Thông hiểu"]);
+      const applying = shuffle(all.filter(ex => normalizeLevel(ex.mucDo) === "Vận dụng")).slice(0, counts["Vận dụng"]);
 
       state.selectedExercises = [...recognition, ...understanding];
-      state.selectedExerciseIds = {};
-
-      const randomRecognition = shuffle(recognition)[0];
-      const randomUnderstanding = shuffle(understanding)[0];
-
-      if (randomRecognition) state.selectedExerciseIds["Nhận biết"] = String(randomRecognition.id || "");
-      if (randomUnderstanding) state.selectedExerciseIds["Thông hiểu"] = String(randomUnderstanding.id || "");
-
-      state.selectedWritingExercise = shuffle(applying)[0] || null;
+      state.selectedWritingExercise = applying[0] || null;
 
       renderExercises();
       renderWritingPrompt();
 
-      if (showToast) toast("Đã chọn ngẫu nhiên bài tập ở từng mức.");
+      if (showToast) toast("Đã đổi bộ bài ngẫu nhiên.");
     }
 
     function renderExercises() {
@@ -1335,64 +1363,13 @@
       els.exerciseContainer.innerHTML = Object.keys(groups).map(level => {
         const items = groups[level];
         if (!items.length) return "";
-        return renderExerciseGroup(level, items);
-      }).join("") || '<div class="notice">Chưa có bài tập để hiển thị.</div>';
-
-      els.exerciseContainer.querySelectorAll("[data-exercise-level]").forEach(select => {
-        select.addEventListener("change", () => {
-          state.selectedExerciseIds[select.dataset.exerciseLevel] = select.value;
-          renderExercises();
-        });
-      });
-    }
-
-    function renderExerciseGroup(level, items) {
-      if (!items.length) return "";
-
-      let selectedId = state.selectedExerciseIds[level] || String(items[0].id || "");
-      let selected = items.find(ex => String(ex.id || "") === String(selectedId)) || items[0];
-
-      selectedId = String(selected.id || "");
-      state.selectedExerciseIds[level] = selectedId;
-
-      const selectedIndex = items.indexOf(selected);
-
-      const optionsHtml = items.map((ex, index) => {
-        const id = String(ex.id || `EX_${index + 1}`);
-        const plainQuestion = stripHtml(ex.cauHoi || "").replace(/\s+/g, " ").trim();
-        const shortQuestion = plainQuestion.length > 90 ? plainQuestion.slice(0, 90) + "..." : plainQuestion;
-        const label = `${id} - ${shortQuestion}`;
-        const chosen = String(ex.id || "") === selectedId ? "selected" : "";
-        return `<option value="${escapeText(String(ex.id || ""))}" ${chosen}>${escapeText(label)}</option>`;
-      }).join("");
-
-      return `
-        <div class="level-block">
-          <h3 class="level-title">📌 ${level}</h3>
-          <div class="exercise-picker">
-            <label>Chọn bài ${level.toLowerCase()}</label>
-            <select data-exercise-level="${escapeText(level)}">
-              ${optionsHtml}
-            </select>
+        return `
+          <div class="level-block">
+            <h3 class="level-title">📌 ${level}</h3>
+            ${items.map((ex, index) => renderExerciseCard(ex, index)).join("")}
           </div>
-          ${renderExerciseCard(selected, selectedIndex)}
-        </div>
-      `;
-    }
-
-    function getVisibleSelectedExercises() {
-      const list = state.selectedExercises || [];
-      const levels = ["Nhận biết", "Thông hiểu"];
-
-      return levels
-        .map(level => {
-          const items = list.filter(ex => normalizeLevel(ex.mucDo) === level);
-          if (!items.length) return null;
-
-          const selectedId = state.selectedExerciseIds[level] || String(items[0].id || "");
-          return items.find(ex => String(ex.id || "") === String(selectedId)) || items[0];
-        })
-        .filter(Boolean);
+        `;
+      }).join("") || '<div class="notice">Chưa có bài tập để hiển thị.</div>';
     }
 
     function renderExerciseCard(ex, index) {
@@ -1477,14 +1454,12 @@
     }
 
     function checkExercises() {
-      const visibleExercises = getVisibleSelectedExercises();
-
-      if (!visibleExercises.length) {
+      if (!state.selectedExercises.length) {
         toast("Chưa có bài tập để kiểm tra.");
         return;
       }
 
-      visibleExercises.forEach(ex => {
+      state.selectedExercises.forEach(ex => {
         const exId = String(ex.id || "");
         const student = getExerciseAnswer(ex);
         const answer = String(ex.dapAn || "").trim();
@@ -1515,6 +1490,12 @@
     function stripHtml(value) {
       const div = document.createElement("div");
       div.innerHTML = safeBasicHtml(value || "");
+
+      div.querySelectorAll("img").forEach((img, index) => {
+        const alt = img.getAttribute("alt") || `Hình ảnh ${index + 1}`;
+        img.replaceWith(document.createTextNode(`[Có ảnh: ${alt}]`));
+      });
+
       return div.textContent || "";
     }
 
@@ -1641,7 +1622,7 @@ Lời động viên:`;
     }
 
     function collectExerciseResults(includeAnswers = true) {
-      return getVisibleSelectedExercises().map(ex => ({
+      return state.selectedExercises.map(ex => ({
         id: ex.id || "",
         mucDo: normalizeLevel(ex.mucDo),
         kieuBai: normalizeType(ex.kieuBai),
