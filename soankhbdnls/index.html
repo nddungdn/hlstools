@@ -384,6 +384,7 @@
   <!-- Thư viện đọc DOCX/PDF. Các thư viện này chạy trực tiếp trong trình duyệt. -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       if (window.pdfjsLib) {
@@ -500,7 +501,7 @@
             <input type="checkbox" id="safeLongOption" checked />
             <span>
               <strong>Chế độ an toàn khi giáo án/PPCT dài</strong>
-              <span class="hint">Tự rút gọn thông minh, đặt thời gian chờ và nếu tài liệu quá dài sẽ tạo phần bổ sung NLS theo vị trí chèn thay vì bắt AI viết lại toàn bộ.</span>
+              <span class="hint">Không bắt AI viết lại toàn bộ giáo án; chỉ xác định vị trí chèn NLS để giữ bố cục file gốc.</span>
             </span>
           </label>
         </section>
@@ -522,7 +523,7 @@
           <div class="result-toolbar">
             <div>
               <h2 class="section-title" style="margin-bottom:4px">Kết quả giáo án</h2>
-              <div class="note">Bạn có thể sửa trực tiếp nội dung trong ô dưới đây trước khi xuất Word.</div>
+              <div class="note">Bản DOCX tải về sẽ giữ nguyên bố cục giáo án gốc và chỉ chèn phần NLS màu đỏ. Ô dưới đây là bản xem trước các phần sẽ chèn.</div>
             </div>
             <div class="tool-buttons">
               <button class="small-btn" id="copyBtn" type="button">📋 Sao chép</button>
@@ -702,6 +703,10 @@ Gợi ý riêng cho môn Ngữ văn:
       lessonFileName: "",
       ppctFileName: "",
       result: "",
+      lessonFileType: "",
+      lessonDocxBuffer: null,
+      lessonParagraphs: [],
+      insertions: [],
       apiKey: localStorage.getItem(APP.apiStorageKey) || "",
       model: localStorage.getItem(APP.modelStorageKey) || "gemini-2.5-flash",
       customModel: localStorage.getItem(APP.customModelStorageKey) || "",
@@ -788,20 +793,28 @@ Gợi ý riêng cho môn Ngữ văn:
       try {
         title.textContent = "Đang đọc file...";
         sub.textContent = file.name;
-        const text = await extractText(file);
+        const data = await extractFile(file);
+        const text = data.text || "";
         if (!text.trim()) {
-          throw new Error("Không đọc được chữ trong file. File có thể là PDF scan/ảnh. Hãy dán nội dung thủ công.");
+          throw new Error("Không đọc được chữ trong file. File có thể là PDF scan/ảnh. Hãy dán nội dung thủ công hoặc dùng file .docx gốc.");
         }
         if (isLesson) {
           state.lessonText = text;
           state.lessonFileName = file.name;
+          state.lessonFileType = data.fileType;
+          state.lessonDocxBuffer = data.docxBuffer || null;
+          state.lessonParagraphs = data.paragraphs || [];
+          state.insertions = [];
         } else {
           state.ppctText = text;
           state.ppctFileName = file.name;
         }
         box.classList.add("loaded");
         title.textContent = file.name;
-        sub.textContent = `Đã đọc khoảng ${text.length.toLocaleString("vi-VN")} kí tự. Nhấn để thay đổi.`;
+        const extra = isLesson && data.fileType === "docx"
+          ? ` Đã nhận diện ${state.lessonParagraphs.filter(p => p.text.trim()).length.toLocaleString("vi-VN")} đoạn để chèn NLS mà vẫn giữ bố cục.`
+          : "";
+        sub.textContent = `Đã đọc khoảng ${text.length.toLocaleString("vi-VN")} kí tự.${extra} Nhấn để thay đổi.`;
       } catch (err) {
         console.error(err);
         box.classList.remove("loaded");
@@ -811,11 +824,19 @@ Gợi ý riêng cho môn Ngữ văn:
       }
     }
 
-    async function extractText(file) {
+    async function extractFile(file) {
       const name = file.name.toLowerCase();
       const arrayBuffer = await file.arrayBuffer();
-      if (name.endsWith(".docx")) return extractDocx(arrayBuffer);
-      if (name.endsWith(".pdf")) return extractPdf(arrayBuffer);
+      if (name.endsWith(".docx")) {
+        const text = await extractDocx(arrayBuffer);
+        let paragraphs = [];
+        try { paragraphs = await extractDocxParagraphs(arrayBuffer); } catch (err) { console.warn("Không tách được đoạn DOCX:", err); }
+        return { text, paragraphs, docxBuffer: arrayBuffer, fileType: "docx" };
+      }
+      if (name.endsWith(".pdf")) {
+        const text = await extractPdf(arrayBuffer);
+        return { text, paragraphs: [], docxBuffer: null, fileType: "pdf" };
+      }
       throw new Error("Định dạng chưa hỗ trợ. Vui lòng dùng .docx hoặc .pdf.");
     }
 
@@ -823,6 +844,20 @@ Gợi ý riêng cho môn Ngữ văn:
       if (!window.mammoth) throw new Error("Chưa tải được thư viện đọc DOCX. Hãy kiểm tra mạng.");
       const result = await window.mammoth.extractRawText({ arrayBuffer });
       return result.value || "";
+    }
+
+    async function extractDocxParagraphs(arrayBuffer) {
+      if (!window.JSZip) throw new Error("Chưa tải được thư viện giữ bố cục DOCX. Hãy kiểm tra mạng.");
+      const zip = await JSZip.loadAsync(arrayBuffer);
+      const file = zip.file("word/document.xml");
+      if (!file) throw new Error("Không tìm thấy word/document.xml trong file DOCX.");
+      const xmlText = await file.async("text");
+      const xml = new DOMParser().parseFromString(xmlText, "application/xml");
+      const paragraphs = Array.from(xml.getElementsByTagNameNS("*", "p"));
+      return paragraphs.map((p, idx) => {
+        const text = Array.from(p.getElementsByTagNameNS("*", "t")).map(t => t.textContent || "").join("").replace(/\s+/g, " ").trim();
+        return { n: idx + 1, text };
+      });
     }
 
     async function extractPdf(arrayBuffer) {
@@ -861,52 +896,116 @@ Gợi ý riêng cho môn Ngữ văn:
       return text.slice(0, max) + `\n\n[Đã rút gọn do nội dung quá dài. Tổng độ dài gốc: ${text.length} kí tự.]`;
     }
 
+    function makeNumberedParagraphsForPrompt(maxChars = 34000) {
+      const rows = (state.lessonParagraphs || []).filter(p => p.text && p.text.trim());
+      let out = "";
+      for (const p of rows) {
+        const line = `[${p.n}] ${p.text}\n`;
+        if ((out.length + line.length) > maxChars) {
+          out += `\n[Đã rút gọn danh sách đoạn. Tổng số đoạn có chữ: ${rows.length}.]\n`;
+          break;
+        }
+        out += line;
+      }
+      return out.trim();
+    }
+
     function buildPrompt() {
       const rawLesson = els.manualLesson.value.trim() || state.lessonText;
       const rawPpct = state.ppctText;
       const combinedLength = rawLesson.length + rawPpct.length;
       const longMode = els.safeLongOption.checked && combinedLength > APP.longInputThreshold;
-      const lesson = truncateForPrompt(rawLesson, longMode ? 30000 : APP.maxLessonChars, "lesson");
-      const ppct = truncateForPrompt(rawPpct, longMode ? 8000 : APP.maxPpctChars, "ppct");
+      const ppct = truncateForPrompt(rawPpct, longMode ? 8000 : APP.maxPpctChars);
       const subjectHint = SUBJECT_GUIDANCE[state.subject] || "Hãy chọn năng lực số phù hợp với đặc thù môn học, tránh gượng ép, tránh biến tiết học thành tiết Tin học.";
       const useAI = els.aiOption.checked;
       const nlsCount = els.nlsCount.value;
       const nlsCountText = nlsCount === "auto" ? "Tự động hợp lí, ưu tiên 1-3 năng lực chính" : `${nlsCount} năng lực chính`;
+      const canPreserveDocx = state.lessonFileType === "docx" && state.lessonDocxBuffer && state.lessonParagraphs.length && !els.manualLesson.value.trim();
 
-      return `
-Bạn là trợ lý chuyên hỗ trợ giáo viên Việt Nam soạn Kế hoạch bài dạy theo định hướng phát triển phẩm chất, năng lực và tích hợp năng lực số.
+      if (canPreserveDocx) {
+        const numberedParagraphs = makeNumberedParagraphsForPrompt(longMode ? 30000 : 38000);
+        return `
+Bạn là trợ lý chuyên hỗ trợ giáo viên Việt Nam tích hợp năng lực số vào Kế hoạch bài dạy, nhưng phải GIỮ NGUYÊN bố cục, cấu trúc và nội dung gốc của giáo án.
 
 THÔNG TIN:
 - Môn học: ${state.subject}
 - Khối lớp: Lớp ${state.grade}
 - Yêu cầu thêm năng lực AI: ${useAI ? "Có" : "Không"}
 - Số năng lực số muốn tích hợp: ${nlsCountText}
-- Chế độ xử lí tài liệu dài: ${longMode ? "Có - ưu tiên trả kết quả gọn, chắc chắn" : "Không"}
 
 ${DIGITAL_COMPETENCE_FRAMEWORK}
 
 ${subjectHint}
 
-YÊU CẦU XỬ LÍ:
-1. Đọc giáo án gốc và xác định đúng các hoạt động học trong nội dung được cung cấp. Giáo án tải lên có thể chỉ là một phần của một bài/chủ đề lớn; không tự mở rộng sang các phần khác nếu giáo án gốc không có.
-2. Tích hợp NLS theo tinh thần: phù hợp, thực tiễn, không gây quá tải, không biến tiết học thành tiết Tin học.
-3. Số năng lực số chính cần chọn: ${nlsCountText}. Nếu người dùng chọn số cụ thể, hãy cố gắng chọn đúng số đó; nếu không đủ vị trí phù hợp thì chọn ít hơn và nêu lí do ngắn gọn.
-4. Mỗi năng lực số chính phải có vị trí chèn rõ ràng trong hoạt động học; tránh nhồi nhiều năng lực vào một hoạt động.
-5. Bổ sung NLS vào đúng vị trí: mục tiêu, nội dung, sản phẩm, tổ chức thực hiện hoặc đánh giá.
-6. Nội dung bổ sung phải ngắn, rõ, dùng được ngay trong giáo án.
-7. Đánh dấu rõ phần bổ sung bằng tiền tố: 🔴 [NLS]
-8. Nếu có PPCT và PPCT nêu rõ năng lực số/mã năng lực, phải ưu tiên bám PPCT, không tự bịa thêm năng lực không có căn cứ.
-9. Nếu yêu cầu thêm năng lực AI là “Không”, không đưa AI vào trừ khi thật sự cần. Nếu “Có”, thêm hoạt động dùng AI có kiểm chứng, có đạo đức sử dụng, không để học sinh chép nguyên văn.
+YÊU CẦU BẮT BUỘC:
+1. KHÔNG viết lại toàn bộ giáo án.
+2. KHÔNG thay đổi bố cục, cấu trúc, bảng biểu, thứ tự hoạt động hoặc nội dung gốc.
+3. Chỉ tạo các đoạn/vế cần CHÈN THÊM vào giáo án gốc.
+4. Nội dung mới sẽ được app tự chèn bằng CHỮ MÀU ĐỎ vào file Word gốc.
+5. Chỉ thêm "Năng lực số" vào phần Mục tiêu cần đạt nếu giáo án có phần mục tiêu.
+6. Chỉ triển khai cụ thể trong MỘT hoặc MỘT VÀI vị trí phù hợp thuộc: Hình thành kiến thức mới, Luyện tập, Củng cố/Mở rộng/Vận dụng. Không rải quá nhiều.
+7. Nội dung chèn phải dùng được ngay, ngắn gọn, đúng thực tế lớp học, không làm tiết học thành tiết Tin học.
+8. Nếu giáo án tải lên chỉ là một phần của bài/chủ đề lớn, chỉ xử lí đúng phần được cung cấp.
+9. Mỗi chèn phải chọn chính xác số đoạn [n] để app chèn ngay SAU đoạn đó.
+10. Số năng lực số chính cần chọn: ${nlsCountText}. Nếu không đủ vị trí phù hợp, chọn ít hơn và nêu lí do trong "note".
+11. Nếu yêu cầu AI là “Không”, không đưa hoạt động AI. Nếu “Có”, hoạt động AI phải có kiểm chứng, đạo đức sử dụng, không chép nguyên văn.
 
-${longMode ? `
-VÌ TÀI LIỆU DÀI/PHỨC TẠP, KHÔNG VIẾT LẠI TOÀN BỘ GIÁO ÁN. Hãy trả về bản "PHẦN BỔ SUNG NĂNG LỰC SỐ ĐỂ CHÈN VÀO GIÁO ÁN" gồm:
-A. Mục tiêu cần bổ sung.
-B. Bảng vị trí chèn theo từng hoạt động: Hoạt động - Năng lực số chính - Vị trí chèn - Nội dung NLS đề xuất - Sản phẩm/đánh giá.
-C. Lưu ý triển khai để không quá tải.
-D. Nếu có AI: yêu cầu kiểm chứng, trích dẫn, bảo mật dữ liệu.
-` : `
-Trả về GIÁO ÁN HOÀN CHỈNH ĐÃ TÍCH HỢP. Giữ tối đa cấu trúc và nội dung gốc của giáo án, không giải thích ngoài lề.
-`}
+TRẢ VỀ DUY NHẤT JSON HỢP LỆ, KHÔNG markdown, KHÔNG giải thích ngoài JSON. Trong trường "text", nếu cần xuống dòng hãy dùng ký tự \n, không xuống dòng thật bên trong chuỗi JSON. Định dạng:
+{
+  "note": "ghi chú rất ngắn nếu cần",
+  "selectedCompetencies": ["tên/mã năng lực số 1", "tên/mã năng lực số 2"],
+  "insertions": [
+    {
+      "afterParagraph": 12,
+      "place": "Mục tiêu cần đạt",
+      "text": "Năng lực số: ..."
+    },
+    {
+      "afterParagraph": 45,
+      "place": "Hình thành kiến thức mới/Luyện tập/Củng cố mở rộng",
+      "text": "Tổ chức thực hiện: ...; Sản phẩm/đánh giá: ..."
+    }
+  ]
+}
+
+QUY TẮC CHỌN ĐOẠN CHÈN:
+- Với "Mục tiêu cần đạt": chọn đoạn cuối của phần mục tiêu hoặc đoạn ngay sau các mục tiêu hiện có.
+- Với hoạt động dạy học: chọn đoạn gần nhất với hoạt động cần bổ sung, ví dụ sau yêu cầu nhiệm vụ/sản phẩm/cách tổ chức của hoạt động đó.
+- Không chọn đoạn trống.
+- "text" phải là nội dung chèn mới, không lặp lại giáo án gốc.
+
+PHÂN PHỐI CHƯƠNG TRÌNH/THAM KHẢO NẾU CÓ:
+${ppct || "[Không có PPCT]"}
+
+DANH SÁCH ĐOẠN TRONG GIÁO ÁN GỐC:
+${numberedParagraphs}
+`;
+      }
+
+      const lesson = truncateForPrompt(rawLesson, longMode ? 30000 : APP.maxLessonChars);
+      return `
+Bạn là trợ lý chuyên hỗ trợ giáo viên Việt Nam tích hợp năng lực số vào Kế hoạch bài dạy.
+
+LƯU Ý QUAN TRỌNG:
+- Người dùng không tải file DOCX gốc hoặc đang dùng PDF/dán thủ công, nên app không thể giữ nguyên bố cục Word tuyệt đối.
+- Vì vậy, KHÔNG viết lại giáo án; chỉ trả về các PHẦN BỔ SUNG NĂNG LỰC SỐ để giáo viên chèn thủ công.
+- Toàn bộ nội dung bổ sung phải đánh dấu bằng tiền tố: 🔴 [NLS].
+
+THÔNG TIN:
+- Môn học: ${state.subject}
+- Khối lớp: Lớp ${state.grade}
+- Yêu cầu thêm năng lực AI: ${useAI ? "Có" : "Không"}
+- Số năng lực số muốn tích hợp: ${nlsCountText}
+
+${DIGITAL_COMPETENCE_FRAMEWORK}
+
+${subjectHint}
+
+YÊU CẦU:
+1. Chỉ thêm NLS vào phần mục tiêu cần đạt và 1-2 vị trí phù hợp trong Hình thành kiến thức mới/Luyện tập/Củng cố/Mở rộng.
+2. Không viết lại toàn bộ giáo án.
+3. Nội dung bổ sung ngắn, rõ, dùng được ngay.
+4. Nếu giáo án chỉ là một phần của bài/chủ đề lớn, chỉ xử lí phần được cung cấp.
 
 PHÂN PHỐI CHƯƠNG TRÌNH/THAM KHẢO NẾU CÓ:
 ${ppct || "[Không có PPCT]"}
@@ -914,6 +1013,45 @@ ${ppct || "[Không có PPCT]"}
 GIÁO ÁN GỐC:
 ${lesson}
 `;
+    }
+
+    function parseInsertionJson(text) {
+      let clean = String(text || "").trim();
+      clean = clean.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```$/i, "").trim();
+      const first = clean.indexOf("{");
+      const last = clean.lastIndexOf("}");
+      if (first >= 0 && last > first) clean = clean.slice(first, last + 1);
+      const data = JSON.parse(clean);
+      const insertions = Array.isArray(data.insertions) ? data.insertions : [];
+      return {
+        note: data.note || "",
+        selectedCompetencies: Array.isArray(data.selectedCompetencies) ? data.selectedCompetencies : [],
+        insertions: insertions.map(item => ({
+          afterParagraph: Number(item.afterParagraph),
+          place: String(item.place || "Vị trí chèn"),
+          text: String(item.text || "").trim()
+        })).filter(item => Number.isInteger(item.afterParagraph) && item.afterParagraph > 0 && item.text)
+      };
+    }
+
+    function buildInsertionPreview(data) {
+      const lines = [];
+      lines.push("BẢN XEM TRƯỚC PHẦN NĂNG LỰC SỐ SẼ CHÈN VÀO FILE WORD GỐC");
+      lines.push("Lưu ý: Khi bấm Xuất Word, app giữ nguyên bố cục giáo án .docx gốc và chỉ chèn các nội dung dưới đây bằng chữ màu đỏ.\n");
+      if (data.note) lines.push(`Ghi chú: ${data.note}\n`);
+      if (data.selectedCompetencies.length) {
+        lines.push("Năng lực số được chọn:");
+        data.selectedCompetencies.forEach((c, i) => lines.push(`${i + 1}. ${c}`));
+        lines.push("");
+      }
+      data.insertions.forEach((ins, i) => {
+        const target = (state.lessonParagraphs || []).find(p => p.n === ins.afterParagraph);
+        lines.push(`--- Chèn ${i + 1}: ${ins.place} ---`);
+        lines.push(`Sau đoạn [${ins.afterParagraph}]: ${target ? target.text : "(không tìm thấy đoạn)"}`);
+        lines.push(`[NLS - chữ đỏ] ${ins.text}`);
+        lines.push("");
+      });
+      return lines.join("\n").trim();
     }
 
     async function callGemini(prompt) {
@@ -982,10 +1120,20 @@ ${lesson}
         await sleep(250);
         updateProgress(52, "Đang gửi yêu cầu tới Gemini...");
         const result = await callGemini(prompt);
-        updateProgress(86, "Đang hoàn thiện bản giáo án...");
+        updateProgress(86, "Đang hoàn thiện vị trí chèn NLS...");
         await sleep(350);
-        state.result = result;
-        els.resultArea.value = result;
+        const canPreserveDocx = state.lessonFileType === "docx" && state.lessonDocxBuffer && state.lessonParagraphs.length && !els.manualLesson.value.trim();
+        if (canPreserveDocx) {
+          const data = parseInsertionJson(result);
+          if (!data.insertions.length) throw new Error("AI chưa trả về vị trí chèn hợp lệ. Hãy thử lại hoặc chọn ít năng lực hơn.");
+          state.insertions = data.insertions;
+          state.result = buildInsertionPreview(data);
+          els.resultArea.value = state.result;
+        } else {
+          state.insertions = [];
+          state.result = result;
+          els.resultArea.value = result;
+        }
         updateProgress(100, "Hoàn tất!");
         await sleep(500);
         els.statusCard.classList.remove("show");
@@ -994,7 +1142,7 @@ ${lesson}
       } catch (err) {
         console.error(err);
         showError(`<strong>Có lỗi khi soạn giáo án:</strong> ${escapeHtml(err.message || String(err))}<br><br>
-        Gợi ý: kiểm tra API key, đổi model sang <b>gemini-2.5-flash</b>, bật <b>Chế độ an toàn khi giáo án/PPCT dài</b>, hoặc dán phần giáo án cần xử lí vào ô thủ công.`);
+        Gợi ý: kiểm tra API key, đổi model sang <b>gemini-2.5-flash</b>, chọn ít năng lực hơn, dùng file <b>.docx gốc</b> để giữ bố cục, hoặc dán phần giáo án cần xử lí vào ô thủ công.`);
       } finally {
         state.isBusy = false;
         setBusy(false);
@@ -1039,6 +1187,16 @@ ${lesson}
     async function downloadDocx() {
       const text = getResultText();
       if (!text) return;
+      if (state.lessonDocxBuffer && state.insertions && state.insertions.length) {
+        try {
+          const blob = await buildModifiedDocxBlob();
+          downloadBlob(blob, makeFileName("docx"));
+          return;
+        } catch (err) {
+          console.error(err);
+          showError(`<strong>Không xuất được DOCX giữ bố cục:</strong> ${escapeHtml(err.message || String(err))}<br>App sẽ xuất bản dự phòng dạng .doc.`);
+        }
+      }
       const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Giáo án NLS</title>
         <style>body{font-family:"Times New Roman",serif;font-size:13pt;line-height:1.45} .nls{color:#c00000;font-weight:bold}</style>
         </head><body>${textToHtml(text)}</body></html>`;
@@ -1046,47 +1204,84 @@ ${lesson}
       downloadBlob(blob, makeFileName("doc"));
     }
 
+    async function buildModifiedDocxBlob() {
+      if (!window.JSZip) throw new Error("Chưa tải được thư viện JSZip để sửa file DOCX.");
+      const zip = await JSZip.loadAsync(state.lessonDocxBuffer);
+      const file = zip.file("word/document.xml");
+      if (!file) throw new Error("Không tìm thấy word/document.xml trong file DOCX.");
+      const xmlText = await file.async("text");
+      const xml = new DOMParser().parseFromString(xmlText, "application/xml");
+      const parserError = xml.getElementsByTagName("parsererror")[0];
+      if (parserError) throw new Error("Không đọc được cấu trúc XML của DOCX.");
+
+      const paragraphs = Array.from(xml.getElementsByTagNameNS("*", "p"));
+      const groups = new Map();
+      for (const ins of state.insertions) {
+        const n = Number(ins.afterParagraph);
+        if (!Number.isInteger(n) || n < 1 || n > paragraphs.length) continue;
+        if (!groups.has(n)) groups.set(n, []);
+        groups.get(n).push(ins);
+      }
+      const positions = Array.from(groups.keys()).sort((a, b) => b - a);
+      for (const n of positions) {
+        const target = paragraphs[n - 1];
+        if (!target || !target.parentNode) continue;
+        let cursor = target;
+        for (const ins of groups.get(n)) {
+          const label = ins.place ? `${ins.place}: ` : "";
+          const text = normalizeNlsText(`${label}${ins.text}`);
+          const newParagraphs = createRedParagraphs(xml, text);
+          for (const p of newParagraphs) {
+            cursor.parentNode.insertBefore(p, cursor.nextSibling);
+            cursor = p;
+          }
+        }
+      }
+
+      const serialized = new XMLSerializer().serializeToString(xml);
+      zip.file("word/document.xml", serialized);
+      return zip.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+    }
+
+    function normalizeNlsText(text) {
+      const clean = String(text || "").replace(/^\s*🔴\s*\[NLS\]\s*/i, "").replace(/^\s*\[NLS\]\s*/i, "").trim();
+      return `Năng lực số: ${clean.replace(/^Năng lực số:\s*/i, "")}`;
+    }
+
+    function createRedParagraphs(xml, text) {
+      return String(text || "").split(/\n+/).map(s => s.trim()).filter(Boolean).map(line => createRedParagraph(xml, line));
+    }
+
+    function createRedParagraph(xml, text) {
+      const W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+      const XML_NS = "http://www.w3.org/XML/1998/namespace";
+      const p = xml.createElementNS(W_NS, "w:p");
+      const pPr = xml.createElementNS(W_NS, "w:pPr");
+      const spacing = xml.createElementNS(W_NS, "w:spacing");
+      spacing.setAttributeNS(W_NS, "w:after", "120");
+      pPr.appendChild(spacing);
+      p.appendChild(pPr);
+
+      const r = xml.createElementNS(W_NS, "w:r");
+      const rPr = xml.createElementNS(W_NS, "w:rPr");
+      const color = xml.createElementNS(W_NS, "w:color");
+      color.setAttributeNS(W_NS, "w:val", "C00000");
+      const bold = xml.createElementNS(W_NS, "w:b");
+      rPr.appendChild(color);
+      rPr.appendChild(bold);
+      r.appendChild(rPr);
+      const t = xml.createElementNS(W_NS, "w:t");
+      t.setAttributeNS(XML_NS, "xml:space", "preserve");
+      t.textContent = text;
+      r.appendChild(t);
+      p.appendChild(r);
+      return p;
+    }
+
     function textToHtml(text) {
       return escapeHtml(text)
         .replace(/🔴 \[NLS\]/g, '<span class="nls">[NLS]</span>')
         .split(/\n{2,}/).map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('\n');
-    }
-
-    function textToDocxParagraphs(text) {
-      const lines = text.replace(/\r\n/g, "\n").split("\n");
-      return lines.map(line => {
-        const trimmed = line.trim();
-        if (!trimmed) return new Paragraph({ text: "" });
-
-        const headingMatch = trimmed.match(/^(#{1,3})\s+(.+)$/);
-        if (headingMatch) {
-          const level = headingMatch[1].length === 1 ? HeadingLevel.HEADING_1 : headingMatch[1].length === 2 ? HeadingLevel.HEADING_2 : HeadingLevel.HEADING_3;
-          return new Paragraph({ text: headingMatch[2], heading: level });
-        }
-
-        const isLikelyHeading = trimmed.length < 90 && (
-          /^[IVX]+\./.test(trimmed) ||
-          /^\d+\./.test(trimmed) ||
-          /^[A-ZÀ-Ỵ\s]{8,}$/.test(trimmed)
-        );
-
-        const runs = [];
-        const parts = trimmed.split(/(🔴 \[NLS\])/g).filter(Boolean);
-        for (let i = 0; i < parts.length; i++) {
-          const part = parts[i];
-          if (part === "🔴 [NLS]") {
-            const next = parts[i + 1] || "";
-            runs.push(new TextRun({ text: "[NLS]" + next, color: "C00000", bold: true }));
-            i++;
-          } else {
-            runs.push(new TextRun({ text: part, bold: isLikelyHeading }));
-          }
-        }
-        return new Paragraph({
-          children: runs.length ? runs : [new TextRun(trimmed)],
-          spacing: { after: 120 },
-        });
-      });
     }
 
     function downloadBlob(blob, filename) {
@@ -1107,7 +1302,7 @@ ${lesson}
     }
 
     function clearAll() {
-      state.lessonText = ""; state.ppctText = ""; state.lessonFileName = ""; state.ppctFileName = ""; state.result = "";
+      state.lessonText = ""; state.ppctText = ""; state.lessonFileName = ""; state.ppctFileName = ""; state.result = ""; state.lessonFileType = ""; state.lessonDocxBuffer = null; state.lessonParagraphs = []; state.insertions = [];
       els.lessonFile.value = ""; els.ppctFile.value = ""; els.manualLesson.value = ""; els.nlsCount.value = "3"; els.resultArea.value = "";
       els.lessonBox.classList.remove("loaded"); els.ppctBox.classList.remove("loaded");
       els.lessonTitle.textContent = "Tải lên Giáo án"; els.lessonSub.textContent = "Giáo án bài dạy cần tích hợp";
