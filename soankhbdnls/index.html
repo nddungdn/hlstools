@@ -607,10 +607,12 @@
       modelStorageKey: "nls_gemini_model",
       customModelStorageKey: "nls_custom_model",
       endpoint: "https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent?key={KEY}",
-      maxLessonChars: 36000,
-      maxPpctChars: 12000,
-      longInputThreshold: 52000,
-      requestTimeoutMs: 180000,
+      // Không gửi toàn bộ giáo án dài lên AI. Với DOCX, app sẽ tự trích chọn các đoạn ứng viên.
+      maxLessonChars: 22000,
+      maxPpctChars: 5000,
+      maxSmartContextChars: 26000,
+      longInputThreshold: 30000,
+      requestTimeoutMs: 240000,
     };
 
     const SUBJECTS = [
@@ -854,9 +856,12 @@ Gợi ý riêng cho môn Ngữ văn:
       const xmlText = await file.async("text");
       const xml = new DOMParser().parseFromString(xmlText, "application/xml");
       const paragraphs = Array.from(xml.getElementsByTagNameNS("*", "p"));
+      const W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
       return paragraphs.map((p, idx) => {
         const text = Array.from(p.getElementsByTagNameNS("*", "t")).map(t => t.textContent || "").join("").replace(/\s+/g, " ").trim();
-        return { n: idx + 1, text };
+        const pStyle = p.getElementsByTagNameNS("*", "pStyle")[0];
+        const style = pStyle ? (pStyle.getAttributeNS(W_NS, "val") || pStyle.getAttribute("w:val") || pStyle.getAttribute("val") || "") : "";
+        return { n: idx + 1, text, style };
       });
     }
 
@@ -892,8 +897,114 @@ Gợi ý riêng cho môn Ngữ văn:
     }
 
     function truncateForPrompt(text, max) {
+      if (!text) return "";
       if (text.length <= max) return text;
       return text.slice(0, max) + `\n\n[Đã rút gọn do nội dung quá dài. Tổng độ dài gốc: ${text.length} kí tự.]`;
+    }
+
+    function normalizeForSearch(text) {
+      return removeVietnameseTones(String(text || "").toLowerCase())
+        .replace(/đ/g, "d")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function addParagraphWindow(selected, rows, centerIndex, before = 0, after = 0) {
+      const start = Math.max(0, centerIndex - before);
+      const end = Math.min(rows.length - 1, centerIndex + after);
+      for (let i = start; i <= end; i++) {
+        if (rows[i] && rows[i].text && rows[i].text.trim()) selected.set(rows[i].n, rows[i]);
+      }
+    }
+
+    function looksLikeLessonHeading(row) {
+      const text = String(row.text || "").trim();
+      const norm = normalizeForSearch(text);
+      if (!text || text.length > 160) return false;
+      if (/^(i|ii|iii|iv|v|vi|a|b|c|d|\d+)[\.\)]\s+/i.test(text)) return true;
+      if (/^(hoat dong|nhiem vu|muc tieu|yeu cau can dat|luyen tap|van dung|cung co|mo rong|hinh thanh kien thuc)/.test(norm)) return true;
+      if (text.length <= 80 && text === text.toUpperCase() && /[A-ZÀ-Ỹ]/.test(text)) return true;
+      const style = String(row.style || "").toLowerCase();
+      return /heading|title|tieude|tieu_de|mcheading/.test(style);
+    }
+
+    function buildSmartDocxContext(maxChars = APP.maxSmartContextChars) {
+      const rows = (state.lessonParagraphs || []).filter(p => p.text && p.text.trim());
+      const selected = new Map();
+      const objectiveRe = /(muc tieu|yeu cau can dat|can dat|nang luc|pham chat)/;
+      const newKnowledgeRe = /(hinh thanh kien thuc|kham pha|tim hieu|doc hieu|phan tich|hinh thanh|kien thuc moi)/;
+      const practiceRe = /(luyen tap|thuc hanh|van dung|cung co|mo rong|tim toi|sang tao|bai tap|nhiem vu)/;
+      const activityRe = /(hoat dong\s*\d|hoat dong|chuyen giao nhiem vu|thuc hien nhiem vu|bao cao|thao luan|san pham|to chuc thuc hien|danh gia|ket luan)/;
+
+      let hasObjective = false;
+      let hasActivity = false;
+
+      rows.forEach((row, idx) => {
+        const norm = normalizeForSearch(row.text);
+        if (objectiveRe.test(norm)) {
+          hasObjective = true;
+          addParagraphWindow(selected, rows, idx, 1, 24);
+        }
+        if (newKnowledgeRe.test(norm) || practiceRe.test(norm) || activityRe.test(norm)) {
+          hasActivity = true;
+          addParagraphWindow(selected, rows, idx, 2, 12);
+        }
+        if (looksLikeLessonHeading(row)) {
+          addParagraphWindow(selected, rows, idx, 0, 3);
+        }
+      });
+
+      // Nếu không nhận diện được rõ mục tiêu/hoạt động, lấy phần đầu giáo án để AI vẫn có dữ liệu.
+      if (!hasObjective || selected.size < 35) {
+        rows.slice(0, Math.min(rows.length, 120)).forEach(row => selected.set(row.n, row));
+      }
+      // Nếu giáo án rất dài nhưng ít từ khóa, bổ sung cửa sổ ở giữa và cuối để tránh bỏ lỡ hoạt động.
+      if (!hasActivity && rows.length > 160) {
+        const mid = Math.floor(rows.length / 2);
+        addParagraphWindow(selected, rows, mid, 10, 40);
+        addParagraphWindow(selected, rows, rows.length - 1, 50, 0);
+      }
+
+      const sorted = Array.from(selected.values()).sort((a, b) => a.n - b.n);
+      let out = "";
+      let count = 0;
+      let lastN = 0;
+      for (const row of sorted) {
+        if (lastN && row.n > lastN + 1) out += `\n... [bỏ qua ${row.n - lastN - 1} đoạn không liên quan trực tiếp] ...\n`;
+        const style = row.style ? ` <style:${row.style}>` : "";
+        const line = `[${row.n}]${style} ${row.text}\n`;
+        if (out.length + line.length > maxChars) {
+          out += `\n[Đã dừng trích chọn do giới hạn dung lượng. Tổng đoạn có chữ: ${rows.length}; đã gửi ${count} đoạn ứng viên.]\n`;
+          break;
+        }
+        out += line;
+        count++;
+        lastN = row.n;
+      }
+
+      return {
+        context: out.trim(),
+        total: rows.length,
+        included: count,
+        isReduced: count < rows.length,
+        mode: rows.length > 180 || state.lessonText.length > APP.longInputThreshold ? "smart-long-docx" : "normal-docx"
+      };
+    }
+
+    function compactPpctForPrompt(text, maxChars = APP.maxPpctChars) {
+      if (!text || !text.trim()) return "[Không có PPCT]";
+      const raw = text.trim();
+      if (raw.length <= maxChars) return raw;
+      const lines = raw.split(/\n+/).map(x => x.trim()).filter(Boolean);
+      const keywords = [normalizeForSearch(state.subject), `lop ${state.grade}`, `khoi ${state.grade}`, "bai", "chu de", "tiet", "yeu cau can dat", "nang luc"];
+      const picked = [];
+      for (const line of lines) {
+        const norm = normalizeForSearch(line);
+        if (keywords.some(k => k && norm.includes(k))) picked.push(line);
+        if (picked.join("\n").length > maxChars) break;
+      }
+      const body = picked.length ? picked.join("\n") : raw.slice(0, maxChars);
+      return body.slice(0, maxChars) + `\n[PPCT đã được rút gọn thông minh. Độ dài gốc: ${raw.length} kí tự.]`;
     }
 
     function makeNumberedParagraphsForPrompt(maxChars = 34000) {
@@ -915,7 +1026,7 @@ Gợi ý riêng cho môn Ngữ văn:
       const rawPpct = state.ppctText;
       const combinedLength = rawLesson.length + rawPpct.length;
       const longMode = els.safeLongOption.checked && combinedLength > APP.longInputThreshold;
-      const ppct = truncateForPrompt(rawPpct, longMode ? 8000 : APP.maxPpctChars);
+      const ppct = compactPpctForPrompt(rawPpct, longMode ? 3000 : APP.maxPpctChars);
       const subjectHint = SUBJECT_GUIDANCE[state.subject] || "Hãy chọn năng lực số phù hợp với đặc thù môn học, tránh gượng ép, tránh biến tiết học thành tiết Tin học.";
       const useAI = els.aiOption.checked;
       const nlsCount = els.nlsCount.value;
@@ -923,7 +1034,7 @@ Gợi ý riêng cho môn Ngữ văn:
       const canPreserveDocx = state.lessonFileType === "docx" && state.lessonDocxBuffer && state.lessonParagraphs.length && !els.manualLesson.value.trim();
 
       if (canPreserveDocx) {
-        const numberedParagraphs = makeNumberedParagraphsForPrompt(longMode ? 30000 : 38000);
+        const smart = buildSmartDocxContext(longMode ? 22000 : APP.maxSmartContextChars);
         return `
 Bạn là trợ lý chuyên hỗ trợ giáo viên Việt Nam tích hợp năng lực số vào Kế hoạch bài dạy, nhưng phải GIỮ NGUYÊN bố cục, cấu trúc và nội dung gốc của giáo án.
 
@@ -977,12 +1088,18 @@ QUY TẮC CHỌN ĐOẠN CHÈN:
 PHÂN PHỐI CHƯƠNG TRÌNH/THAM KHẢO NẾU CÓ:
 ${ppct || "[Không có PPCT]"}
 
-DANH SÁCH ĐOẠN TRONG GIÁO ÁN GỐC:
-${numberedParagraphs}
+THÔNG TIN TRÍCH CHỌN GIÁO ÁN:
+- Tổng số đoạn có chữ trong DOCX gốc: ${smart.total}
+- Số đoạn ứng viên gửi cho AI: ${smart.included}
+- Chế độ: ${smart.mode}
+- Lưu ý: App vẫn giữ nguyên toàn bộ DOCX gốc khi xuất Word; danh sách dưới đây chỉ dùng để AI xác định vị trí chèn.
+
+DANH SÁCH ĐOẠN ỨNG VIÊN TRONG GIÁO ÁN GỐC:
+${smart.context}
 `;
       }
 
-      const lesson = truncateForPrompt(rawLesson, longMode ? 30000 : APP.maxLessonChars);
+      const lesson = truncateForPrompt(rawLesson, longMode ? 18000 : APP.maxLessonChars);
       return `
 Bạn là trợ lý chuyên hỗ trợ giáo viên Việt Nam tích hợp năng lực số vào Kế hoạch bài dạy.
 
@@ -1065,7 +1182,8 @@ ${lesson}
         generationConfig: {
           temperature: 0.28,
           topP: 0.9,
-          maxOutputTokens: 8192,
+          // Kết quả cần rất ngắn: chỉ JSON vị trí chèn hoặc phần bổ sung NLS.
+          maxOutputTokens: 4096,
         }
       };
 
@@ -1093,7 +1211,7 @@ ${lesson}
         return text.trim();
       } catch (err) {
         if (err.name === "AbortError") {
-          throw new Error("Quá thời gian chờ. Tài liệu có thể quá dài hoặc model đang phản hồi chậm. App đã có chế độ rút gọn; hãy thử lại hoặc chọn model nhẹ hơn.");
+          throw new Error("Quá thời gian chờ. App đã tự rút gọn giáo án dài, nhưng model vẫn phản hồi chậm. Hãy thử lại, chọn gemini-2.5-flash-lite hoặc giảm số năng lực số cần tích hợp.");
         }
         throw err;
       } finally {
@@ -1113,10 +1231,10 @@ ${lesson}
         els.statusCard.classList.add("show");
         updateProgress(5, "Đang chuẩn bị dữ liệu...");
         await sleep(250);
-        updateProgress(22, "Đang đọc giáo án và PPCT...");
+        updateProgress(22, "Đang trích chọn phần mục tiêu và hoạt động phù hợp...");
         await sleep(250);
         const prompt = buildPrompt();
-        updateProgress(38, "Đang phân tích vị trí tích hợp năng lực số...");
+        updateProgress(38, "Đang tạo ngữ cảnh gọn cho giáo án dài...");
         await sleep(250);
         updateProgress(52, "Đang gửi yêu cầu tới Gemini...");
         const result = await callGemini(prompt);
