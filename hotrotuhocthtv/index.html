@@ -466,6 +466,116 @@
       margin-bottom: 10px;
     }
 
+    .rich img,
+    .exercise-q img,
+    .feedback img,
+    .notice img {
+      cursor: zoom-in;
+    }
+
+    .image-lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 74px 14px 24px;
+      background: rgba(28, 25, 23, 0.86);
+      backdrop-filter: blur(8px);
+    }
+
+    .image-lightbox.show {
+      display: flex;
+    }
+
+    .image-lightbox-img {
+      max-width: 96vw;
+      max-height: 82vh;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 16px;
+      background: #fff;
+      box-shadow: 0 28px 80px rgba(0, 0, 0, .35);
+      transform: scale(var(--img-scale, 1));
+      transition: transform .15s ease;
+      cursor: zoom-in;
+    }
+
+    .image-lightbox-toolbar {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .94);
+      border: 1px solid rgba(255, 255, 255, .55);
+      box-shadow: 0 16px 44px rgba(0, 0, 0, .22);
+    }
+
+    .image-lightbox-toolbar button {
+      border: 0;
+      min-width: 42px;
+      height: 42px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: var(--surface-soft);
+      color: var(--text);
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .image-lightbox-toolbar button:hover {
+      background: #ede7df;
+    }
+
+    .image-lightbox-caption {
+      position: fixed;
+      left: 50%;
+      bottom: 12px;
+      transform: translateX(-50%);
+      max-width: min(920px, calc(100vw - 28px));
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .92);
+      color: var(--muted);
+      font-size: .88rem;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    @media (max-width: 820px) {
+      .image-lightbox {
+        padding-top: 70px;
+      }
+
+      .image-lightbox-toolbar {
+        width: calc(100% - 24px);
+        justify-content: center;
+        border-radius: 18px;
+        flex-wrap: wrap;
+      }
+
+      .image-lightbox-toolbar button {
+        min-width: 40px;
+        height: 40px;
+        padding: 0 10px;
+      }
+
+      .image-lightbox-img {
+        max-width: 96vw;
+        max-height: 78vh;
+      }
+    }
+
+
     .level-block {
       display: grid;
       gap: 10px;
@@ -901,6 +1011,18 @@
     </div>
   </footer>
 
+
+  <div id="imageLightbox" class="image-lightbox" aria-hidden="true">
+    <div class="image-lightbox-toolbar" aria-label="Công cụ xem ảnh">
+      <button type="button" id="imgZoomOutBtn" title="Thu nhỏ">−</button>
+      <button type="button" id="imgZoomResetBtn" title="Về 100%">100%</button>
+      <button type="button" id="imgZoomInBtn" title="Phóng to">+</button>
+      <button type="button" id="imgCloseBtn" title="Đóng">Đóng</button>
+    </div>
+    <img id="imageLightboxImg" class="image-lightbox-img" alt="Ảnh phóng to">
+    <div id="imageLightboxCaption" class="image-lightbox-caption"></div>
+  </div>
+
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script>
@@ -952,7 +1074,14 @@
       askAiBtn: document.getElementById("askAiBtn"),
       saveResultBtn: document.getElementById("saveResultBtn"),
       printBtn: document.getElementById("printBtn"),
-      toast: document.getElementById("toast")
+      toast: document.getElementById("toast"),
+      imageLightbox: document.getElementById("imageLightbox"),
+      imageLightboxImg: document.getElementById("imageLightboxImg"),
+      imageLightboxCaption: document.getElementById("imageLightboxCaption"),
+      imgZoomOutBtn: document.getElementById("imgZoomOutBtn"),
+      imgZoomResetBtn: document.getElementById("imgZoomResetBtn"),
+      imgZoomInBtn: document.getElementById("imgZoomInBtn"),
+      imgCloseBtn: document.getElementById("imgCloseBtn")
     };
 
     const state = {
@@ -1702,6 +1831,96 @@ Lời động viên:`;
       }
     }
 
+
+    const imageViewer = {
+      scale: 1,
+      min: 0.5,
+      max: 3,
+      step: 0.25
+    };
+
+    function openImageLightbox(img) {
+      if (!img || !els.imageLightbox || !els.imageLightboxImg) return;
+
+      imageViewer.scale = 1;
+      els.imageLightboxImg.src = img.currentSrc || img.src;
+      els.imageLightboxImg.alt = img.alt || "Ảnh phóng to";
+      els.imageLightboxCaption.textContent = img.alt || "";
+      els.imageLightboxImg.style.setProperty("--img-scale", imageViewer.scale);
+      els.imageLightbox.classList.add("show");
+      els.imageLightbox.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeImageLightbox() {
+      if (!els.imageLightbox || !els.imageLightboxImg) return;
+
+      els.imageLightbox.classList.remove("show");
+      els.imageLightbox.setAttribute("aria-hidden", "true");
+      els.imageLightboxImg.removeAttribute("src");
+      document.body.style.overflow = "";
+    }
+
+    function zoomImage(delta) {
+      if (!els.imageLightboxImg) return;
+
+      imageViewer.scale = Math.max(
+        imageViewer.min,
+        Math.min(imageViewer.max, imageViewer.scale + delta)
+      );
+
+      els.imageLightboxImg.style.setProperty("--img-scale", imageViewer.scale);
+    }
+
+    function resetImageZoom() {
+      imageViewer.scale = 1;
+      if (els.imageLightboxImg) {
+        els.imageLightboxImg.style.setProperty("--img-scale", imageViewer.scale);
+      }
+    }
+
+    function bindImageLightbox() {
+      document.addEventListener("click", event => {
+        const img = event.target.closest(".rich img, .exercise-q img, .feedback img, .notice img");
+        if (!img) return;
+
+        event.preventDefault();
+        openImageLightbox(img);
+      });
+
+      if (els.imgCloseBtn) els.imgCloseBtn.addEventListener("click", closeImageLightbox);
+      if (els.imgZoomInBtn) els.imgZoomInBtn.addEventListener("click", () => zoomImage(imageViewer.step));
+      if (els.imgZoomOutBtn) els.imgZoomOutBtn.addEventListener("click", () => zoomImage(-imageViewer.step));
+      if (els.imgZoomResetBtn) els.imgZoomResetBtn.addEventListener("click", resetImageZoom);
+
+      if (els.imageLightbox) {
+        els.imageLightbox.addEventListener("click", event => {
+          if (event.target === els.imageLightbox) closeImageLightbox();
+        });
+      }
+
+      if (els.imageLightboxImg) {
+        els.imageLightboxImg.addEventListener("click", () => {
+          if (imageViewer.scale < 1.75) zoomImage(0.75);
+          else resetImageZoom();
+        });
+
+        els.imageLightboxImg.addEventListener("wheel", event => {
+          event.preventDefault();
+          zoomImage(event.deltaY < 0 ? imageViewer.step : -imageViewer.step);
+        }, { passive: false });
+      }
+
+      document.addEventListener("keydown", event => {
+        if (!els.imageLightbox || !els.imageLightbox.classList.contains("show")) return;
+
+        if (event.key === "Escape") closeImageLightbox();
+        if (event.key === "+" || event.key === "=") zoomImage(imageViewer.step);
+        if (event.key === "-") zoomImage(-imageViewer.step);
+        if (event.key === "0") resetImageZoom();
+      });
+    }
+
     function bindEvents() {
       if (els.reloadDataBtn) {
         els.reloadDataBtn.addEventListener("click", async () => {
@@ -1743,6 +1962,7 @@ Lời động viên:`;
     async function init() {
       loadLocalInfo();
       bindEvents();
+      bindImageLightbox();
       await loadData();
     }
 
