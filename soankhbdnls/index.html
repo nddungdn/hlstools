@@ -637,6 +637,34 @@
       fallbackModels: ["gemini-2.5-flash-lite", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.0-flash-lite"],
     };
 
+    // Schema bắt Gemini trả về JSON hợp lệ. Đây là phần quan trọng để tránh lỗi
+    // "Unterminated string in JSON" khi model tự sinh dấu ngoặc kép hoặc xuống dòng sai.
+    const INSERTION_RESPONSE_SCHEMA = {
+      type: "object",
+      properties: {
+        note: { type: "string", description: "Ghi chú ngắn, có thể để trống." },
+        selectedCompetencies: {
+          type: "array",
+          items: { type: "string" },
+          description: "Danh sách năng lực số được chọn để tích hợp."
+        },
+        insertions: {
+          type: "array",
+          description: "Danh sách đoạn cần chèn thêm vào giáo án gốc.",
+          items: {
+            type: "object",
+            properties: {
+              afterParagraph: { type: "integer", description: "Số thứ tự đoạn trong DOCX gốc; app sẽ chèn nội dung ngay sau đoạn này." },
+              place: { type: "string", description: "Vị trí chèn, ví dụ: Mục tiêu cần đạt hoặc Hoạt động luyện tập." },
+              text: { type: "string", description: "Nội dung Năng lực số cần chèn. Không dùng markdown bảng." }
+            },
+            required: ["afterParagraph", "place", "text"]
+          }
+        }
+      },
+      required: ["note", "selectedCompetencies", "insertions"]
+    };
+
     const SUBJECTS = [
       "Toán", "Ngữ Văn", "Vật Lí", "Hóa Học", "Sinh Học", "Tiếng Anh",
       "Lịch Sử", "Địa Lí", "GDCD", "Công Nghệ", "Tin Học", "Thể Dục",
@@ -1159,23 +1187,57 @@ ${lesson}
 `;
     }
 
-    function parseInsertionJson(text) {
+    function normalizeGeminiJsonText(text) {
       let clean = String(text || "").trim();
       clean = clean.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```$/i, "").trim();
       const first = clean.indexOf("{");
       const last = clean.lastIndexOf("}");
       if (first >= 0 && last > first) clean = clean.slice(first, last + 1);
-      const data = JSON.parse(clean);
-      const insertions = Array.isArray(data.insertions) ? data.insertions : [];
+      return clean;
+    }
+
+    function repairJsonForParse(text) {
+      let clean = normalizeGeminiJsonText(text);
+      // Một số model vẫn có thể trả về ký tự điều khiển thật trong chuỗi.
+      // Thay chúng bằng khoảng trắng giúp tránh lỗi "unterminated string" trong nhiều trường hợp.
+      clean = clean
+        .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, " ")
+        .replace(/\r?\n|\t/g, " ")
+        .replace(/[“”]/g, '\"')
+        .replace(/[‘’]/g, "'");
+      // Xóa dấu phẩy thừa trước } hoặc ] nếu có.
+      clean = clean.replace(/,\s*([}\]])/g, "$1");
+      return clean;
+    }
+
+    function coerceInsertionData(data) {
+      const insertions = Array.isArray(data?.insertions) ? data.insertions : [];
       return {
-        note: data.note || "",
-        selectedCompetencies: Array.isArray(data.selectedCompetencies) ? data.selectedCompetencies : [],
+        note: String(data?.note || ""),
+        selectedCompetencies: Array.isArray(data?.selectedCompetencies) ? data.selectedCompetencies.map(x => String(x || "").trim()).filter(Boolean) : [],
         insertions: insertions.map(item => ({
           afterParagraph: Number(item.afterParagraph),
           place: String(item.place || "Vị trí chèn"),
           text: String(item.text || "").trim()
         })).filter(item => Number.isInteger(item.afterParagraph) && item.afterParagraph > 0 && item.text)
       };
+    }
+
+    function parseInsertionJson(text) {
+      const raw = normalizeGeminiJsonText(text);
+      try {
+        return coerceInsertionData(JSON.parse(raw));
+      } catch (firstErr) {
+        try {
+          return coerceInsertionData(JSON.parse(repairJsonForParse(text)));
+        } catch (secondErr) {
+          const error = new Error(`Gemini trả về JSON chưa hợp lệ: ${secondErr.message || secondErr}`);
+          error.name = "GeminiJsonParseError";
+          error.originalError = firstErr;
+          error.rawText = String(text || "").slice(0, 1200);
+          throw error;
+        }
+      }
     }
 
     function buildInsertionPreview(data) {
@@ -1222,13 +1284,20 @@ ${lesson}
         .replace("{MODEL}", encodeURIComponent(model))
         .replace("{KEY}", encodeURIComponent(state.apiKey.trim()));
 
+      const generationConfig = {
+        temperature: options.temperature ?? 0.12,
+        topP: 0.85,
+        maxOutputTokens: options.maxOutputTokens ?? 4096,
+      };
+
+      if (options.structuredJson) {
+        generationConfig.responseMimeType = "application/json";
+        generationConfig.responseSchema = INSERTION_RESPONSE_SCHEMA;
+      }
+
       const body = {
         contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: options.temperature ?? 0.18,
-          topP: 0.85,
-          maxOutputTokens: options.maxOutputTokens ?? 2048,
-        }
+        generationConfig
       };
 
       const controller = new AbortController();
@@ -1275,7 +1344,7 @@ ${lesson}
       }
     }
 
-    async function callGemini(prompt) {
+    async function callGemini(prompt, options = {}) {
       const primary = getActiveModel().replace(/^models\//, "").trim();
       const models = uniqueModels(primary);
       const errors = [];
@@ -1287,7 +1356,10 @@ ${lesson}
           const label = attempt > 1 ? `thử lại ${attempt}` : (m > 0 ? "dự phòng" : "chính");
           updateProgress(Math.min(74, 52 + m * 6 + attempt * 2), `Đang gửi tới ${model} (${label})...`);
           try {
-            return await callGeminiRaw(prompt, model, { maxOutputTokens: 2048 });
+            return await callGeminiRaw(prompt, model, {
+              maxOutputTokens: options.structuredJson ? 4096 : 2048,
+              structuredJson: !!options.structuredJson
+            });
           } catch (err) {
             errors.push(`${model}: ${err.message || err}`);
             if (!shouldTryNextModel(err)) throw err;
@@ -1433,14 +1505,23 @@ ${lesson}
         const prompt = buildPrompt();
         updateProgress(38, "Đang tạo ngữ cảnh gọn cho giáo án dài...");
         await sleep(250);
-        updateProgress(52, "Đang gửi yêu cầu tới Gemini...");
-        const result = await callGemini(prompt);
+        const canPreserveDocx = state.lessonFileType === "docx" && state.lessonDocxBuffer && state.lessonParagraphs.length && !els.manualLesson.value.trim();
+        updateProgress(52, canPreserveDocx ? "Đang gửi yêu cầu tới Gemini theo JSON có cấu trúc..." : "Đang gửi yêu cầu tới Gemini...");
+        const result = await callGemini(prompt, { structuredJson: canPreserveDocx });
         updateProgress(86, "Đang hoàn thiện vị trí chèn NLS...");
         await sleep(350);
-        const canPreserveDocx = state.lessonFileType === "docx" && state.lessonDocxBuffer && state.lessonParagraphs.length && !els.manualLesson.value.trim();
         if (canPreserveDocx) {
-          const data = parseInsertionJson(result);
-          if (!data.insertions.length) throw new Error("AI chưa trả về vị trí chèn hợp lệ. Hãy thử lại hoặc chọn ít năng lực hơn.");
+          let data;
+          try {
+            data = parseInsertionJson(result);
+            if (!data.insertions.length) throw new Error("AI chưa trả về vị trí chèn hợp lệ.");
+          } catch (parseErr) {
+            console.warn("Không parse được JSON từ Gemini; chuyển sang dự phòng không AI.", parseErr);
+            updateProgress(92, "JSON của Gemini chưa hợp lệ, chuyển sang dự phòng không AI...");
+            data = buildLocalFallbackData();
+            state.usedLocalFallback = true;
+            showError(`<strong>Gemini trả JSON chưa hợp lệ.</strong><br>App đã tự dùng <b>chế độ dự phòng không AI</b> để không dừng quy trình. Bạn vẫn có thể xuất Word và chỉnh nhanh phần chữ đỏ nếu cần.`);
+          }
           state.insertions = data.insertions;
           state.result = buildInsertionPreview(data);
           els.resultArea.value = state.result;
