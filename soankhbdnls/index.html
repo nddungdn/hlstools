@@ -218,6 +218,21 @@
     details.manual summary { cursor: pointer; font-weight: 700; color: #0f3f91; }
     details.manual textarea { margin-top: 14px; }
 
+    .pre-action-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: -8px 2px 22px;
+      flex-wrap: wrap;
+    }
+    .pre-action-row .left-actions, .pre-action-row .right-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
     .main-button {
       width: 100%;
       border: 0;
@@ -506,8 +521,13 @@
           </label>
         </section>
 
-        <div style="display:flex; justify-content:flex-end; margin:-8px 2px 22px;">
-          <button class="small-btn" id="openSettingsLink" type="button">🔑 Cấu hình API Key</button>
+        <div class="pre-action-row">
+          <div class="left-actions">
+            <button class="small-btn danger" id="resetTopBtn" type="button">↺ Reset</button>
+          </div>
+          <div class="right-actions">
+            <button class="small-btn" id="openSettingsLink" type="button">🔑 Cấu hình API Key</button>
+          </div>
         </div>
 
         <button class="main-button" id="generateBtn" type="button">✨ BẮT ĐẦU SOẠN GIÁO ÁN</button>
@@ -608,11 +628,13 @@
       customModelStorageKey: "nls_custom_model",
       endpoint: "https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent?key={KEY}",
       // Không gửi toàn bộ giáo án dài lên AI. Với DOCX, app sẽ tự trích chọn các đoạn ứng viên.
-      maxLessonChars: 22000,
-      maxPpctChars: 5000,
-      maxSmartContextChars: 26000,
-      longInputThreshold: 30000,
-      requestTimeoutMs: 240000,
+      maxLessonChars: 16000,
+      maxPpctChars: 3000,
+      maxSmartContextChars: 18000,
+      longInputThreshold: 24000,
+      requestTimeoutMs: 180000,
+      retryDelayMs: 1800,
+      fallbackModels: ["gemini-2.5-flash-lite", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.0-flash-lite"],
     };
 
     const SUBJECTS = [
@@ -626,8 +648,10 @@
       { id: "gemini-3.1-flash-lite", name: "Gemini 3.1 Flash-Lite", desc: "Nhanh, tiết kiệm chi phí" },
       { id: "gemini-3.1-pro-preview", name: "Gemini 3.1 Pro", desc: "Suy luận sâu, preview" },
       { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash", desc: "Ổn định, độ trễ thấp" },
-      { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash-Lite", desc: "Nhẹ, tiết kiệm" },
-      { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro", desc: "Chất lượng cao" },
+      { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash-Lite", desc: "Nhẹ, ít lỗi quá tải" },
+      { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash", desc: "Model dự phòng khi 2.5 quá tải" },
+      { id: "gemini-2.0-flash-lite", name: "Gemini 2.0 Flash-Lite", desc: "Dự phòng nhẹ nhất" },
+      { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro", desc: "Chất lượng cao nhưng dễ chậm/quá tải" },
       { id: "custom", name: "Model tùy chỉnh", desc: "Nhập tên model ở ô bên dưới" },
     ];
 
@@ -713,6 +737,9 @@ Gợi ý riêng cho môn Ngữ văn:
       model: localStorage.getItem(APP.modelStorageKey) || "gemini-2.5-flash",
       customModel: localStorage.getItem(APP.customModelStorageKey) || "",
       isBusy: false,
+      currentAbortController: null,
+      lastUsedModel: "",
+      usedLocalFallback: false,
     };
 
     /*****************************************************************
@@ -732,7 +759,7 @@ Gợi ý riêng cho môn Ngữ văn:
       resultCard: $("#resultCard"), resultArea: $("#resultArea"),
       copyBtn: $("#copyBtn"), txtBtn: $("#txtBtn"), docxBtn: $("#docxBtn"), printBtn: $("#printBtn"), clearBtn: $("#clearBtn"),
       modal: $("#settingsModal"), modelList: $("#modelList"), apiKey: $("#apiKey"), apiKeyHeader: $("#apiKeyHeader"), customModel: $("#customModel"),
-      openSettingsTop: $("#openSettingsTop"), openSettingsLink: $("#openSettingsLink"), closeSettings: $("#closeSettings"), saveSettings: $("#saveSettings"),
+      openSettingsTop: $("#openSettingsTop"), openSettingsLink: $("#openSettingsLink"), resetTopBtn: $("#resetTopBtn"), closeSettings: $("#closeSettings"), saveSettings: $("#saveSettings"),
     };
 
     function showError(message) {
@@ -1034,7 +1061,7 @@ Gợi ý riêng cho môn Ngữ văn:
       const canPreserveDocx = state.lessonFileType === "docx" && state.lessonDocxBuffer && state.lessonParagraphs.length && !els.manualLesson.value.trim();
 
       if (canPreserveDocx) {
-        const smart = buildSmartDocxContext(longMode ? 22000 : APP.maxSmartContextChars);
+        const smart = buildSmartDocxContext(longMode ? 12000 : APP.maxSmartContextChars);
         return `
 Bạn là trợ lý chuyên hỗ trợ giáo viên Việt Nam tích hợp năng lực số vào Kế hoạch bài dạy, nhưng phải GIỮ NGUYÊN bố cục, cấu trúc và nội dung gốc của giáo án.
 
@@ -1171,8 +1198,26 @@ ${lesson}
       return lines.join("\n").trim();
     }
 
-    async function callGemini(prompt) {
-      const model = getActiveModel().replace(/^models\//, "").trim();
+    function uniqueModels(primaryModel) {
+      const cleanPrimary = String(primaryModel || "").replace(/^models\//, "").trim();
+      const models = [cleanPrimary, ...APP.fallbackModels].filter(Boolean);
+      return [...new Set(models)];
+    }
+
+    function isRetryableGeminiError(err) {
+      const msg = String(err?.message || err || "").toLowerCase();
+      const status = Number(err?.status || 0);
+      return status === 429 || status === 500 || status === 502 || status === 503 || status === 504 ||
+        /high demand|overload|overloaded|temporar|try again|resource exhausted|rate limit|quota|deadline|timeout|unavailable|internal/.test(msg);
+    }
+
+    function shouldTryNextModel(err) {
+      const msg = String(err?.message || err || "").toLowerCase();
+      const status = Number(err?.status || 0);
+      return isRetryableGeminiError(err) || status === 404 || status === 400 || /not found|model|not supported|invalid argument/.test(msg);
+    }
+
+    async function callGeminiRaw(prompt, model, options = {}) {
       const url = APP.endpoint
         .replace("{MODEL}", encodeURIComponent(model))
         .replace("{KEY}", encodeURIComponent(state.apiKey.trim()));
@@ -1180,14 +1225,14 @@ ${lesson}
       const body = {
         contents: [{ role: "user", parts: [{ text: prompt }] }],
         generationConfig: {
-          temperature: 0.28,
-          topP: 0.9,
-          // Kết quả cần rất ngắn: chỉ JSON vị trí chèn hoặc phần bổ sung NLS.
-          maxOutputTokens: 4096,
+          temperature: options.temperature ?? 0.18,
+          topP: 0.85,
+          maxOutputTokens: options.maxOutputTokens ?? 2048,
         }
       };
 
       const controller = new AbortController();
+      state.currentAbortController = controller;
       const timer = setTimeout(() => controller.abort(), APP.requestTimeoutMs);
       try {
         const response = await fetch(url, {
@@ -1200,23 +1245,175 @@ ${lesson}
         const data = await response.json().catch(() => ({}));
         if (!response.ok) {
           const message = data?.error?.message || `Lỗi HTTP ${response.status}`;
-          throw new Error(message);
+          const error = new Error(message);
+          error.status = response.status;
+          error.model = model;
+          throw error;
         }
 
         const text = data?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("\n") || "";
         if (!text.trim()) {
           const reason = data?.candidates?.[0]?.finishReason || "Không rõ nguyên nhân";
-          throw new Error(`Gemini không trả về nội dung. Finish reason: ${reason}`);
+          const error = new Error(`Gemini không trả về nội dung. Finish reason: ${reason}`);
+          error.status = 500;
+          error.model = model;
+          throw error;
         }
+        state.lastUsedModel = model;
         return text.trim();
       } catch (err) {
         if (err.name === "AbortError") {
-          throw new Error("Quá thời gian chờ. App đã tự rút gọn giáo án dài, nhưng model vẫn phản hồi chậm. Hãy thử lại, chọn gemini-2.5-flash-lite hoặc giảm số năng lực số cần tích hợp.");
+          const error = new Error("Quá thời gian chờ. Yêu cầu đã được rút gọn nhưng model vẫn phản hồi chậm.");
+          error.status = 504;
+          error.model = model;
+          throw error;
         }
         throw err;
       } finally {
         clearTimeout(timer);
+        if (state.currentAbortController === controller) state.currentAbortController = null;
       }
+    }
+
+    async function callGemini(prompt) {
+      const primary = getActiveModel().replace(/^models\//, "").trim();
+      const models = uniqueModels(primary);
+      const errors = [];
+
+      for (let m = 0; m < models.length; m++) {
+        const model = models[m];
+        const retryTimes = m === 0 ? 2 : 1;
+        for (let attempt = 1; attempt <= retryTimes; attempt++) {
+          const label = attempt > 1 ? `thử lại ${attempt}` : (m > 0 ? "dự phòng" : "chính");
+          updateProgress(Math.min(74, 52 + m * 6 + attempt * 2), `Đang gửi tới ${model} (${label})...`);
+          try {
+            return await callGeminiRaw(prompt, model, { maxOutputTokens: 2048 });
+          } catch (err) {
+            errors.push(`${model}: ${err.message || err}`);
+            if (!shouldTryNextModel(err)) throw err;
+            if (attempt < retryTimes) {
+              updateProgress(60, `Model đang bận, chờ ${Math.round(APP.retryDelayMs / 1000)} giây rồi thử lại...`);
+              await sleep(APP.retryDelayMs);
+            }
+          }
+        }
+      }
+
+      const finalError = new Error(`Các model Gemini đều đang lỗi/quá tải. Chi tiết gần nhất: ${errors[errors.length - 1] || "không rõ"}`);
+      finalError.retryable = true;
+      finalError.allErrors = errors;
+      throw finalError;
+    }
+
+    function pickParagraph(regexes, fallbackIndex = 0) {
+      const rows = (state.lessonParagraphs || []).filter(p => p.text && p.text.trim());
+      for (const rx of regexes) {
+        const found = rows.find(row => rx.test(normalizeForSearch(row.text)));
+        if (found) return found.n;
+      }
+      if (!rows.length) return 1;
+      return rows[Math.max(0, Math.min(rows.length - 1, fallbackIndex))].n;
+    }
+
+    function getLocalCompetencies(limit) {
+      const subject = normalizeForSearch(state.subject);
+      let list;
+      if (subject.includes("ngu van")) {
+        list = [
+          "1.1. Duyệt, tìm kiếm và lọc dữ liệu, thông tin và nội dung số",
+          "1.2. Đánh giá dữ liệu, thông tin và nội dung số",
+          "2.2. Chia sẻ thông tin và nội dung thông qua công nghệ số",
+          "3.1. Phát triển nội dung số",
+          "3.3. Bản quyền và giấy phép",
+        ];
+      } else if (subject.includes("toan")) {
+        list = [
+          "5.2. Xác định nhu cầu và giải pháp công nghệ",
+          "5.3. Sử dụng sáng tạo công nghệ số",
+          "1.2. Đánh giá dữ liệu, thông tin và nội dung số",
+          "3.1. Phát triển nội dung số",
+          "4.2. Bảo vệ dữ liệu cá nhân và quyền riêng tư",
+        ];
+      } else {
+        list = [
+          "1.1. Duyệt, tìm kiếm và lọc dữ liệu, thông tin và nội dung số",
+          "1.2. Đánh giá dữ liệu, thông tin và nội dung số",
+          "2.4. Hợp tác thông qua công nghệ số",
+          "3.1. Phát triển nội dung số",
+          "4.2. Bảo vệ dữ liệu cá nhân và quyền riêng tư",
+        ];
+      }
+      if (els.aiOption.checked) list.push("6.1/6.2. Nhận biết và sử dụng trí tuệ nhân tạo an toàn, có kiểm chứng");
+      const wanted = els.nlsCount.value === "auto" ? 3 : Math.max(1, Math.min(5, Number(els.nlsCount.value || 3)));
+      return list.slice(0, Math.min(limit || wanted, wanted));
+    }
+
+    function localObjectiveText(competencies) {
+      const subject = normalizeForSearch(state.subject);
+      const compText = competencies.join("; ");
+      if (subject.includes("ngu van")) {
+        return `Năng lực số: Học sinh biết khai thác và đánh giá học liệu số phù hợp với văn bản/nội dung bài học; biết chia sẻ, trình bày sản phẩm đọc hiểu/viết/nói nghe bằng công cụ số khi được yêu cầu; biết ghi nguồn, tôn trọng bản quyền và ứng xử an toàn trên môi trường số. Năng lực thành phần: ${compText}.`;
+      }
+      if (subject.includes("toan")) {
+        return `Năng lực số: Học sinh biết sử dụng công cụ số phù hợp để quan sát, biểu diễn, kiểm chứng hoặc trình bày kết quả học tập; biết lựa chọn thông tin đáng tin cậy, hợp tác và chia sẻ sản phẩm học tập số an toàn, đúng mục đích. Năng lực thành phần: ${compText}.`;
+      }
+      return `Năng lực số: Học sinh biết khai thác học liệu số phù hợp với nhiệm vụ học tập; hợp tác, chia sẻ sản phẩm học tập trên môi trường số; sử dụng thông tin an toàn, có trách nhiệm, tôn trọng bản quyền. Năng lực thành phần: ${compText}.`;
+    }
+
+    function localActivityText() {
+      const subject = normalizeForSearch(state.subject);
+      if (subject.includes("ngu van")) {
+        return "Tổ chức thực hiện tích hợp NLS: Giáo viên cung cấp hoặc hướng dẫn học sinh khai thác một số nguồn học liệu số đáng tin cậy liên quan đến văn bản/bài học; học sinh ghi nhanh thông tin cần thiết vào phiếu học tập, đối chiếu với văn bản trong SGK, thảo luận để lựa chọn thông tin phù hợp, ghi rõ nguồn khi trình bày. Sản phẩm/đánh giá: câu trả lời hoặc phiếu học tập có thông tin được chọn lọc, có căn cứ từ văn bản, không sao chép máy móc; học sinh nêu được lí do lựa chọn nguồn thông tin.";
+      }
+      if (subject.includes("toan")) {
+        return "Tổ chức thực hiện tích hợp NLS: Giáo viên giao học sinh sử dụng công cụ số phù hợp như bảng tính, phần mềm hình học động, máy tính cầm tay hoặc học liệu tương tác để quan sát, thử nghiệm, kiểm chứng kết quả; học sinh ghi lại thao tác chính và giải thích bằng ngôn ngữ toán học. Sản phẩm/đánh giá: kết quả tính toán/biểu diễn có kèm nhận xét, học sinh biết đối chiếu kết quả từ công cụ số với lập luận toán học, không phụ thuộc hoàn toàn vào công cụ.";
+      }
+      return "Tổ chức thực hiện tích hợp NLS: Giáo viên giao học sinh khai thác học liệu số hoặc công cụ số phù hợp với nhiệm vụ học tập; học sinh làm việc cá nhân/nhóm, chọn lọc thông tin, tạo sản phẩm ngắn và chia sẻ theo yêu cầu. Sản phẩm/đánh giá: sản phẩm học tập rõ nguồn thông tin, đúng nhiệm vụ, thể hiện cách sử dụng công nghệ số an toàn, có trách nhiệm.";
+    }
+
+    function buildLocalFallbackData() {
+      const competencies = getLocalCompetencies();
+      const canPreserveDocx = state.lessonFileType === "docx" && state.lessonDocxBuffer && state.lessonParagraphs.length && !els.manualLesson.value.trim();
+      if (canPreserveDocx) {
+        const objectiveAfter = pickParagraph([
+          /muc tieu/, /yeu cau can dat/, /nang luc/, /can dat/
+        ], 5);
+        const activityAfter = pickParagraph([
+          /hinh thanh kien thuc/, /doc hieu/, /kham pha/, /tim hieu/, /luyen tap/, /van dung/, /cung co/, /mo rong/, /hoat dong/
+        ], Math.floor((state.lessonParagraphs || []).length / 2));
+        return {
+          note: "Gemini đang quá tải nên app dùng chế độ dự phòng không AI. Nội dung vẫn được chèn chữ đỏ và có thể chỉnh lại sau khi xuất Word.",
+          selectedCompetencies: competencies,
+          insertions: [
+            { afterParagraph: objectiveAfter, place: "Mục tiêu cần đạt", text: localObjectiveText(competencies) },
+            { afterParagraph: activityAfter, place: "Hoạt động dạy học phù hợp", text: localActivityText() }
+          ]
+        };
+      }
+      return {
+        note: "Gemini đang quá tải nên app dùng chế độ dự phòng không AI. Với PDF/dán thủ công, hãy chèn thủ công các đoạn dưới đây vào giáo án.",
+        selectedCompetencies: competencies,
+        insertions: [
+          { afterParagraph: 1, place: "Mục tiêu cần đạt", text: localObjectiveText(competencies) },
+          { afterParagraph: 2, place: "Hình thành kiến thức mới/Luyện tập/Củng cố", text: localActivityText() }
+        ]
+      };
+    }
+
+    function buildManualFallbackPreview(data) {
+      const lines = [];
+      lines.push("BẢN DỰ PHÒNG KHI GEMINI QUÁ TẢI");
+      lines.push(data.note || "");
+      lines.push("");
+      lines.push("Năng lực số được chọn:");
+      (data.selectedCompetencies || []).forEach((c, i) => lines.push(`${i + 1}. ${c}`));
+      lines.push("");
+      (data.insertions || []).forEach((ins, i) => {
+        lines.push(`🔴 [NLS] ${ins.place}`);
+        lines.push(ins.text);
+        if (i < data.insertions.length - 1) lines.push("");
+      });
+      return lines.join("\n").trim();
     }
 
     async function handleGenerate() {
@@ -1259,8 +1456,36 @@ ${lesson}
         els.resultCard.scrollIntoView({ behavior: "smooth", block: "start" });
       } catch (err) {
         console.error(err);
+        const overloaded = isRetryableGeminiError(err) || err.retryable;
+        if (overloaded) {
+          try {
+            updateProgress(92, "Gemini đang quá tải, chuyển sang chế độ dự phòng không AI...");
+            await sleep(350);
+            const fallback = buildLocalFallbackData();
+            const canPreserveDocx = state.lessonFileType === "docx" && state.lessonDocxBuffer && state.lessonParagraphs.length && !els.manualLesson.value.trim();
+            state.usedLocalFallback = true;
+            if (canPreserveDocx) {
+              state.insertions = fallback.insertions;
+              state.result = buildInsertionPreview(fallback);
+            } else {
+              state.insertions = [];
+              state.result = buildManualFallbackPreview(fallback);
+            }
+            els.resultArea.value = state.result;
+            updateProgress(100, "Hoàn tất bằng chế độ dự phòng!");
+            await sleep(500);
+            els.statusCard.classList.remove("show");
+            els.resultCard.classList.add("show");
+            showError(`<strong>Gemini đang quá tải hoặc chưa phản hồi ổn định.</strong><br>App đã tự chuyển sang <b>chế độ dự phòng không AI</b> để vẫn tạo được nội dung Năng lực số. Bạn có thể xuất Word và chỉnh nhanh các đoạn chữ đỏ nếu cần.`);
+            els.resultCard.scrollIntoView({ behavior: "smooth", block: "start" });
+            return;
+          } catch (fallbackErr) {
+            console.error(fallbackErr);
+          }
+        }
+        els.statusCard.classList.remove("show");
         showError(`<strong>Có lỗi khi soạn giáo án:</strong> ${escapeHtml(err.message || String(err))}<br><br>
-        Gợi ý: kiểm tra API key, đổi model sang <b>gemini-2.5-flash</b>, chọn ít năng lực hơn, dùng file <b>.docx gốc</b> để giữ bố cục, hoặc dán phần giáo án cần xử lí vào ô thủ công.`);
+        Gợi ý: kiểm tra API key, chọn <b>gemini-2.5-flash-lite</b>, bấm <b>Reset</b> rồi thử lại, dùng file <b>.docx gốc</b> để giữ bố cục.`);
       } finally {
         state.isBusy = false;
         setBusy(false);
@@ -1270,6 +1495,7 @@ ${lesson}
     function setBusy(isBusy) {
       els.generateBtn.disabled = isBusy;
       els.generateBtn.textContent = isBusy ? "ĐANG XỬ LÝ..." : "✨ BẮT ĐẦU SOẠN GIÁO ÁN";
+      if (els.resetTopBtn) els.resetTopBtn.disabled = false;
     }
 
     function updateProgress(percent, text) {
@@ -1420,7 +1646,11 @@ ${lesson}
     }
 
     function clearAll() {
-      state.lessonText = ""; state.ppctText = ""; state.lessonFileName = ""; state.ppctFileName = ""; state.result = ""; state.lessonFileType = ""; state.lessonDocxBuffer = null; state.lessonParagraphs = []; state.insertions = [];
+      if (state.currentAbortController) {
+        try { state.currentAbortController.abort(); } catch (e) {}
+        state.currentAbortController = null;
+      }
+      state.lessonText = ""; state.ppctText = ""; state.lessonFileName = ""; state.ppctFileName = ""; state.result = ""; state.lessonFileType = ""; state.lessonDocxBuffer = null; state.lessonParagraphs = []; state.insertions = []; state.usedLocalFallback = false; state.lastUsedModel = "";
       els.lessonFile.value = ""; els.ppctFile.value = ""; els.manualLesson.value = ""; els.nlsCount.value = "3"; els.resultArea.value = "";
       els.lessonBox.classList.remove("loaded"); els.ppctBox.classList.remove("loaded");
       els.lessonTitle.textContent = "Tải lên Giáo án"; els.lessonSub.textContent = "Giáo án bài dạy cần tích hợp";
@@ -1493,6 +1723,7 @@ ${lesson}
     els.docxBtn.addEventListener("click", downloadDocx);
     els.printBtn.addEventListener("click", () => window.print());
     els.clearBtn.addEventListener("click", clearAll);
+    if (els.resetTopBtn) els.resetTopBtn.addEventListener("click", clearAll);
     els.apiKeyHeader.addEventListener("input", syncApiKeyFromHeader);
     els.openSettingsTop.addEventListener("click", openSettings);
     els.openSettingsLink.addEventListener("click", openSettings);
