@@ -655,8 +655,8 @@
             type: "object",
             properties: {
               afterParagraph: { type: "integer", description: "Số thứ tự đoạn trong DOCX gốc; app sẽ chèn nội dung ngay sau đoạn này." },
-              place: { type: "string", description: "Vị trí chèn, ví dụ: Mục tiêu cần đạt hoặc Hoạt động luyện tập." },
-              text: { type: "string", description: "Nội dung Năng lực số cần chèn. Không dùng markdown bảng." }
+              place: { type: "string", description: "Vị trí chèn chính xác, ví dụ: Mục tiêu cần đạt > Năng lực hoặc Hình thành kiến thức mới." },
+              text: { type: "string", description: "Nội dung Năng lực số cần chèn. Không dùng markdown bảng. Với mục tiêu, chỉ viết phần năng lực số; với hoạt động, viết thành một hoạt động/bước dạy học cụ thể." }
             },
             required: ["afterParagraph", "place", "text"]
           }
@@ -983,11 +983,128 @@ Gợi ý riêng cho môn Ngữ văn:
       return /heading|title|tieude|tieu_de|mcheading/.test(style);
     }
 
+
+    function isMajorHeadingRow(row) {
+      if (!row) return false;
+      const text = String(row.text || "").trim();
+      const norm = normalizeForSearch(text);
+      if (!text) return false;
+      if (looksLikeLessonHeading(row)) return true;
+      return /^((i|ii|iii|iv|v|vi|vii|viii|ix|x)|\d+)[\.\)]\s+/.test(norm);
+    }
+
+    function findObjectiveCompetencyParagraph() {
+      const rows = (state.lessonParagraphs || []).filter(p => p.text && p.text.trim());
+      if (!rows.length) return 1;
+      const norms = rows.map(r => normalizeForSearch(r.text));
+      let start = norms.findIndex(n => /(muc tieu|yeu cau can dat|can dat)/.test(n));
+      if (start < 0) start = 0;
+
+      const maxLook = Math.min(rows.length - 1, start + 120);
+      const capCandidates = [];
+      for (let i = start; i <= maxLook; i++) {
+        const n = norms[i];
+        if (!n || /nang luc so/.test(n)) continue;
+        const isCap = /(^|\b)(2|ii)[\.\)]?\s*nang luc\b/.test(n)
+          || /(^|\b)nang luc(\b|\s*:)/.test(n)
+          || /nang luc chung|nang luc dac thu|nang luc rieng/.test(n);
+        const isKnowledge = /kien thuc|tri thuc/.test(n) && !/nang luc/.test(n);
+        if (isCap && !isKnowledge) capCandidates.push(i);
+      }
+      if (capCandidates.length) {
+        // Ưu tiên dòng tiêu đề/tiểu mục "2. Năng lực", sau đó lấy đoạn cuối của tiểu mục này.
+        let capStart = capCandidates.find(i => /^((2|ii)[\.\)]\s*)?nang luc\b/.test(norms[i]) || /(^|\b)(2|ii)[\.\)]?\s*nang luc\b/.test(norms[i])) ?? capCandidates[0];
+        let end = Math.min(rows.length - 1, capStart + 45);
+        for (let j = capStart + 1; j <= end; j++) {
+          const n = norms[j];
+          if (/pham chat|chuan bi|thiet bi|hoc lieu|tien trinh|to chuc hoat dong|hoat dong day hoc|phuong phap|kien thuc/.test(n) && isMajorHeadingRow(rows[j])) {
+            end = j - 1;
+            break;
+          }
+          // Nếu gặp mục 3 sau mục 2 thì dừng trước mục 3.
+          if (/^(3|iii)[\.\)]\s+/.test(n) && isMajorHeadingRow(rows[j])) {
+            end = j - 1;
+            break;
+          }
+        }
+        for (let j = end; j >= capStart; j--) {
+          if (rows[j] && rows[j].text && rows[j].text.trim()) return rows[j].n;
+        }
+        return rows[capStart].n;
+      }
+
+      // Nếu giáo án không chia rõ Kiến thức - Năng lực, vẫn ưu tiên đoạn có chữ Năng lực.
+      for (let i = start; i <= maxLook; i++) {
+        if (/nang luc/.test(norms[i]) && !/kien thuc/.test(norms[i]) && !/nang luc so/.test(norms[i])) return rows[i].n;
+      }
+      return pickParagraph([/nang luc/, /muc tieu/, /yeu cau can dat/], Math.min(8, rows.length - 1));
+    }
+
+    function findNewKnowledgeParagraph() {
+      const rows = (state.lessonParagraphs || []).filter(p => p.text && p.text.trim());
+      if (!rows.length) return 1;
+      const norms = rows.map(r => normalizeForSearch(r.text));
+      const strongRe = /(hinh thanh kien thuc moi|hinh thanh kien thuc|kien thuc moi|kham pha|tim hieu|doc hieu|doc - hieu|kham pha van ban|tim hieu van ban)/;
+      let start = norms.findIndex(n => strongRe.test(n));
+      if (start < 0) start = norms.findIndex(n => /(hoat dong\s*\d|hoat dong).*?(kham pha|tim hieu|doc hieu|hinh thanh|kien thuc)/.test(n));
+      if (start < 0) start = norms.findIndex(n => /(luyen tap|thuc hanh|van dung|cung co|mo rong)/.test(n));
+      if (start < 0) return pickParagraph([/hoat dong/, /nhiem vu/, /to chuc thuc hien/], Math.floor(rows.length / 2));
+
+      const end = Math.min(rows.length - 1, start + 45);
+      const preferred = /(chuyen giao nhiem vu|nhiem vu|to chuc thuc hien|thuc hien nhiem vu|san pham|bao cao|thao luan|giao vien|hoc sinh)/;
+      for (let i = start; i <= end; i++) {
+        if (preferred.test(norms[i])) return rows[i].n;
+      }
+      return rows[Math.min(end, start + 2)].n;
+    }
+
+    function getDocxTargetHints() {
+      const comp = findObjectiveCompetencyParagraph();
+      const act = findNewKnowledgeParagraph();
+      return `- Mục tiêu cần đạt > Năng lực: nên chèn sau đoạn [${comp}]. Không chèn vào mục Kiến thức.\n- Hình thành kiến thức mới hoặc mục tương đương: nên chèn sau đoạn [${act}] và viết thành một hoạt động/bước cụ thể.`;
+    }
+
+    function isObjectiveInsertion(ins) {
+      const place = normalizeForSearch(ins?.place || "");
+      const text = normalizeForSearch(ins?.text || "");
+      const activityPlace = /hinh thanh|luyen tap|van dung|cung co|mo rong|hoat dong|kham pha|tim hieu|doc hieu/.test(place);
+      const objectivePlace = /muc tieu|yeu cau can dat|nang luc/.test(place) && !activityPlace;
+      return objectivePlace || (!activityPlace && /^nang luc so/.test(text));
+    }
+
+    function normalizeInsertionTargets(data) {
+      if (!data || !Array.isArray(data.insertions)) return data;
+      const canPreserveDocx = state.lessonFileType === "docx" && state.lessonDocxBuffer && state.lessonParagraphs.length && !els.manualLesson.value.trim();
+      if (!canPreserveDocx) return data;
+      const competencyTarget = findObjectiveCompetencyParagraph();
+      const knowledgeTarget = findNewKnowledgeParagraph();
+      let objectiveFixed = false;
+      let activityFixed = false;
+      data.insertions = data.insertions.map((ins) => {
+        const item = { ...ins };
+        if (isObjectiveInsertion(item) && !objectiveFixed) {
+          item.afterParagraph = competencyTarget;
+          item.place = "Mục tiêu cần đạt > Năng lực";
+          objectiveFixed = true;
+        } else if (!isObjectiveInsertion(item) && !activityFixed) {
+          item.afterParagraph = knowledgeTarget;
+          item.place = "Hình thành kiến thức mới";
+          activityFixed = true;
+        }
+        return item;
+      });
+      return data;
+    }
+
     function buildSmartDocxContext(maxChars = APP.maxSmartContextChars) {
       const rows = (state.lessonParagraphs || []).filter(p => p.text && p.text.trim());
       const selected = new Map();
-      const objectiveRe = /(muc tieu|yeu cau can dat|can dat|nang luc|pham chat)/;
-      const newKnowledgeRe = /(hinh thanh kien thuc|kham pha|tim hieu|doc hieu|phan tich|hinh thanh|kien thuc moi)/;
+      // Tách rõ mục tiêu kiến thức và mục tiêu năng lực. NLS phải chèn vào mục Năng lực,
+      // không chèn vào mục Kiến thức/Yêu cầu về kiến thức.
+      const objectiveRe = /(muc tieu|yeu cau can dat|can dat|nang luc|pham chat|kien thuc)/;
+      const competencyRe = /(^|\b)(2|ii)[\.\)]?\s*(nang luc)|(^|\b)nang luc(\b|\s*:)|nang luc chung|nang luc dac thu|nang luc rieng/;
+      const knowledgeRe = /(^|\b)(1|i)[\.\)]?\s*(kien thuc)|(^|\b)kien thuc(\b|\s*:)|yeu cau ve kien thuc/;
+      const newKnowledgeRe = /(hinh thanh kien thuc moi|hinh thanh kien thuc|kien thuc moi|kham pha|tim hieu|doc hieu|doc - hieu|phan tich|kham pha van ban|tim hieu van ban)/;
       const practiceRe = /(luyen tap|thuc hanh|van dung|cung co|mo rong|tim toi|sang tao|bai tap|nhiem vu)/;
       const activityRe = /(hoat dong\s*\d|hoat dong|chuyen giao nhiem vu|thuc hien nhiem vu|bao cao|thao luan|san pham|to chuc thuc hien|danh gia|ket luan)/;
 
@@ -998,9 +1115,23 @@ Gợi ý riêng cho môn Ngữ văn:
         const norm = normalizeForSearch(row.text);
         if (objectiveRe.test(norm)) {
           hasObjective = true;
-          addParagraphWindow(selected, rows, idx, 1, 24);
+          // Gửi rộng hơn quanh mục tiêu để AI thấy được các tiểu mục: Kiến thức - Năng lực - Phẩm chất.
+          addParagraphWindow(selected, rows, idx, 2, 32);
         }
-        if (newKnowledgeRe.test(norm) || practiceRe.test(norm) || activityRe.test(norm)) {
+        if (competencyRe.test(norm)) {
+          hasObjective = true;
+          // Ưu tiên gửi nguyên cửa sổ mục Năng lực để chọn đúng điểm chèn.
+          addParagraphWindow(selected, rows, idx, 2, 24);
+        }
+        if (knowledgeRe.test(norm)) {
+          // Vẫn gửi mục kiến thức để AI biết và TRÁNH chèn NLS vào đó.
+          addParagraphWindow(selected, rows, idx, 1, 8);
+        }
+        if (newKnowledgeRe.test(norm)) {
+          hasActivity = true;
+          // Ưu tiên Hình thành kiến thức mới hoặc các mục tương đương.
+          addParagraphWindow(selected, rows, idx, 3, 28);
+        } else if (practiceRe.test(norm) || activityRe.test(norm)) {
           hasActivity = true;
           addParagraphWindow(selected, rows, idx, 2, 12);
         }
@@ -1087,6 +1218,10 @@ Gợi ý riêng cho môn Ngữ văn:
       const nlsCount = els.nlsCount.value;
       const nlsCountText = nlsCount === "auto" ? "Tự động hợp lí, ưu tiên 1-3 năng lực chính" : `${nlsCount} năng lực chính`;
       const canPreserveDocx = state.lessonFileType === "docx" && state.lessonDocxBuffer && state.lessonParagraphs.length && !els.manualLesson.value.trim();
+      const targetHints = canPreserveDocx
+        ? getDocxTargetHints()
+        : `- Với PDF/dán thủ công, hãy chèn NLS vào tiểu mục Năng lực trong phần Mục tiêu cần đạt; không chèn vào mục Kiến thức.
+- Phần triển khai dạy học nên đặt trong Hình thành kiến thức mới hoặc mục tương đương, thành một hoạt động/bước cụ thể.`;
 
       if (canPreserveDocx) {
         const smart = buildSmartDocxContext(longMode ? 12000 : APP.maxSmartContextChars);
@@ -1108,13 +1243,14 @@ YÊU CẦU BẮT BUỘC:
 2. KHÔNG thay đổi bố cục, cấu trúc, bảng biểu, thứ tự hoạt động hoặc nội dung gốc.
 3. Chỉ tạo các đoạn/vế cần CHÈN THÊM vào giáo án gốc.
 4. Nội dung mới sẽ được app tự chèn bằng CHỮ MÀU ĐỎ vào file Word gốc.
-5. Chỉ thêm "Năng lực số" vào phần Mục tiêu cần đạt nếu giáo án có phần mục tiêu.
-6. Chỉ triển khai cụ thể trong MỘT hoặc MỘT VÀI vị trí phù hợp thuộc: Hình thành kiến thức mới, Luyện tập, Củng cố/Mở rộng/Vận dụng. Không rải quá nhiều.
-7. Nội dung chèn phải dùng được ngay, ngắn gọn, đúng thực tế lớp học, không làm tiết học thành tiết Tin học.
-8. Nếu giáo án tải lên chỉ là một phần của bài/chủ đề lớn, chỉ xử lí đúng phần được cung cấp.
-9. Mỗi chèn phải chọn chính xác số đoạn [n] để app chèn ngay SAU đoạn đó.
-10. Số năng lực số chính cần chọn: ${nlsCountText}. Nếu không đủ vị trí phù hợp, chọn ít hơn và nêu lí do trong "note".
-11. Nếu yêu cầu AI là “Không”, không đưa hoạt động AI. Nếu “Có”, hoạt động AI phải có kiểm chứng, đạo đức sử dụng, không chép nguyên văn.
+5. Trong phần Mục tiêu/Yêu cầu cần đạt, Năng lực số PHẢI chèn vào tiểu mục NĂNG LỰC (thường là mục 2, hoặc các dòng "Năng lực chung", "Năng lực đặc thù"). TUYỆT ĐỐI KHÔNG chèn vào mục KIẾN THỨC/Yêu cầu về kiến thức.
+6. Phần cụ thể hóa cách dạy học PHẢI đưa vào Hình thành kiến thức mới hoặc mục tương đương (Khám phá, Tìm hiểu, Đọc hiểu, Tìm hiểu văn bản...). Chỉ khi giáo án không có mục này mới dùng Luyện tập/Củng cố/Vận dụng.
+7. Phần cụ thể hóa phải triển khai thành MỘT hoạt động/bước dạy học cụ thể trong hoạt động đang có: nêu GV giao nhiệm vụ gì, HS làm gì, sản phẩm là gì, đánh giá/kiểm chứng thế nào. Không viết chung chung.
+8. Nội dung chèn phải dùng được ngay, ngắn gọn, đúng thực tế lớp học, không làm tiết học thành tiết Tin học.
+9. Nếu giáo án tải lên chỉ là một phần của bài/chủ đề lớn, chỉ xử lí đúng phần được cung cấp.
+10. Mỗi chèn phải chọn chính xác số đoạn [n] để app chèn ngay SAU đoạn đó.
+11. Số năng lực số chính cần chọn: ${nlsCountText}. Nếu không đủ vị trí phù hợp, chọn ít hơn và nêu lí do trong "note".
+12. Nếu yêu cầu AI là “Không”, không đưa hoạt động AI. Nếu “Có”, hoạt động AI phải có kiểm chứng, đạo đức sử dụng, không chép nguyên văn.
 
 TRẢ VỀ DUY NHẤT JSON HỢP LỆ, KHÔNG markdown, KHÔNG giải thích ngoài JSON. Trong trường "text", nếu cần xuống dòng hãy dùng ký tự \n, không xuống dòng thật bên trong chuỗi JSON. Định dạng:
 {
@@ -1123,22 +1259,25 @@ TRẢ VỀ DUY NHẤT JSON HỢP LỆ, KHÔNG markdown, KHÔNG giải thích ngo
   "insertions": [
     {
       "afterParagraph": 12,
-      "place": "Mục tiêu cần đạt",
+      "place": "Mục tiêu cần đạt > Năng lực",
       "text": "Năng lực số: ..."
     },
     {
       "afterParagraph": 45,
-      "place": "Hình thành kiến thức mới/Luyện tập/Củng cố mở rộng",
-      "text": "Tổ chức thực hiện: ...; Sản phẩm/đánh giá: ..."
+      "place": "Hình thành kiến thức mới",
+      "text": "Hoạt động tích hợp năng lực số: GV ...; HS ...; Sản phẩm ...; Đánh giá/kiểm chứng ..."
     }
   ]
 }
 
 QUY TẮC CHỌN ĐOẠN CHÈN:
-- Với "Mục tiêu cần đạt": chọn đoạn cuối của phần mục tiêu hoặc đoạn ngay sau các mục tiêu hiện có.
-- Với hoạt động dạy học: chọn đoạn gần nhất với hoạt động cần bổ sung, ví dụ sau yêu cầu nhiệm vụ/sản phẩm/cách tổ chức của hoạt động đó.
+- Với "Mục tiêu cần đạt": phải chọn đoạn nằm trong tiểu mục NĂNG LỰC; ưu tiên đoạn cuối cùng của tiểu mục Năng lực, ngay trước Phẩm chất/Chuẩn bị/Tiến trình nếu có. Không chọn đoạn thuộc mục Kiến thức.
+- Với hoạt động dạy học: ưu tiên đoạn trong Hình thành kiến thức mới hoặc mục tương đương; chọn đoạn gần nhất với nhiệm vụ/sản phẩm/cách tổ chức để chèn thành một hoạt động/bước cụ thể.
 - Không chọn đoạn trống.
 - "text" phải là nội dung chèn mới, không lặp lại giáo án gốc.
+
+GỢI Ý VỊ TRÍ DO APP TỰ NHẬN DIỆN:
+${targetHints}
 
 PHÂN PHỐI CHƯƠNG TRÌNH/THAM KHẢO NẾU CÓ:
 ${ppct || "[Không có PPCT]"}
@@ -1174,10 +1313,13 @@ ${DIGITAL_COMPETENCE_FRAMEWORK}
 ${subjectHint}
 
 YÊU CẦU:
-1. Chỉ thêm NLS vào phần mục tiêu cần đạt và 1-2 vị trí phù hợp trong Hình thành kiến thức mới/Luyện tập/Củng cố/Mở rộng.
+1. Chỉ thêm NLS vào phần Mục tiêu cần đạt, đúng tiểu mục Năng lực; không đưa vào mục Kiến thức. Phần triển khai dạy học ưu tiên đặt trong Hình thành kiến thức mới hoặc mục tương đương, thành một hoạt động/bước cụ thể.
 2. Không viết lại toàn bộ giáo án.
 3. Nội dung bổ sung ngắn, rõ, dùng được ngay.
 4. Nếu giáo án chỉ là một phần của bài/chủ đề lớn, chỉ xử lí phần được cung cấp.
+
+GỢI Ý VỊ TRÍ DO APP TỰ NHẬN DIỆN:
+${targetHints}
 
 PHÂN PHỐI CHƯƠNG TRÌNH/THAM KHẢO NẾU CÓ:
 ${ppct || "[Không có PPCT]"}
@@ -1447,18 +1589,14 @@ ${lesson}
       const competencies = getLocalCompetencies();
       const canPreserveDocx = state.lessonFileType === "docx" && state.lessonDocxBuffer && state.lessonParagraphs.length && !els.manualLesson.value.trim();
       if (canPreserveDocx) {
-        const objectiveAfter = pickParagraph([
-          /muc tieu/, /yeu cau can dat/, /nang luc/, /can dat/
-        ], 5);
-        const activityAfter = pickParagraph([
-          /hinh thanh kien thuc/, /doc hieu/, /kham pha/, /tim hieu/, /luyen tap/, /van dung/, /cung co/, /mo rong/, /hoat dong/
-        ], Math.floor((state.lessonParagraphs || []).length / 2));
+        const objectiveAfter = findObjectiveCompetencyParagraph();
+        const activityAfter = findNewKnowledgeParagraph();
         return {
           note: "Gemini đang quá tải nên app dùng chế độ dự phòng không AI. Nội dung vẫn được chèn chữ đỏ và có thể chỉnh lại sau khi xuất Word.",
           selectedCompetencies: competencies,
           insertions: [
-            { afterParagraph: objectiveAfter, place: "Mục tiêu cần đạt", text: localObjectiveText(competencies) },
-            { afterParagraph: activityAfter, place: "Hoạt động dạy học phù hợp", text: localActivityText() }
+            { afterParagraph: objectiveAfter, place: "Mục tiêu cần đạt > Năng lực", text: localObjectiveText(competencies) },
+            { afterParagraph: activityAfter, place: "Hình thành kiến thức mới", text: localActivityText() }
           ]
         };
       }
@@ -1466,8 +1604,8 @@ ${lesson}
         note: "Gemini đang quá tải nên app dùng chế độ dự phòng không AI. Với PDF/dán thủ công, hãy chèn thủ công các đoạn dưới đây vào giáo án.",
         selectedCompetencies: competencies,
         insertions: [
-          { afterParagraph: 1, place: "Mục tiêu cần đạt", text: localObjectiveText(competencies) },
-          { afterParagraph: 2, place: "Hình thành kiến thức mới/Luyện tập/Củng cố", text: localActivityText() }
+          { afterParagraph: 1, place: "Mục tiêu cần đạt > Năng lực", text: localObjectiveText(competencies) },
+          { afterParagraph: 2, place: "Hình thành kiến thức mới", text: localActivityText() }
         ]
       };
     }
@@ -1514,11 +1652,12 @@ ${lesson}
           let data;
           try {
             data = parseInsertionJson(result);
+            data = normalizeInsertionTargets(data);
             if (!data.insertions.length) throw new Error("AI chưa trả về vị trí chèn hợp lệ.");
           } catch (parseErr) {
             console.warn("Không parse được JSON từ Gemini; chuyển sang dự phòng không AI.", parseErr);
             updateProgress(92, "JSON của Gemini chưa hợp lệ, chuyển sang dự phòng không AI...");
-            data = buildLocalFallbackData();
+            data = normalizeInsertionTargets(buildLocalFallbackData());
             state.usedLocalFallback = true;
             showError(`<strong>Gemini trả JSON chưa hợp lệ.</strong><br>App đã tự dùng <b>chế độ dự phòng không AI</b> để không dừng quy trình. Bạn vẫn có thể xuất Word và chỉnh nhanh phần chữ đỏ nếu cần.`);
           }
@@ -1542,7 +1681,7 @@ ${lesson}
           try {
             updateProgress(92, "Gemini đang quá tải, chuyển sang chế độ dự phòng không AI...");
             await sleep(350);
-            const fallback = buildLocalFallbackData();
+            const fallback = normalizeInsertionTargets(buildLocalFallbackData());
             const canPreserveDocx = state.lessonFileType === "docx" && state.lessonDocxBuffer && state.lessonParagraphs.length && !els.manualLesson.value.trim();
             state.usedLocalFallback = true;
             if (canPreserveDocx) {
@@ -1653,8 +1792,7 @@ ${lesson}
         if (!target || !target.parentNode) continue;
         let cursor = target;
         for (const ins of groups.get(n)) {
-          const label = ins.place ? `${ins.place}: ` : "";
-          const text = normalizeNlsText(`${label}${ins.text}`);
+          const text = formatInsertionTextForDocx(ins);
           const newParagraphs = createRedParagraphs(xml, text);
           for (const p of newParagraphs) {
             cursor.parentNode.insertBefore(p, cursor.nextSibling);
@@ -1668,9 +1806,28 @@ ${lesson}
       return zip.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
     }
 
-    function normalizeNlsText(text) {
-      const clean = String(text || "").replace(/^\s*🔴\s*\[NLS\]\s*/i, "").replace(/^\s*\[NLS\]\s*/i, "").trim();
+    function cleanNlsPrefix(text) {
+      return String(text || "")
+        .replace(/^\s*🔴\s*\[NLS\]\s*/i, "")
+        .replace(/^\s*\[NLS\]\s*/i, "")
+        .replace(/^\s*(Mục tiêu cần đạt\s*>\s*Năng lực|Mục tiêu cần đạt|Hình thành kiến thức mới|Hoạt động dạy học phù hợp)\s*:\s*/i, "")
+        .trim();
+    }
+
+    function normalizeObjectiveNlsText(text) {
+      const clean = cleanNlsPrefix(text);
       return `Năng lực số: ${clean.replace(/^Năng lực số:\s*/i, "")}`;
+    }
+
+    function normalizeActivityNlsText(text) {
+      const clean = cleanNlsPrefix(text).replace(/^Năng lực số:\s*/i, "").trim();
+      if (/^(Hoạt động|Tổ chức thực hiện|GV|Giáo viên|Nhiệm vụ)/i.test(clean)) return clean;
+      return `Hoạt động tích hợp năng lực số: ${clean}`;
+    }
+
+    function formatInsertionTextForDocx(ins) {
+      if (isObjectiveInsertion(ins)) return normalizeObjectiveNlsText(ins.text);
+      return normalizeActivityNlsText(ins.text);
     }
 
     function createRedParagraphs(xml, text) {
