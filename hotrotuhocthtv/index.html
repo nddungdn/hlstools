@@ -444,7 +444,36 @@
 
     .rich b { font-weight: 850; }
     .rich i { color: var(--muted); }
-    .rich br { line-height: 1.8; }
+    .rich br { line-height: 1.35; }
+
+    /* Rút gọn khoảng cách dòng trong các khung nội dung */
+    .box .rich {
+      line-height: 1.35;
+    }
+
+    .box .rich p {
+      margin: 0 0 6px;
+      line-height: 1.35;
+    }
+
+    .box .rich p:last-child {
+      margin-bottom: 0;
+    }
+
+    .box .rich br {
+      line-height: 1.35;
+    }
+
+    .box .rich b,
+    .box .rich i {
+      line-height: inherit;
+    }
+
+    .box .rich img {
+      margin-top: 8px;
+      margin-bottom: 8px;
+    }
+
 
 
     .rich img,
